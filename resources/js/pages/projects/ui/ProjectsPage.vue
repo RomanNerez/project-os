@@ -2,10 +2,27 @@
 import { ref } from 'vue';
 import { Head } from '@inertiajs/vue3';
 import { AdminLayout } from '@/widgets/admin-layout';
-import { ProjectCard, useProjects, type Project, type ProjectDraft } from '@/entities/project';
+import { ProjectCard, type Project } from '@/entities/project';
 import { ProjectFormModal } from '@/features/project-form';
 
-const { projects, createProject, updateProject, removeProject } = useProjects();
+interface Props {
+  projects: {
+    data: Project[];
+    meta: {
+        include: string[],
+        pagination: {
+            count: number;
+            current_page: number;
+            links: {};
+            per_page: number;
+            total: number;
+            total_pages: number;
+        }
+    }
+  }
+}
+
+const props = defineProps<Props>();
 
 const isModalOpen = ref(false);
 const editingProject = ref<Project | null>(null);
@@ -18,14 +35,6 @@ function openCreate(): void {
 function openEdit(project: Project): void {
     editingProject.value = project;
     isModalOpen.value = true;
-}
-
-function handleSubmit(draft: ProjectDraft): void {
-    if (editingProject.value) {
-        updateProject(editingProject.value.id, draft);
-    } else {
-        createProject(draft);
-    }
 }
 </script>
 
@@ -41,13 +50,12 @@ function handleSubmit(draft: ProjectDraft): void {
         </template>
 
         <div class="flex h-full flex-col gap-4 p-4">
-            <div v-if="projects.length" class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            <div v-if="props.projects.data.length" class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                 <ProjectCard
-                    v-for="project in projects"
+                    v-for="project in props.projects.data"
                     :key="project.id"
                     :project="project"
                     @edit="openEdit(project)"
-                    @delete="removeProject(project.id)"
                 />
             </div>
 
@@ -57,7 +65,10 @@ function handleSubmit(draft: ProjectDraft): void {
                 <Button label="Створити перший проєкт" icon="pi pi-plus" text @click="openCreate" />
             </div>
 
-            <ProjectFormModal v-model:visible="isModalOpen" :project="editingProject" @submit="handleSubmit" />
+            <ProjectFormModal
+                v-model:visible="isModalOpen"
+                :project="editingProject"
+            />
         </div>
     </AdminLayout>
 </template>
