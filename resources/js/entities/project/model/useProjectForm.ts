@@ -12,11 +12,7 @@ export function useProjectForm(project: Ref<Project | null>, onDone: () => void)
         form.clearErrors();
     }, { immediate: true });
 
-    const isValid = computed(() => form.title.trim().length > 0);
-
     function submit(): void {
-        if (!isValid.value) return;
-
         const options = { onSuccess: onDone, preserveScroll: true };
 
         project.value
@@ -24,5 +20,5 @@ export function useProjectForm(project: Ref<Project | null>, onDone: () => void)
             : form.post(projectRoutes.store(), options);
     }
 
-    return { form, isValid, submit };
+    return { form, submit };
 }

@@ -1,4 +1,12 @@
-export type ProjectPriority = 'low' | 'medium' | 'high';
+export const PROJECT_STATUS = {
+    DRAFT: 'draft',
+    IN_PROGRESS: 'in_progress',
+    ON_HOLD: 'on_hold',
+    COMPLETED: 'completed',
+    CANCELLED: 'cancelled',
+} as const
+
+export type ProjectStatus = typeof PROJECT_STATUS[keyof typeof PROJECT_STATUS];
 
 export type ProjectID = number;
 
@@ -6,27 +14,29 @@ export interface Project {
     id: ProjectID;
     title: string;
     description: string;
-    status: string;
+    status: ProjectStatus;
     budget: number;
 }
 
 export type ProjectDraft = Omit<Project, 'id'>;
 
-export const PRIORITY_META: Record<ProjectPriority, { label: string; severity: 'secondary' | 'warn' | 'danger' }> = {
-    low: { label: 'Низький', severity: 'secondary' },
-    medium: { label: 'Середній', severity: 'warn' },
-    high: { label: 'Високий', severity: 'danger' },
+export const STATUS_META: Record<ProjectStatus, { label: string; severity: 'secondary' | 'warn' | 'danger' }> = {
+    draft: { label: 'Чернетка', severity: 'secondary' },
+    in_progress: { label: 'У процесі', severity: 'warn' },
+    on_hold: { label: 'На паузі', severity: 'danger' },
+    completed: { label: 'Завершено', severity: 'danger' },
+    cancelled: { label: 'Скасовано', severity: 'danger' },
 };
 
-export const PRIORITY_OPTIONS = (Object.keys(PRIORITY_META) as ProjectPriority[]).map((value) => ({
+export const STATUS_OPTIONS = (Object.keys(STATUS_META) as ProjectStatus[]).map((value) => ({
     value,
-    label: PRIORITY_META[value].label,
+    label: STATUS_META[value].label,
 }));
 
 export const emptyProjectDraft = (): ProjectDraft => ({
     title: '',
     description: '',
-    status: '',
+    status: PROJECT_STATUS.DRAFT,
     budget: 0,
 });
 

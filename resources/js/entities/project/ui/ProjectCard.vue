@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { PRIORITY_META, type Project } from '../model/types';
+import { STATUS_META, type Project } from '../model/types';
 
 const props = defineProps<{
     project: Project;
@@ -12,7 +12,7 @@ defineEmits<{
 }>();
 
 const initials = computed(() =>
-    props.project.name
+    props.project.title
         .split(' ')
         .filter(Boolean)
         .map((part) => part[0])
@@ -21,15 +21,13 @@ const initials = computed(() =>
         .toUpperCase(),
 );
 
-const activeUntilLabel = computed(() =>
-    props.project.activeUntil.toLocaleDateString('uk-UA', { day: 'numeric', month: 'long', year: 'numeric' }),
-);
+const activeUntilLabel = computed(() => '10 грудня 2026');
 
 const budgetLabel = computed(() =>
     new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(props.project.budget),
 );
 
-const priority = computed(() => PRIORITY_META[props.project.priority]);
+const status = computed(() => STATUS_META[props.project.status]);
 </script>
 
 <template>
@@ -39,10 +37,10 @@ const priority = computed(() => PRIORITY_META[props.project.priority]);
                 <div class="flex items-start gap-3">
                     <Avatar :label="initials" size="large" shape="circle" class="shrink-0" />
                     <div class="min-w-0 flex-1">
-                        <p class="truncate font-semibold">{{ project.name }}</p>
+                        <p class="truncate font-semibold">{{ project.title }}</p>
                         <p class="text-xs text-muted-color">Активний до {{ activeUntilLabel }}</p>
                     </div>
-                    <Tag :value="priority.label" :severity="priority.severity" />
+                    <Tag :value="status.label" :severity="status.severity" />
                 </div>
 
                 <p class="line-clamp-2 min-h-10 text-sm text-muted-color">{{ project.description }}</p>
@@ -50,9 +48,9 @@ const priority = computed(() => PRIORITY_META[props.project.priority]);
                 <div class="flex flex-col gap-2">
                     <div class="flex items-center justify-between text-sm">
                         <span class="text-muted-color">Прогрес</span>
-                        <span class="font-medium">{{ project.progress }}%</span>
+                        <span class="font-medium">50%</span>
                     </div>
-                    <ProgressBar :value="project.progress" :show-value="false" class="h-2!" />
+                    <ProgressBar :value="50" :show-value="false" class="h-2!" />
                 </div>
 
                 <div class="flex items-center justify-between border-t border-surface-200 pt-3 dark:border-surface-700">
