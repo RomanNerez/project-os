@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { STATUS_OPTIONS, type Project, useProjectForm } from '@/entities/project';
-import { ref } from 'vue';
+import { toRefs } from 'vue';
 
 const props = defineProps<{
     project: Project | null;
 }>();
 
-const project = ref(props.project);
+const { project } = toRefs(props)
+
 const visible = defineModel<boolean>('visible', { required: true });
 
 const {form, submit} = useProjectForm(project, () => { visible.value = false; })

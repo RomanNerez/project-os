@@ -3,24 +3,24 @@
 namespace App\Containers\AppSection\Project\UI\WEB\Controllers;
 
 use App\Containers\AppSection\Project\Actions\StoreProjectAction;
-use App\Containers\AppSection\Project\UI\WEB\Requests\StoreProjectRequest;
+use App\Containers\AppSection\Project\UI\WEB\Requests\UpdateProjectRequest;
 use App\Ship\Parents\Controllers\WebController;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Redirector;
 
-final class StoreProjectController extends WebController
+final class UpdateProjectController extends WebController
 {
     public function __construct(
         private readonly StoreProjectAction $action
     ) {}
 
     /**
-     * @param StoreProjectRequest $request
+     * @param UpdateProjectRequest $request
      * @return Redirector|RedirectResponse
      */
-    public function __invoke(StoreProjectRequest $request): Redirector|RedirectResponse
+    public function __invoke(UpdateProjectRequest $request, int $id): Redirector|RedirectResponse
     {
-        $this->action->run($request);
+        $this->action->run($request, $id);
         
         return to_route('projects.index');
     }

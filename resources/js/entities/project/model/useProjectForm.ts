@@ -1,4 +1,4 @@
-import { computed, watch, type Ref } from "vue";
+import { watch, type Ref } from "vue";
 import { emptyProjectDraft, toDraft, type Project, type ProjectDraft } from "./types";
 import { useForm } from "@inertiajs/vue3";
 import { projectRoutes } from "../api/projectRoutes";
