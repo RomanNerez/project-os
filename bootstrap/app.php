@@ -4,7 +4,7 @@ use Apiato\Foundation\Apiato;
 use Apiato\Http\Middleware\ProcessETag;
 use Apiato\Http\Middleware\ValidateJsonContent;
 use App\Containers\AppSection\Authentication\UI\WEB\Controllers\LoginController;
-use App\Containers\AppSection\Project\UI\WEB\Controllers\ProjectsController;
+use App\Containers\AppSection\Project\UI\WEB\Controllers\ListProjectsController;
 use App\Ship\Middleware\HandleInertiaRequests;
 use App\Ship\Middleware\ValidateAppId;
 use Illuminate\Foundation\Application;
@@ -36,7 +36,7 @@ return Application::configure(basePath: $basePath)
             HandleInertiaRequests::class,
         ]);
         $middleware->redirectUsersTo(static function (Request $request): string {
-            return action([ProjectsController::class, 'showList']);
+            return action(ListProjectsController::class);
         });
         $middleware->redirectGuestsTo(static function (Request $request): string {
             return action([LoginController::class, 'showForm']);

@@ -1,13 +1,12 @@
 export type ProjectPriority = 'low' | 'medium' | 'high';
 
+export type ProjectID = number;
+
 export interface Project {
-    id: number;
-    name: string;
+    id: ProjectID;
+    title: string;
     description: string;
-    activeUntil: Date;
-    priority: ProjectPriority;
-    /** Прогрес виконання, 0–100 */
-    progress: number;
+    status: string;
     budget: number;
 }
 
@@ -23,3 +22,17 @@ export const PRIORITY_OPTIONS = (Object.keys(PRIORITY_META) as ProjectPriority[]
     value,
     label: PRIORITY_META[value].label,
 }));
+
+export const emptyProjectDraft = (): ProjectDraft => ({
+    title: '',
+    description: '',
+    status: '',
+    budget: 0,
+});
+
+export const toDraft = (project: Project): ProjectDraft => ({
+    title: project.title,
+    description: project.description,
+    status: project.status,
+    budget: project.budget,
+});
