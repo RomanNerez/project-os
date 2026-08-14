@@ -36,6 +36,7 @@ function openEdit(project: Project): void {
     editingProject.value = project;
     isModalOpen.value = true;
 }
+
 </script>
 
 <template>

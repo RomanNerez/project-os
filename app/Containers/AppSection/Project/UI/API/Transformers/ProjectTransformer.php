@@ -17,6 +17,8 @@ final class ProjectTransformer extends ParentTransformer
             'id' => $project->id,
             'title' => $project->title,
             'description' => $project->description,
+            'status' => $project->status,
+            'budget' => $project->budget,
         ];
     }
 }

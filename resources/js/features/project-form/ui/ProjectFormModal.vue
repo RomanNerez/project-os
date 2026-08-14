@@ -1,36 +1,15 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-import { PRIORITY_OPTIONS, type Project, type ProjectDraft } from '@/entities/project';
-import { useForm } from '@inertiajs/vue3';
+import { STATUS_OPTIONS, type Project, useProjectForm } from '@/entities/project';
+import { ref } from 'vue';
 
 const props = defineProps<{
     project: Project | null;
 }>();
 
-const form = useForm<ProjectDraft>({
-    title: '',
-    description: '',
-    status: '',
-    budget: 0,
-})
-
+const project = ref(props.project);
 const visible = defineModel<boolean>('visible', { required: true });
 
-const isValid = computed(() => form.title.trim().length > 0);
-
-function submit(): void {
-    if (!isValid.value) return;
-
-    if (props.project) {
-        form.put(`/projects/${props.project.id}`, {
-            onSuccess: () => { visible.value = false; }
-        })
-    } else {
-        form.post('/projects', {
-            onSuccess: () => { visible.value = false; }
-        })
-    }    
-}
+const {form, submit} = useProjectForm(project, () => { visible.value = false; })
 </script>
 
 <template>
@@ -56,7 +35,7 @@ function submit(): void {
                 <Select
                     v-model="form.status"
                     label-id="project-priority"
-                    :options="PRIORITY_OPTIONS"
+                    :options="STATUS_OPTIONS"
                     option-label="label"
                     option-value="value"
                     fluid
@@ -70,7 +49,7 @@ function submit(): void {
 
             <div class="mt-2 flex justify-end gap-2">
                 <Button type="button" label="Скасувати" severity="secondary" text @click="visible = false" />
-                <Button type="submit" :label="project ? 'Зберегти' : 'Створити'" :disabled="!isValid" />
+                <Button type="submit" :label="project ? 'Зберегти' : 'Створити'" />
             </div>
         </form>
     </Dialog>
