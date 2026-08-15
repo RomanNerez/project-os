@@ -6,10 +6,13 @@ use App\Containers\AppSection\Project\Enums\ProjectStatus;
 use App\Ship\Parents\Requests\Request as ParentRequest;
 use Illuminate\Validation\Rules\Enum;
 
-final class StoreProjectRequest extends ParentRequest
+class CreateProjectRequest extends ParentRequest
 {
     protected array $decode = [];
 
+    /**
+     * @return array
+     */
     public function rules(): array
     {
         return [
