@@ -4,6 +4,7 @@ import { Head } from '@inertiajs/vue3';
 import { AdminLayout } from '@/widgets/admin-layout';
 import { ProjectCard, type Project } from '@/entities/project';
 import { ProjectFormModal } from '@/features/project-form';
+import { ProjectDeleteModal } from '@/features/project-delete';
 
 interface Props {
   projects: {
@@ -24,17 +25,23 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const isModalOpen = ref(false);
-const editingProject = ref<Project | null>(null);
+const isEditModalOpen = ref(false);
+const isDeleteModalOpen = ref(false);
+const selectedProject = ref<Project | null>(null);
 
 function openCreate(): void {
-    editingProject.value = null;
-    isModalOpen.value = true;
+    selectedProject.value = null;
+    isEditModalOpen.value = true;
 }
 
 function openEdit(project: Project): void {
-    editingProject.value = project;
-    isModalOpen.value = true;
+    selectedProject.value = project;
+    isEditModalOpen.value = true;
+}
+
+function openDelete(project: Project): void {
+    selectedProject.value = project;
+    isDeleteModalOpen.value = true;
 }
 
 </script>
@@ -57,6 +64,7 @@ function openEdit(project: Project): void {
                     :key="project.id"
                     :project="project"
                     @edit="openEdit(project)"
+                    @delete="openDelete(project)"
                 />
             </div>
 
@@ -67,8 +75,13 @@ function openEdit(project: Project): void {
             </div>
 
             <ProjectFormModal
-                v-model:visible="isModalOpen"
-                :project="editingProject"
+                v-model:visible="isEditModalOpen"
+                :project="selectedProject"
+            />
+
+            <ProjectDeleteModal
+                v-model:visible="isDeleteModalOpen"
+                :project="selectedProject"
             />
         </div>
     </AdminLayout>

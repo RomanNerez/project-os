@@ -5,6 +5,7 @@ import { projectRoutes } from "../api/projectRoutes";
 
 export function useProjectForm(project: Ref<Project | null>, onDone: () => void) {
     const form = useForm<ProjectDraft>(emptyProjectDraft());
+    const options = { onSuccess: onDone, preserveScroll: true };
 
     watch(project, (value) => {
         form.defaults(value ? toDraft(value) : emptyProjectDraft());
@@ -13,12 +14,16 @@ export function useProjectForm(project: Ref<Project | null>, onDone: () => void)
     }, { immediate: true });
 
     function submit(): void {
-        const options = { onSuccess: onDone, preserveScroll: true };
-
         project.value
             ? form.put(projectRoutes.update(project.value.id), options)
             : form.post(projectRoutes.store(), options);
+    };
+
+    function remove(): void {
+        if (!project.value) return;
+
+        form.delete(projectRoutes.destroy(project.value.id), options);
     }
 
-    return { form, submit };
+    return { form, submit, remove };
 }

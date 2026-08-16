@@ -19,6 +19,9 @@ final class ListProjectsTask extends ParentTask
      */
     public function run(): LengthAwarePaginator
     {
-        return $this->repository->addRequestCriteria()->paginate();
+        return $this->repository
+            ->addRequestCriteria()
+            ->orderBy('created_at', 'desc')
+            ->paginate();
     }
 }
