@@ -10,8 +10,23 @@ const props = defineProps<{
 const { project } = toRefs(props);
 
 const visible = defineModel<boolean>('visible', { required: true });
+const emit = defineEmits<{
+    done: [];
+    cancel: [];
+}>();
 
-const { form, remove } = useProjectForm(project, () => { visible.value = false; });
+const { form, remove } = useProjectForm(
+    project,
+    () => {
+        visible.value = false;
+        emit('done')
+    }
+);
+
+function cancel() {
+    visible.value = false;
+    emit('cancel')
+}
 </script>
 
 <template>
@@ -23,6 +38,7 @@ const { form, remove } = useProjectForm(project, () => { visible.value = false; 
         confirm-label="Видалити"
         :processing="form.processing"
         @confirm="remove"
+        @cancel="cancel"
     >
         Ви впевнені, що хочете видалити проєкт
         <span class="font-semibold">«{{ project?.title }}»</span>?

@@ -6,7 +6,7 @@ use App\Containers\AppSection\Project\Data\Repositories\ProjectRepository;
 use App\Containers\AppSection\Project\Models\Project;
 use App\Ship\Parents\Tasks\Task as ParentTask;
 
-final class UpdateOrCreateProjectTask extends ParentTask
+final class CreateProjectTask extends ParentTask
 {
     public function __construct(
         private readonly ProjectRepository $repository,
@@ -14,12 +14,11 @@ final class UpdateOrCreateProjectTask extends ParentTask
     }
 
     /**
-     * @param array<string, mixed> $attributes
-     * @param array<string, mixed> $values
+     * @param array<string, mixed> $data
      * @return Project
      */
-    public function run(array $attributes, array $values = []): Project
+    public function run(array $data): Project
     {
-        return $this->repository->updateOrCreate($attributes, $values);
+        return $this->repository->create($data);
     }
 }

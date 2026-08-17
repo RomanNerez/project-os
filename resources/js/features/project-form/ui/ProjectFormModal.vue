@@ -6,11 +6,28 @@ const props = defineProps<{
     project: Project | null;
 }>();
 
+const emit = defineEmits<{
+    done: [];
+    cancel: [];
+}>();
+
 const { project } = toRefs(props)
 
 const visible = defineModel<boolean>('visible', { required: true });
 
-const {form, submit} = useProjectForm(project, () => { visible.value = false; })
+const {form, submit, reset} = useProjectForm(
+    project,
+    () => {
+        emit('done')
+        visible.value = false;
+        reset()
+    }
+)
+
+function cancel() {
+    emit('cancel')
+    visible.value = false;
+}
 </script>
 
 <template>
@@ -49,7 +66,7 @@ const {form, submit} = useProjectForm(project, () => { visible.value = false; })
             </div>
 
             <div class="mt-2 flex justify-end gap-2">
-                <Button type="button" label="Скасувати" severity="secondary" text @click="visible = false" />
+                <Button type="button" label="Скасувати" severity="secondary" text @click="cancel" />
                 <Button type="submit" :label="project ? 'Зберегти' : 'Створити'" />
             </div>
         </form>

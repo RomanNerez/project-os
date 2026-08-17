@@ -77,11 +77,15 @@ function openDelete(project: Project): void {
             <ProjectFormModal
                 v-model:visible="isEditModalOpen"
                 :project="selectedProject"
+                @done="selectedProject = null"
+                @cancel="selectedProject = null"
             />
 
             <ProjectDeleteModal
                 v-model:visible="isDeleteModalOpen"
                 :project="selectedProject"
+                @done="selectedProject = null"
+                @cancel="selectedProject = null"
             />
         </div>
     </AdminLayout>

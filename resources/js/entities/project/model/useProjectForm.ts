@@ -7,11 +7,13 @@ export function useProjectForm(project: Ref<Project | null>, onDone: () => void)
     const form = useForm<ProjectDraft>(emptyProjectDraft());
     const options = { onSuccess: onDone, preserveScroll: true };
 
-    watch(project, (value) => {
-        form.defaults(value ? toDraft(value) : emptyProjectDraft());
+    function reset(): void {
+        form.defaults(project.value ? toDraft(project.value) : emptyProjectDraft());
         form.reset();
         form.clearErrors();
-    }, { immediate: true });
+    }
+
+    watch(project, reset, { immediate: true });
 
     function submit(): void {
         project.value
@@ -25,5 +27,5 @@ export function useProjectForm(project: Ref<Project | null>, onDone: () => void)
         form.delete(projectRoutes.destroy(project.value.id), options);
     }
 
-    return { form, submit, remove };
+    return { form, submit, remove, reset };
 }
