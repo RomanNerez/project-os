@@ -19,7 +19,8 @@ class CreateProjectRequest extends ParentRequest
             'title' => ['required', 'string', 'max:255'],
             'description' => ['required', 'string'],
             'status' => ['required', new Enum(ProjectStatus::class)],
-            'budget' => ['required']
+            'budget' => ['required'],
+            'active_until' => ['required', 'date'],
         ];
     }
 }

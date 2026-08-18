@@ -13,9 +13,11 @@ return new class() extends Migration
     {
         Schema::create('projects', static function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
             $table->string('title');
             $table->string('status', 32);
             $table->text('description');
+            $table->date('active_until')->nullable();
             $table->decimal('budget', 10, 2);
             $table->timestamps();
         });

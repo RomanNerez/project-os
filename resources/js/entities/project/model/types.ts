@@ -16,6 +16,7 @@ export interface Project {
     description: string;
     status: ProjectStatus;
     budget: number;
+    active_until: string | null;
 }
 
 export type ProjectDraft = Omit<Project, 'id'>;
@@ -38,6 +39,7 @@ export const emptyProjectDraft = (): ProjectDraft => ({
     description: '',
     status: PROJECT_STATUS.DRAFT,
     budget: 0,
+    active_until: null,
 });
 
 export const toDraft = (project: Project): ProjectDraft => ({
@@ -45,4 +47,5 @@ export const toDraft = (project: Project): ProjectDraft => ({
     description: project.description,
     status: project.status,
     budget: project.budget,
+    active_until: project.active_until,
 });

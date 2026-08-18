@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
+import { formatDateLong } from '@/shared/lib';
 import { STATUS_META, type Project } from '../model/types';
 
 const props = defineProps<{
@@ -21,7 +22,7 @@ const initials = computed(() =>
         .toUpperCase(),
 );
 
-const activeUntilLabel = computed(() => '10 грудня 2026');
+const activeUntilLabel = computed(() => formatDateLong(props.project.active_until));
 
 const budgetLabel = computed(() =>
     new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(props.project.budget),
@@ -38,7 +39,7 @@ const status = computed(() => STATUS_META[props.project.status]);
                     <Avatar :label="initials" size="large" shape="circle" class="shrink-0" />
                     <div class="min-w-0 flex-1">
                         <p class="truncate font-semibold">{{ project.title }}</p>
-                        <p class="text-xs text-muted-color">Активний до {{ activeUntilLabel }}</p>
+                        <p v-if="activeUntilLabel" class="text-xs text-muted-color">Активний до {{ activeUntilLabel }}</p>
                     </div>
                     <Tag :value="status.label" :severity="status.severity" />
                 </div>

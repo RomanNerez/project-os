@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { STATUS_OPTIONS, type Project, useProjectForm } from '@/entities/project';
-import { toRefs } from 'vue';
+import { parseDateValue, toDateValue } from '@/shared/lib';
+import { computed, toRefs } from 'vue';
 
 const props = defineProps<{
     project: Project | null;
@@ -23,6 +24,11 @@ const {form, submit, reset} = useProjectForm(
         reset()
     }
 )
+
+const activeUntil = computed({
+    get: () => parseDateValue(form.active_until),
+    set: (value: Date | null) => { form.active_until = toDateValue(value); },
+});
 
 function cancel() {
     emit('cancel')
@@ -63,6 +69,19 @@ function cancel() {
             <div class="flex flex-col gap-2">
                 <label for="project-budget" class="text-sm font-medium">Бюджет</label>
                 <InputNumber input-id="project-budget" v-model="form.budget" :min="0" mode="currency" currency="USD" locale="en-US" :max-fraction-digits="0" fluid />
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <label for="project-active-until" class="text-sm font-medium">Активний до</label>
+                <DatePicker
+                    input-id="project-active-until"
+                    v-model="activeUntil"
+                    date-format="dd.mm.yy"
+                    placeholder="Оберіть дату"
+                    show-icon
+                    icon-display="input"
+                    fluid
+                />
             </div>
 
             <div class="mt-2 flex justify-end gap-2">

@@ -19,6 +19,9 @@ final class CreateProjectAction extends ParentAction
      */
     public function run(CreateProjectRequest $request): Project
     {
-        return $this->createProjectTask->run($request->validated());
+        return $this->createProjectTask->run([
+            ...$request->validated(),
+            'user_id' => $request->user()->id,
+        ]);
     }
 }

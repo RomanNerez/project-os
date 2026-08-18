@@ -19,6 +19,7 @@ final class ProjectTransformer extends ParentTransformer
             'description' => $project->description,
             'status' => $project->status,
             'budget' => $project->budget,
+            'active_until' => $project->active_until?->toDateString(),
         ];
     }
 }
