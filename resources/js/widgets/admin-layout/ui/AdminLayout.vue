@@ -3,6 +3,7 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { Link, router, usePage } from '@inertiajs/vue3';
 import ChevronDown from '@primeicons/vue/chevron-down';
 import Folder from '@primeicons/vue/folder';
+import ListCheck from '@primeicons/vue/list-check';
 import Plus from '@primeicons/vue/plus';
 import SidebarIcon from '@primeicons/vue/sidebar';
 import type { BreadcrumbItem } from '../model/types';
@@ -59,25 +60,31 @@ onBeforeUnmount(() => {
         mql.removeEventListener('change', onMqlChange);
     }
 });
-const navGroups: {
+interface NavItem {
+    label: string;
+    icon: any;
+    href: string;
+    badge: boolean;
+    isActive: boolean;
+    subItems?: any[];
+}
+
+interface NavGroup {
     label: string;
     action: boolean;
-    items: {
-        label: string;
-        icon: any;
-        badge: boolean;
-        isActive?: boolean;
-        subItems?: any[]
-    }[]
-}[] = [
+    items: NavItem[];
+}
+
+const navGroups = computed<NavGroup[]>(() => [
     {
         label: '',
         action: false,
         items: [
-            { icon: Folder, label: 'Проєкти', badge: false }
+            { icon: Folder, label: 'Проєкти', href: '/projects', badge: false, isActive: page.url.startsWith('/projects') },
+            { icon: ListCheck, label: 'Задачі', href: '/tasks', badge: false, isActive: page.url.startsWith('/tasks') },
         ]
     },
-];
+]);
 </script>
 
 <template>
@@ -112,7 +119,7 @@ const navGroups: {
                             <SidebarGroupContent>
                                 <SidebarMenu>
                                     <SidebarMenuItem v-for="item in group.items" :key="item.label" :collapsible="!!item.subItems" :defaultOpen="item.subItems ? item.subItems.some((s) => s.isActive) : undefined">
-                                        <SidebarMenuButton :isActive="item.isActive">
+                                        <SidebarMenuButton :as="Link" :href="item.href" :isActive="item.isActive">
                                             <component :is="item.icon" />
                                             <span>{{ item.label }}</span>
                                             <ChevronDown v-if="item.subItems" class="ml-auto transition-transform duration-200 [[data-open]>&]:rotate-180" />
