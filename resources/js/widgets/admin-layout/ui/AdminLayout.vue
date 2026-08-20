@@ -163,10 +163,17 @@ const navGroups = computed<NavGroup[]>(() => [
                         v-if="title || description || breadcrumbs?.length || $slots.actions"
                         class="shrink-0 px-4 py-4 dark:border-surface-700 dark:bg-surface-900"
                     >
-                        <Breadcrumb v-if="breadcrumbs?.length" :model="breadcrumbs" />
                         <div class="flex flex-wrap items-center justify-between gap-3">
                             <div>
                                 <h1 v-if="title" class="text-2xl font-semibold">{{ title }}</h1>
+                                <Breadcrumb v-if="breadcrumbs?.length" :model="breadcrumbs" class="mb-2 p-0!">
+                                    <template #item="{ item, props: itemProps }">
+                                        <Link v-if="item.href" :href="item.href" v-bind="itemProps.action">
+                                            <span>{{ item.label }}</span>
+                                        </Link>
+                                        <span v-else v-bind="itemProps.action">{{ item.label }}</span>
+                                    </template>
+                                </Breadcrumb>
                                 <p v-if="description" class="mt-1 text-sm text-muted-color">{{ description }}</p>
                             </div>
                             <div v-if="$slots.actions" class="flex items-center gap-2">

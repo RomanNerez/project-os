@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue';
+import { Link } from '@inertiajs/vue3';
 import { formatDateLong } from '@/shared/lib';
+import { projectRoutes } from '../api/projectRoutes';
 import { STATUS_META, type Project } from '../model/types';
 
 const props = defineProps<{
@@ -38,7 +40,9 @@ const status = computed(() => STATUS_META[props.project.status]);
                 <div class="flex items-start gap-3">
                     <Avatar :label="initials" size="large" shape="circle" class="shrink-0" />
                     <div class="min-w-0 flex-1">
-                        <p class="truncate font-semibold">{{ project.title }}</p>
+                        <Link :href="projectRoutes.show(project.id)" class="block truncate font-semibold hover:underline">
+                            {{ project.title }}
+                        </Link>
                         <p v-if="activeUntilLabel" class="text-xs text-muted-color">Активний до {{ activeUntilLabel }}</p>
                     </div>
                     <Tag :value="status.label" :severity="status.severity" />
