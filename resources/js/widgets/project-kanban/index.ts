@@ -1,0 +1,1 @@
+export { default as ProjectKanban } from './ui/ProjectKanban.vue';

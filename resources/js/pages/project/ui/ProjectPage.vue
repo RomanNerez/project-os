@@ -3,16 +3,23 @@ import { computed } from 'vue';
 import { Head } from '@inertiajs/vue3';
 import { AdminLayout, type BreadcrumbItem } from '@/widgets/admin-layout';
 import { STATUS_META, projectRoutes, type Project } from '@/entities/project';
+import { type Task } from '@/entities/task';
+import { ProjectKanban } from '@/widgets/project-kanban';
 
 interface Props {
     project: {
         data: Project;
+    };
+    tasks: {
+        data: Task[];
     };
 }
 
 const props = defineProps<Props>();
 
 const project = computed(() => props.project.data);
+
+const tasks = computed(() => props.tasks.data);
 
 const status = computed(() => STATUS_META[project.value.status]);
 
@@ -35,10 +42,7 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
         </template>
 
         <div class="flex h-full flex-col gap-4 p-4">
-            <div class="flex flex-1 flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-gray-300 py-16 dark:border-gray-600">
-                <i class="pi pi-table text-3xl text-gray-500"></i>
-                <p class="text-gray-500">Тут буде Kanban-дошка</p>
-            </div>
+            <ProjectKanban :tasks="tasks" />
         </div>
     </AdminLayout>
 </template>
