@@ -47,7 +47,7 @@ function openDelete(task: Task): void {
             <Button label="Нова задача" icon="pi pi-plus" :disabled="!props.projects.length" @click="openCreate" />
         </template>
 
-        <div class="flex h-full flex-col gap-4 p-4">
+        <div class="flex h-full flex-col gap-4">
             <div v-if="props.tasks.data.length" class="flex flex-col gap-2">
                 <TaskCard
                     v-for="task in props.tasks.data"

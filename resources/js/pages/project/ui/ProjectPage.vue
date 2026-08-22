@@ -41,7 +41,7 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
             <Tag :value="status.label" :severity="status.severity" />
         </template>
 
-        <div class="flex h-full flex-col gap-4 p-4">
+        <div class="flex h-full flex-col gap-4">
             <ProjectKanban :tasks="tasks" />
         </div>
     </AdminLayout>

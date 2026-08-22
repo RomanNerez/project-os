@@ -6,6 +6,7 @@ import Folder from '@primeicons/vue/folder';
 import ListCheck from '@primeicons/vue/list-check';
 import Plus from '@primeicons/vue/plus';
 import SidebarIcon from '@primeicons/vue/sidebar';
+import Stopwatch from '@primeicons/vue/stopwatch';
 import type { BreadcrumbItem } from '../model/types';
 
 defineProps<{
@@ -82,6 +83,7 @@ const navGroups = computed<NavGroup[]>(() => [
         items: [
             { icon: Folder, label: 'Проєкти', href: '/projects', badge: false, isActive: page.url.startsWith('/projects') },
             { icon: ListCheck, label: 'Задачі', href: '/tasks', badge: false, isActive: page.url.startsWith('/tasks') },
+            { icon: Stopwatch, label: 'Трекер часу', href: '/time-tracker', badge: false, isActive: page.url.startsWith('/time-tracker') },
         ]
     },
 ]);
@@ -158,29 +160,29 @@ const navGroups = computed<NavGroup[]>(() => [
                 <Menu ref="userMenu" :model="userMenuItems" :popup="true" />
             </header>
             <div class="min-h-0 flex-1 overflow-y-auto p-4 flex flex-col gap-4">
-                <div class="rounded-lg bg-surface-100 dark:bg-surface-800 flex-1 min-h-0">
-                    <div
-                        v-if="title || description || breadcrumbs?.length || $slots.actions"
-                        class="shrink-0 px-4 py-4 dark:border-surface-700 dark:bg-surface-900"
-                    >
-                        <div class="flex flex-wrap items-center justify-between gap-3">
-                            <div>
-                                <h1 v-if="title" class="text-2xl font-semibold">{{ title }}</h1>
-                                <Breadcrumb v-if="breadcrumbs?.length" :model="breadcrumbs" class="mb-2 p-0!">
-                                    <template #item="{ item, props: itemProps }">
-                                        <Link v-if="item.href" :href="item.href" v-bind="itemProps.action">
-                                            <span>{{ item.label }}</span>
-                                        </Link>
-                                        <span v-else v-bind="itemProps.action">{{ item.label }}</span>
-                                    </template>
-                                </Breadcrumb>
-                                <p v-if="description" class="mt-1 text-sm text-muted-color">{{ description }}</p>
-                            </div>
-                            <div v-if="$slots.actions" class="flex items-center gap-2">
-                                <slot name="actions"></slot>
-                            </div>
+                <div
+                    v-if="title || description || breadcrumbs?.length || $slots.actions"
+                    class="shrink-0 rounded-lg border border-[var(--p-content-border-color)] bg-[var(--p-content-background)] px-4 py-4 shadow-sm"
+                >
+                    <div class="flex flex-wrap items-center justify-between gap-3">
+                        <div>
+                            <h1 v-if="title" class="text-2xl font-semibold">{{ title }}</h1>
+                            <Breadcrumb v-if="breadcrumbs?.length" :model="breadcrumbs" class="mb-2 p-0!">
+                                <template #item="{ item, props: itemProps }">
+                                    <Link v-if="item.href" :href="item.href" v-bind="itemProps.action">
+                                        <span>{{ item.label }}</span>
+                                    </Link>
+                                    <span v-else v-bind="itemProps.action">{{ item.label }}</span>
+                                </template>
+                            </Breadcrumb>
+                            <p v-if="description" class="mt-1 text-sm text-muted-color">{{ description }}</p>
+                        </div>
+                        <div v-if="$slots.actions" class="flex items-center gap-2">
+                            <slot name="actions"></slot>
                         </div>
                     </div>
+                </div>
+                <div class="min-h-0 flex-1">
                     <slot></slot>
                 </div>
             </div>
