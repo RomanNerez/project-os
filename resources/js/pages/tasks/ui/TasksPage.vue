@@ -3,7 +3,8 @@ import { ref } from 'vue';
 import { Head } from '@inertiajs/vue3';
 import { AdminLayout } from '@/widgets/admin-layout';
 import { TaskCard, type Task, type TaskAssignee, type TaskProject } from '@/entities/task';
-import { TaskFormModal } from '@/features/task-form';
+import { TaskCreateFormModal } from '@/features/task-create-form';
+import { TaskEditFormModal } from '@/features/task-edit-form';
 import { TaskDeleteModal } from '@/features/task-delete';
 
 interface Props {
@@ -16,13 +17,14 @@ interface Props {
 
 const props = defineProps<Props>();
 
+const isCreateModalOpen = ref(false);
 const isEditModalOpen = ref(false);
 const isDeleteModalOpen = ref(false);
 const selectedTask = ref<Task | null>(null);
 
 function openCreate(): void {
     selectedTask.value = null;
-    isEditModalOpen.value = true;
+    isCreateModalOpen.value = true;
 }
 
 function openEdit(task: Task): void {
@@ -71,7 +73,16 @@ function openDelete(task: Task): void {
                 <p v-else class="text-sm text-gray-500">Спершу створіть проєкт — задача має належати проєкту</p>
             </div>
 
-            <TaskFormModal
+            <TaskCreateFormModal
+                v-model:visible="isCreateModalOpen"
+                :task="selectedTask"
+                :projects="props.projects"
+                :assignees="props.assignees"
+                @done="selectedTask = null"
+                @cancel="selectedTask = null"
+            />
+
+            <TaskEditFormModal
                 v-model:visible="isEditModalOpen"
                 :task="selectedTask"
                 :projects="props.projects"
