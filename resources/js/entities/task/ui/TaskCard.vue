@@ -4,6 +4,8 @@ import { STATUS_META, type Task } from '../model/types';
 
 const props = defineProps<{
     task: Task;
+    assigneeName?: string;
+    projectTitle?: string;
 }>();
 
 defineEmits<{
@@ -14,7 +16,7 @@ defineEmits<{
 const status = computed(() => STATUS_META[props.task.status]);
 
 const assigneeInitials = computed(() =>
-    (props.task.assignee?.name ?? '')
+    (props.assigneeName ?? '')
         .split(' ')
         .filter(Boolean)
         .map((part) => part[0])
@@ -32,22 +34,22 @@ const assigneeInitials = computed(() =>
         </div>
 
         <Tag
-            v-if="task.project"
-            :value="task.project.title"
+            v-if="projectTitle"
+            :value="projectTitle"
             severity="secondary"
             class="hidden shrink-0 md:inline-flex"
         />
 
         <div class="hidden w-44 shrink-0 items-center gap-2 lg:flex">
             <Avatar
-                v-if="task.assignee"
+                v-if="assigneeName"
                 :label="assigneeInitials"
                 shape="circle"
                 class="size-7 shrink-0 text-xs"
             />
             <Avatar v-else icon="pi pi-user" shape="circle" class="size-7 shrink-0 text-xs" />
-            <span class="truncate text-sm" :class="{ 'text-gray-500 dark:text-gray-400': !task.assignee }">
-                {{ task.assignee?.name ?? 'Не призначено' }}
+            <span class="truncate text-sm" :class="{ 'text-gray-500 dark:text-gray-400': !assigneeName }">
+                {{ assigneeName ?? 'Не призначено' }}
             </span>
         </div>
 

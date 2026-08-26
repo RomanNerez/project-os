@@ -1,0 +1,1 @@
+export { default as MediaDeleteModal } from './ui/MediaDeleteModal.vue';

@@ -1,16 +1,23 @@
 <script setup lang="ts">
-import { toRefs } from 'vue';
-import { STATUS_OPTIONS, useTaskForm, type Task, type TaskAssignee, type TaskProject } from '@/entities/task';
-import Comments from './Comments.vue';
 import Code from '@primeicons/vue/code';
+import { STATUS_OPTIONS, useTaskForm, type Task, type TaskAssignee, type TaskProject } from '@/entities/task';
+import { MediaPreview, type Media } from '@/entities/media';
+import { TaskUploadFiles } from '@/features/task-upload-files';
 import { FormEditor, FormSelect, FormText } from '@/shared/ui';
-import UploadFiles from './UploadFiles.vue';
+import { computed, ref, toRefs } from 'vue';
+import { MediaDeleteModal } from '@/features/media-delete';
 
 const props = defineProps<{
     task: Task | null;
+    media: Media[];
     projects: TaskProject[];
     assignees: TaskAssignee[];
 }>();
+
+const selectedMedia = ref<Media | null>(null);
+const isMediaModalVisible = computed(() => !!selectedMedia.value);
+
+const visible = defineModel<boolean>('visible', { required: true });
 
 const emit = defineEmits<{
     done: [];
@@ -18,8 +25,6 @@ const emit = defineEmits<{
 }>();
 
 const { task } = toRefs(props);
-
-const visible = defineModel<boolean>('visible', { required: true });
 
 const { form, submit, reset } = useTaskForm(
     task,
@@ -34,6 +39,7 @@ function cancel() {
     emit('cancel');
     visible.value = false;
 }
+
 </script>
 
 <template>
@@ -42,7 +48,7 @@ function cancel() {
         modal
         header="Редагувати задачу"
         class="overflow-hidden"
-        :style="{ width: '70%' }"
+        :style="{ width: '90%' }"
         :pt="{ content: { class: 'overflow-hidden flex-1 flex flex-col !px-4' } }"
     >
         <form class="grid grid-cols-3 gap-2 h-full overflow-hidden">
@@ -64,9 +70,33 @@ function cancel() {
                     :message="form.errors.description"
                 />
 
-                <UploadFiles />
+                <TaskUploadFiles
+                    v-if="task?.id"
+                    :task-id="task?.id"
+                />
 
-                <Tabs value="tab1">
+                <div v-if="media.length > 0" >
+                    <div class="grid grid-flow-col auto-cols-[120px] gap-2 overflow-x-auto w-full">
+                        <MediaPreview
+                            v-for="(m, i) of media" 
+                            :key="m.id"
+                            :file-name="m.file_name"
+                            :url="m.preview_url"
+                            :size="m.size"
+                            @on-remove="selectedMedia = m"
+                        />
+                    </div>
+
+                    <MediaDeleteModal
+                        v-model:visible="isMediaModalVisible"
+                        :media-id="selectedMedia?.id ?? 0"
+                        :file-name="selectedMedia?.file_name ?? ''"
+                        @done="selectedMedia = null"
+                        @cancel="selectedMedia = null"
+                    />
+                </div>
+
+                <!-- <Tabs value="tab1">
                     <TabList>
                         <Tab value="tab1" class="flex items-center gap-2!">
                             <Code />
@@ -80,7 +110,7 @@ function cancel() {
                             <Comments />
                         </TabPanel>
                     </TabPanels>
-                </Tabs>
+                </Tabs> -->
             </div>
 
             <div class="col-span-1 flex flex-col gap-2">

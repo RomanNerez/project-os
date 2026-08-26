@@ -1,3 +1,5 @@
+import type { IncludedData } from "@/shared/types";
+
 export const TASK_STATUS = {
     TODO: 'todo',
     IN_PROGRESS: 'in_progress',
@@ -25,8 +27,14 @@ export interface Task {
     title: string;
     description: string;
     status: TaskStatus;
-    project: TaskProject | null;
-    assignee: TaskAssignee | null;
+    project_id: number | null;
+    assignee_id: number | null;
+}
+
+export interface TaskIncludes<TMedia = null, TProject = null, TAssignee = null> extends Task {
+    media: IncludedData<TMedia>;
+    project: IncludedData<TProject>;
+    assignee: IncludedData<TAssignee>;
 }
 
 /**
@@ -68,6 +76,6 @@ export const toDraft = (task: Task): TaskDraft => ({
     title: task.title,
     description: task.description,
     status: task.status,
-    project_id: task.project?.id ?? null,
-    assignee_id: task.assignee?.id ?? null,
+    project_id: task.project_id ?? null,
+    assignee_id: task.assignee_id ?? null,
 });

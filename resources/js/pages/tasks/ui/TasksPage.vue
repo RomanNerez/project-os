@@ -1,16 +1,17 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { Head } from '@inertiajs/vue3';
 import { AdminLayout } from '@/widgets/admin-layout';
-import { TaskCard, type Task, type TaskAssignee, type TaskProject } from '@/entities/task';
+import { TaskCard, type TaskAssignee, type TaskProject } from '@/entities/task';
 import { TaskCreateFormModal } from '@/features/task-create-form';
-import { TaskEditFormModal } from '@/features/task-edit-form';
 import { TaskDeleteModal } from '@/features/task-delete';
+import type { TaskProp } from '../model/types';
+import type { PaginatedServerData } from '@/shared/types';
+import { EmptyList } from '@/shared/ui';
+import TaskEditFormModal from '@/widgets/task-edit-form-modal/ui/TaskEditFormModal.vue';
 
 interface Props {
-    tasks: {
-        data: Task[];
-    };
+    tasks: PaginatedServerData<TaskProp[]>;
     projects: TaskProject[];
     assignees: TaskAssignee[];
 }
@@ -20,20 +21,21 @@ const props = defineProps<Props>();
 const isCreateModalOpen = ref(false);
 const isEditModalOpen = ref(false);
 const isDeleteModalOpen = ref(false);
-const selectedTask = ref<Task | null>(null);
+const selectedTaskId = ref<number | null>(null);
+const selectedTask = computed<TaskProp | null>(() => props.tasks.data.find(t => t.id === selectedTaskId.value) || null);
 
 function openCreate(): void {
-    selectedTask.value = null;
+    selectedTaskId.value = null;
     isCreateModalOpen.value = true;
 }
 
-function openEdit(task: Task): void {
-    selectedTask.value = task;
+function openEdit(task: TaskProp): void {
+    selectedTaskId.value = task.id;
     isEditModalOpen.value = true;
 }
 
-function openDelete(task: Task): void {
-    selectedTask.value = task;
+function openDelete(task: TaskProp): void {
+    selectedTaskId.value = task.id;
     isDeleteModalOpen.value = true;
 }
 </script>
@@ -55,23 +57,21 @@ function openDelete(task: Task): void {
                     v-for="task in props.tasks.data"
                     :key="task.id"
                     :task="task"
+                    :assignee-name="task.assignee.data.name"
+                    :project-title="task.project.data.title"
                     @edit="openEdit(task)"
                     @delete="openDelete(task)"
                 />
             </div>
 
-            <div v-else class="flex flex-col items-center gap-3 rounded-lg border border-dashed border-gray-300 py-16 dark:border-gray-600">
-                <i class="pi pi-check-square text-3xl text-gray-500"></i>
-                <p class="text-gray-500">Задач поки немає</p>
-                <Button
-                    v-if="props.projects.length"
-                    label="Створити першу задачу"
-                    icon="pi pi-plus"
-                    text
-                    @click="openCreate"
-                />
-                <p v-else class="text-sm text-gray-500">Спершу створіть проєкт — задача має належати проєкту</p>
-            </div>
+            <EmptyList
+                v-else
+                icon-class="pi-check-square"
+                decription="Задач поки немає"
+                button-label="Створити першу задачу"
+                :show-action="!!props.projects.length"
+                @on-handler="openCreate"
+            />
 
             <TaskCreateFormModal
                 v-model:visible="isCreateModalOpen"
@@ -85,6 +85,7 @@ function openDelete(task: Task): void {
             <TaskEditFormModal
                 v-model:visible="isEditModalOpen"
                 :task="selectedTask"
+                :media="selectedTask?.media.data ?? []"
                 :projects="props.projects"
                 :assignees="props.assignees"
                 @done="selectedTask = null"

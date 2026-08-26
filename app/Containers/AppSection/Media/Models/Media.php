@@ -2,10 +2,15 @@
 
 namespace App\Containers\AppSection\Media\Models;
 
-use App\Ship\Parents\Models\Model as ParentModel;
+use Spatie\MediaLibrary\MediaCollections\Models\Media as BaseMedia;
 
-final class Media extends ParentModel
+final class Media extends BaseMedia
 {
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
     protected $fillable = [
         'model_type',
         'model_id',

@@ -1,0 +1,1 @@
+export { default as TaskUploadFiles } from './ui/TaskUploadFiles.vue'

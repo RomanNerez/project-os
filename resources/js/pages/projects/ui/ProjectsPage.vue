@@ -5,6 +5,7 @@ import { AdminLayout } from '@/widgets/admin-layout';
 import { ProjectCard, type Project } from '@/entities/project';
 import { ProjectFormModal } from '@/features/project-form';
 import { ProjectDeleteModal } from '@/features/project-delete';
+import { EmptyList } from '@/shared/ui';
 
 interface Props {
   projects: {
@@ -68,11 +69,13 @@ function openDelete(project: Project): void {
                 />
             </div>
 
-            <div v-else class="flex flex-col items-center gap-3 rounded-lg border border-dashed border-surface-300 py-16 dark:border-surface-600">
-                <i class="pi pi-folder-open text-3xl text-muted-color"></i>
-                <p class="text-muted-color">Проєктів поки немає</p>
-                <Button label="Створити перший проєкт" icon="pi pi-plus" text @click="openCreate" />
-            </div>
+            <EmptyList
+                v-else
+                icon-class="pi-folder-open"
+                decription="Проєктів поки немає"
+                button-label="Створити перший проєкт"
+                @on-handler="openCreate"
+            />
 
             <ProjectFormModal
                 v-model:visible="isEditModalOpen"

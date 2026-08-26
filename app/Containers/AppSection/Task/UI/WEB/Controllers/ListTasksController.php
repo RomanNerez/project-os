@@ -28,9 +28,12 @@ final class ListTasksController extends WebController
     public function __invoke(ListTasksRequest $request): Response
     {
         $tasks = $this->action->run();
+        $tasks = fractal($tasks, new TaskTransformer())
+            ->parseIncludes(['project', 'assignee', 'media'])
+            ->toArray();
 
         return Inertia::render('tasks', [
-            'tasks' => fractal($tasks, new TaskTransformer())->toArray(),
+            'tasks' => $tasks,
             'projects' => $this->listAllProjectsAction->run()
                 ->map(static fn (Project $project): array => [
                     'id' => $project->id,

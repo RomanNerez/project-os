@@ -49,8 +49,9 @@ function cancel(): void {
         v-model:visible="visible"
         modal
         :header="header"
-        :closable="!processing"
+        :closable="false"
         class="w-full max-w-md"
+        @hide="cancel"
     >
         <div class="flex items-start gap-3">
             <i v-if="icon" :class="[icon, iconColor]" class="text-2xl"></i>

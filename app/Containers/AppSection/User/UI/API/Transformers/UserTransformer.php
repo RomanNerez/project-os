@@ -20,8 +20,7 @@ class UserTransformer extends ParentTransformer
     public function transform(User $user): array
     {
         return [
-            'type' => $user->getResourceKey(),
-            'id' => $user->getHashedKey(),
+            'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
             'email_verified_at' => $user->email_verified_at,
