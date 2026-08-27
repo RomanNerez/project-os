@@ -37,11 +37,6 @@ const iconColor = computed(() => {
             return 'text-primary';
     }
 });
-
-function cancel(): void {
-    emit('cancel');
-    visible.value = false;
-}
 </script>
 
 <template>
@@ -51,7 +46,7 @@ function cancel(): void {
         :header="header"
         :closable="false"
         class="w-full max-w-md"
-        @hide="cancel"
+        @hide="$emit('cancel')"
     >
         <div class="flex items-start gap-3">
             <i v-if="icon" :class="[icon, iconColor]" class="text-2xl"></i>
@@ -67,14 +62,14 @@ function cancel(): void {
                 severity="secondary"
                 text
                 :disabled="processing"
-                @click="cancel"
+                @click="$emit('cancel')"
             />
             <Button
                 type="button"
                 :label="confirmLabel"
                 :severity="severity"
                 :loading="processing"
-                @click="emit('confirm')"
+                @click="$emit('confirm')"
             />
         </div>
     </Dialog>

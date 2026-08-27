@@ -9,10 +9,7 @@ const props = defineProps<{
     assignees: TaskAssignee[];
 }>();
 
-const emit = defineEmits<{
-    done: [];
-    cancel: [];
-}>();
+const emit = defineEmits(['onDone', 'onCancel']);
 
 const { task } = toRefs(props);
 
@@ -21,16 +18,10 @@ const visible = defineModel<boolean>('visible', { required: true });
 const { form, submit, reset } = useTaskForm(
     task,
     () => {
-        emit('done');
-        visible.value = false;
+        emit('onDone');
         reset()
     },
 );
-
-function cancel() {
-    emit('cancel');
-    visible.value = false;
-}
 </script>
 
 <template>
@@ -97,7 +88,13 @@ function cancel() {
         </form>
         <template #footer>
             <div class="mt-2 flex justify-end gap-2">
-                <Button type="button" label="Скасувати" severity="secondary" text :disabled="form.processing" @click="cancel" />
+                <Button
+                    type="button"
+                    label="Скасувати"
+                    severity="secondary"
+                    text :disabled="form.processing"
+                    @click="$emit('onCancel')"
+                />
                 <Button type="button" label="Створити" :loading="form.processing" @click="submit" />
             </div>
         </template>

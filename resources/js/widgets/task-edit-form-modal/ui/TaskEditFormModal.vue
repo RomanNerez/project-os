@@ -19,27 +19,17 @@ const isMediaModalVisible = computed(() => !!selectedMedia.value);
 
 const visible = defineModel<boolean>('visible', { required: true });
 
-const emit = defineEmits<{
-    done: [];
-    cancel: [];
-}>();
+const emit = defineEmits(['onDone', 'onCancel']);
 
 const { task } = toRefs(props);
 
 const { form, submit, reset } = useTaskForm(
     task,
     () => {
-        emit('done');
-        visible.value = false;
+        emit('onDone');
         reset()
     },
 );
-
-function cancel() {
-    emit('cancel');
-    visible.value = false;
-}
-
 </script>
 
 <template>
@@ -86,15 +76,15 @@ function cancel() {
                             @on-remove="selectedMedia = m"
                         />
                     </div>
-
-                    <MediaDeleteModal
-                        v-model:visible="isMediaModalVisible"
-                        :media-id="selectedMedia?.id ?? 0"
-                        :file-name="selectedMedia?.file_name ?? ''"
-                        @done="selectedMedia = null"
-                        @cancel="selectedMedia = null"
-                    />
                 </div>
+
+                <MediaDeleteModal
+                    v-model:visible="isMediaModalVisible"
+                    :media-id="selectedMedia?.id ?? 0"
+                    :file-name="selectedMedia?.file_name ?? ''"
+                    @on-done="selectedMedia = null"
+                    @on-cancel="selectedMedia = null"
+                />
 
                 <!-- <Tabs value="tab1">
                     <TabList>
@@ -150,7 +140,14 @@ function cancel() {
         </form>
         <template #footer>
             <div class="mt-2 flex justify-end gap-2">
-                <Button type="button" label="Скасувати" severity="secondary" text :disabled="form.processing" @click="cancel" />
+                <Button
+                    type="button"
+                    label="Скасувати"
+                    severity="secondary"
+                    text
+                    :disabled="form.processing"
+                    @click="$emit('onCancel');"
+                />
                 <Button type="button" label="Зберегти" :loading="form.processing" @click="submit" />
             </div>
         </template>

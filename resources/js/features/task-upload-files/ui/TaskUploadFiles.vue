@@ -99,7 +99,7 @@
         <EmptyList
           v-if="allMedia.length === 0"
           class="py-10"
-          decription="Зображення ще не додано чи завантажено."
+          decription="Перетягніть сюди файли..."
           :show-action="false"
         />
       </template>

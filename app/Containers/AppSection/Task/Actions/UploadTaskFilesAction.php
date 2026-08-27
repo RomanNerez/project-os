@@ -22,7 +22,9 @@ final class UploadTaskFilesAction extends ParentAction
         $task = $this->findTaskByIdTask->run($id);
 
         $task
-            ->addMediaFromRequest('files')
-            ->toMediaCollection();
+            ->addMultipleMediaFromRequest(['files'])
+            ->each(function ($fileAdder) {
+                $fileAdder->toMediaCollection();
+            });
     }
 }

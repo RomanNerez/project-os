@@ -7,27 +7,13 @@ const props = defineProps<{
     task: Task | null;
 }>();
 
-const emit = defineEmits<{
-    done: [];
-    cancel: [];
-}>();
+const emit = defineEmits(['onDone', 'onCancel']);
 
 const { task } = toRefs(props);
 
 const visible = defineModel<boolean>('visible', { required: true });
 
-const { form, remove } = useTaskForm(
-    task,
-    () => {
-        emit('done');
-        visible.value = false;
-    },
-);
-
-function cancel() {
-    emit('cancel');
-    visible.value = false;
-}
+const { form, remove } = useTaskForm(task, () => emit('onDone'));
 </script>
 
 <template>
@@ -39,7 +25,7 @@ function cancel() {
         confirm-label="Видалити"
         :processing="form.processing"
         @confirm="remove"
-        @cancel="cancel"
+        @cancel="$emit('onCancel')"
     >
         Ви впевнені, що хочете видалити задачу
         <span class="font-semibold">«{{ task?.title }}»</span>?

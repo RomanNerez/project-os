@@ -14,7 +14,8 @@ final class UploadTaskFilesRequest extends ParentRequest
     public function rules(): array
     {
         return [
-            'files' => ['required'],
+            'files'   => ['required', 'array'],
+            'files.*' => ['file'],
         ];
     }
 }

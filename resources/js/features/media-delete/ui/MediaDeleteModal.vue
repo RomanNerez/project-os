@@ -9,25 +9,14 @@ const props = defineProps<{
 }>();
 
 const visible = defineModel<boolean>('visible', { required: true });
-const emit = defineEmits<{
-    done: [];
-    cancel: [];
-}>();
+const emit = defineEmits(['onDone', 'onCancel']);
 
-const {isDeleting, destroy} = useMediaDelete();
+const { isDeleting, destroy } = useMediaDelete();
 
 function remove() {
     destroy(props.mediaId, {
-        onSuccess: () => {
-            visible.value = false;
-            emit('done');
-        }
+        onSuccess: () => emit('onDone')
     });
-}
-
-function cancel() {
-    visible.value = false;
-    emit('cancel');
 }
 </script>
 
@@ -40,7 +29,7 @@ function cancel() {
         confirm-label="Видалити"
         :processing="isDeleting"
         @confirm="remove"
-        @cancel="cancel"
+        @cancel="$emit('onCancel')"
     >
         Ви впевнені, що хочете видалити файл
         <span class="font-semibold">«{{ fileName }}»</span>?

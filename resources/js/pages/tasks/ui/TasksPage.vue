@@ -78,8 +78,14 @@ function openDelete(task: TaskProp): void {
                 :task="selectedTask"
                 :projects="props.projects"
                 :assignees="props.assignees"
-                @done="selectedTask = null"
-                @cancel="selectedTask = null"
+                @on-done="() => {
+                    selectedTaskId = null;
+                    isCreateModalOpen = false;
+                }"
+                @cancel="() => {
+                    selectedTaskId = null;
+                    isCreateModalOpen = false;
+                }"
             />
 
             <TaskEditFormModal
@@ -88,15 +94,27 @@ function openDelete(task: TaskProp): void {
                 :media="selectedTask?.media.data ?? []"
                 :projects="props.projects"
                 :assignees="props.assignees"
-                @done="selectedTask = null"
-                @cancel="selectedTask = null"
+                @on-done="() => {
+                    selectedTaskId = null;
+                    isEditModalOpen = false;
+                }"
+                @on-cancel="() => {
+                    selectedTaskId = null;
+                    isEditModalOpen = false;
+                }"
             />
 
             <TaskDeleteModal
                 v-model:visible="isDeleteModalOpen"
                 :task="selectedTask"
-                @done="selectedTask = null"
-                @cancel="selectedTask = null"
+                @on-done="() => {
+                    selectedTaskId = null;
+                    isDeleteModalOpen = false;
+                }"
+                @on-cancel="() => {
+                    selectedTaskId = null;
+                    isDeleteModalOpen = false;
+                }"
             />
         </div>
     </AdminLayout>
