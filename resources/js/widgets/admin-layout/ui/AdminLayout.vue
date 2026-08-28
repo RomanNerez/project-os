@@ -8,6 +8,7 @@ import Plus from '@primeicons/vue/plus';
 import SidebarIcon from '@primeicons/vue/sidebar';
 import Stopwatch from '@primeicons/vue/stopwatch';
 import type { BreadcrumbItem } from '../model/types';
+import { AuthAvatar } from '@/entities/user';
 
 defineProps<{
     title?: string;
@@ -17,16 +18,6 @@ defineProps<{
 
 const page = usePage();
 const user = computed(() => page.props.auth?.user);
-const userInitials = computed(() => {
-    const name = user.value?.name ?? '';
-    return name
-        .split(' ')
-        .filter(Boolean)
-        .map((part: string) => part[0])
-        .slice(0, 2)
-        .join('')
-        .toUpperCase() || '?';
-});
 
 const userMenu = ref();
 const userMenuItems = [
@@ -153,7 +144,7 @@ const navGroups = computed<NavGroup[]>(() => [
                     class="ml-auto flex cursor-pointer items-center gap-2 rounded-md px-2 py-1 hover:bg-surface-100 dark:hover:bg-surface-800"
                     @click="toggleUserMenu"
                 >
-                    <Avatar :label="userInitials" shape="circle" class="size-6 shrink-0 text-xs" />
+                    <AuthAvatar size="small" />
                     <span class="text-sm">{{ user?.name ?? 'Користувач' }}</span>
                     <ChevronDown class="size-3 text-muted" />
                 </button>

@@ -15,13 +15,14 @@ final class ListTasksTask extends ParentTask
     }
 
     /**
+     * @param array<int, string> $with
      * @return LengthAwarePaginator<int, Task>
      */
-    public function run(): LengthAwarePaginator
+    public function run(array $with = []): LengthAwarePaginator
     {
         return $this->repository
             ->addRequestCriteria()
-            ->with(['project', 'assignee'])
+            ->with($with)
             ->orderBy('created_at', 'desc')
             ->paginate();
     }

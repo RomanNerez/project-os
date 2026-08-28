@@ -7,4 +7,5 @@ export const taskRoutes = {
     updateStatus: (id: TaskID) => `/tasks/${id}/status`,
     destroy: (id: TaskID) => `/tasks/${id}`,
     uploadFiles: (id: TaskID) => `/tasks/${id}/files`,
+    createTaskComment: (id: TaskID) => `/tasks/${id}/comment`,
 };

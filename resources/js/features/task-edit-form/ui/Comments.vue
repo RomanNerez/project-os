@@ -71,7 +71,7 @@ const deleteComment = (id) => {
 
 <template>
   <div class="max-w-3xl mx-auto">
-    <div >
+    <div>
         <div class="flex gap-4">
           <Avatar 
             image="https://primefaces.org/cdn/primevue/images/avatar/onyamalimba.png" 
@@ -168,9 +168,9 @@ const deleteComment = (id) => {
                   @click="cancelEdit(comment)" 
                 />
                 <Button 
-                  label="Зберегти" 
-                  icon="pi pi-check" 
-                  size="small" 
+                  label="Зберегти"
+                  icon="pi pi-check"
+                  size="small"
                   :disabled="!editText.trim()"
                   @click="saveEdit(comment)" 
                 />

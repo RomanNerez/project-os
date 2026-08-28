@@ -6,10 +6,15 @@ import { TaskUploadFiles } from '@/features/task-upload-files';
 import { FormEditor, FormSelect, FormText } from '@/shared/ui';
 import { computed, ref, toRefs } from 'vue';
 import { MediaDeleteModal } from '@/features/media-delete';
+import { TaskCreateComment } from '@/features/task-create-comment';
+import { CommentCard } from '@/entities/comment';
+import type { CommentIncludes } from '@/entities/comment';
+import type { User } from '@/entities/user';
 
 const props = defineProps<{
     task: Task | null;
     media: Media[];
+    comments: CommentIncludes<User>[];
     projects: TaskProject[];
     assignees: TaskAssignee[];
 }>();
@@ -86,7 +91,7 @@ const { form, submit, reset } = useTaskForm(
                     @on-cancel="selectedMedia = null"
                 />
 
-                <!-- <Tabs value="tab1">
+                <Tabs value="tab1">
                     <TabList>
                         <Tab value="tab1" class="flex items-center gap-2!">
                             <Code />
@@ -97,10 +102,25 @@ const { form, submit, reset } = useTaskForm(
                         :pt="{ root: { class: '!px-0' } }"
                     >
                         <TabPanel value="tab1" >
-                            <Comments />
+                            <!-- <Comments /> -->
+                            <div class="max-w-3xl mx-auto">
+                                <TaskCreateComment
+                                    :task-id="task?.id ?? 0"
+                                />
+                                <div class="space-y-4">
+                                    <CommentCard
+                                        v-for="comment in comments" 
+                                        :key="comment.id"
+                                        :user-name="comment.user.data.name"
+                                        :body="comment.body"
+                                        :created-at="comment.created_at"
+                                        class="bg-white rounded-xl p-4 transition-all"
+                                    />
+                                </div>
+                            </div>
                         </TabPanel>
                     </TabPanels>
-                </Tabs> -->
+                </Tabs>
             </div>
 
             <div class="col-span-1 flex flex-col gap-2">

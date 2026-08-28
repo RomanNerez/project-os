@@ -2,10 +2,12 @@
 
 namespace App\Containers\AppSection\Task\Models;
 
+use App\Containers\AppSection\Comment\Models\Comment;
 use App\Containers\AppSection\Project\Models\Project;
 use App\Containers\AppSection\User\Models\User;
 use App\Ship\Parents\Models\Model as ParentModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -42,6 +44,14 @@ final class Task extends ParentModel implements HasMedia
     public function assignee(): BelongsTo
     {
         return $this->belongsTo(User::class, 'assignee_id');
+    }
+
+    /**
+     * @return MorphMany
+     */
+    public function comments(): MorphMany
+    {
+        return $this->morphMany(Comment::class, 'model');
     }
 
     /**

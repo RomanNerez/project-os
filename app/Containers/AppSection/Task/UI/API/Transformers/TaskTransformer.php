@@ -2,6 +2,7 @@
 
 namespace App\Containers\AppSection\Task\UI\API\Transformers;
 
+use App\Containers\AppSection\Comment\UI\API\Transformers\CommentTransformer;
 use App\Containers\AppSection\Media\UI\API\Transformers\MediaTransformer;
 use App\Containers\AppSection\Project\UI\API\Transformers\ProjectTransformer;
 use App\Containers\AppSection\Task\Models\Task;
@@ -21,6 +22,7 @@ final class TaskTransformer extends ParentTransformer
     protected array $availableIncludes = [
         'project',
         'assignee',
+        'comments',
         'media',
     ];
 
@@ -65,5 +67,14 @@ final class TaskTransformer extends ParentTransformer
     public function includeMedia(Task $task)
     {
         return $this->collection($task->getMedia(), new MediaTransformer());
+    }
+
+    /**
+     * @param Task $task
+     * @return array
+     */
+    public function includeComments(Task $task)
+    {
+        return $this->collection($task->comments, new CommentTransformer());
     }
 }

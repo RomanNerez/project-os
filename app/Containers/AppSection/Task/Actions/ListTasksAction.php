@@ -19,6 +19,6 @@ final class ListTasksAction extends ParentAction
      */
     public function run(): LengthAwarePaginator
     {
-        return $this->listTasksTask->run();
+        return $this->listTasksTask->run(with: ['project', 'assignee', 'comments.user']);
     }
 }

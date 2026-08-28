@@ -92,6 +92,7 @@ function openDelete(task: TaskProp): void {
                 v-model:visible="isEditModalOpen"
                 :task="selectedTask"
                 :media="selectedTask?.media.data ?? []"
+                :comments="selectedTask?.comments.data ?? []"
                 :projects="props.projects"
                 :assignees="props.assignees"
                 @on-done="() => {

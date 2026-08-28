@@ -29,7 +29,7 @@ final class ListTasksController extends WebController
     {
         $tasks = $this->action->run();
         $tasks = fractal($tasks, new TaskTransformer())
-            ->parseIncludes(['project', 'assignee', 'media'])
+            ->parseIncludes(['project', 'assignee', 'media', 'comments.user'])
             ->toArray();
 
         return Inertia::render('tasks', [

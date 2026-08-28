@@ -31,10 +31,11 @@ export interface Task {
     assignee_id: number | null;
 }
 
-export interface TaskIncludes<TMedia = null, TProject = null, TAssignee = null> extends Task {
+export interface TaskIncludes<TMedia = null, TProject = null, TAssignee = null, TComments = null> extends Task {
     media: IncludedData<TMedia>;
     project: IncludedData<TProject>;
     assignee: IncludedData<TAssignee>;
+    comments: IncludedData<TComments>
 }
 
 /**

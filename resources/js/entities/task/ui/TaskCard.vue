@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { STATUS_META, type Task } from '../model/types';
+import { UserAvatar } from '@/entities/user';
 
 const props = defineProps<{
     task: Task;
@@ -41,12 +42,7 @@ const assigneeInitials = computed(() =>
         />
 
         <div class="hidden w-44 shrink-0 items-center gap-2 lg:flex">
-            <Avatar
-                v-if="assigneeName"
-                :label="assigneeInitials"
-                shape="circle"
-                class="size-7 shrink-0 text-xs"
-            />
+            <UserAvatar v-if="assigneeName" :name="assigneeName" />
             <Avatar v-else icon="pi pi-user" shape="circle" class="size-7 shrink-0 text-xs" />
             <span class="truncate text-sm" :class="{ 'text-gray-500 dark:text-gray-400': !assigneeName }">
                 {{ assigneeName ?? 'Не призначено' }}
