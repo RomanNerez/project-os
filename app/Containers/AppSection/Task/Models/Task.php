@@ -23,6 +23,7 @@ final class Task extends ParentModel implements HasMedia
      * @var array<int, string>
      */
     protected $fillable = [
+        'user_id',
         'project_id',
         'assignee_id',
         'title',

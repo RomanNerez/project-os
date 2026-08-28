@@ -48,7 +48,7 @@ final class TaskTransformer extends ParentTransformer
      */
     public function includeProject(Task $task)
     {
-        return $this->item($task->project, new ProjectTransformer());
+        return $this->nullableItem($task->project, new ProjectTransformer());
     }
 
     /**
@@ -57,7 +57,7 @@ final class TaskTransformer extends ParentTransformer
      */
     public function includeAssignee(Task $task)
     {
-        return $this->item($task->assignee, new UserTransformer());
+        return $this->nullableItem($task->assignee, new UserTransformer());
     }
 
     /**

@@ -19,6 +19,9 @@ final class CreateTaskAction extends ParentAction
      */
     public function run(CreateTaskRequest $request): Task
     {
-        return $this->createTaskTask->run($request->validated());
+        return $this->createTaskTask->run([
+            'user_id' => $request->user()->id,
+            'title' => $request->title
+        ]);
     }
 }

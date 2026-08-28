@@ -1,15 +1,19 @@
 <script setup lang="ts">
 import { UserAvatar } from '@/entities/user';
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
     title: string;
-    statusLabel: string;
-    statusColor: string;
-    filesCount: number;
-    commentsCount: number;
+    filesCount?: number;
+    commentsCount?: number;
+    statusLabel?: string;
+    statusColor?: string;
     assigneeName?: string;
     projectTitle?: string;
-}>();
+}>(), {
+    filesCount: 0,
+    commentsCount: 0,
+    statusColor: 'secondary',
+});
 
 defineEmits<{
     edit: [];
@@ -23,8 +27,8 @@ defineEmits<{
             <p class="sm:truncate text-sm font-medium text-gray-900 dark:text-gray-100">
                 {{ title }}
             </p>
-            <div class="flex gap-2 text-xs text-gray-500 dark:text-gray-400">
-                <div class="flex items-center justify-items-end justify-between gap-2 text-xs text-gray-500 dark:text-gray-400">
+            <div v-if="projectTitle || assigneeName || filesCount || commentsCount" class="flex gap-2 text-xs text-gray-500 dark:text-gray-400">
+                <div v-if="projectTitle || assigneeName" class="flex items-center justify-items-end justify-between gap-2 text-xs text-gray-500 dark:text-gray-400">
                     <Tag
                         v-if="projectTitle"
                         :value="projectTitle"
@@ -53,7 +57,12 @@ defineEmits<{
         </div>
 
         <div class="flex items-center shrink-0 justify-items-end justify-between gap-2 border-t border-gray-100 pt-2 sm:justify-end sm:border-0 sm:pt-0 dark:border-gray-750">
-            <Tag :value="statusLabel" :severity="statusColor" class="shrink-0" />
+            <Tag
+                v-if="statusLabel"
+                :value="statusLabel"
+                :severity="statusColor"
+                class="shrink-0"
+            />
 
             <div class="flex shrink-0 gap-1">
                 <Button 

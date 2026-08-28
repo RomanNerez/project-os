@@ -26,12 +26,16 @@ const selectedTask = computed<TaskProp | null>(() => props.tasks.data.find(t => 
 
 const transformTasks = computed(() => {
     return props.tasks.data.map((t) => {
-        const status = STATUS_META[t.status];
+        let status = null;
+
+        if (t.status) {
+            status = STATUS_META[t.status]
+        }
 
         return {
             ...t,
-            statusLabel: status.label,
-            statusColor: status.severity,
+            statusLabel: status?.label ?? '',
+            statusColor: status?.severity ?? '',
         }
     })
 })
@@ -60,7 +64,7 @@ function openDelete(task: TaskProp): void {
         description="Керуйте задачами робочого простору"
     >
         <template #actions>
-            <Button label="Нова задача" icon="pi pi-plus" :disabled="!props.projects.length" @click="openCreate" />
+            <Button label="Нова задача" icon="pi pi-plus" @click="openCreate" />
         </template>
 
         <div class="flex h-full flex-col gap-4">
@@ -74,8 +78,8 @@ function openDelete(task: TaskProp): void {
                     :title="task.title"
                     :comments-count="task.comments.data.length"
                     :files-count="task.media.data.length"
-                    :assignee-name="task.assignee.data.name"
-                    :project-title="task.project.data.title"
+                    :assignee-name="task.assignee?.data.name ?? ''"
+                    :project-title="task.project?.data.title ?? ''"
                     @edit="openEdit(task)"
                     @delete="openDelete(task)"
                 />
@@ -99,7 +103,7 @@ function openDelete(task: TaskProp): void {
                     selectedTaskId = null;
                     isCreateModalOpen = false;
                 }"
-                @cancel="() => {
+                @on-cancel="() => {
                     selectedTaskId = null;
                     isCreateModalOpen = false;
                 }"

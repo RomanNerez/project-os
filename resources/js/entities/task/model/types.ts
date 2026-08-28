@@ -25,17 +25,17 @@ export interface TaskAssignee {
 export interface Task {
     id: TaskID;
     title: string;
-    description: string;
-    status: TaskStatus;
+    description: string | null;
+    status: TaskStatus | null;
     project_id: number | null;
     assignee_id: number | null;
 }
 
 export interface TaskIncludes<TMedia = null, TProject = null, TAssignee = null, TComments = null> extends Task {
     media: IncludedData<TMedia>;
-    project: IncludedData<TProject>;
-    assignee: IncludedData<TAssignee>;
-    comments: IncludedData<TComments>
+    project: TProject extends null ? null : IncludedData<TProject>;
+    assignee: TAssignee extends null ? null : IncludedData<TAssignee>;
+    comments: TComments extends null ? null : IncludedData<TComments>
 }
 
 /**
@@ -44,8 +44,8 @@ export interface TaskIncludes<TMedia = null, TProject = null, TAssignee = null, 
  */
 export interface TaskDraft {
     title: string;
-    description: string;
-    status: TaskStatus;
+    description: string | null;
+    status: TaskStatus | null;
     project_id: number | null;
     assignee_id: number | null;
 }
