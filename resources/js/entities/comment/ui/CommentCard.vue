@@ -1,5 +1,6 @@
 <script setup lang="ts">
     import { UserAvatar } from '@/entities/user';
+    import { formatDateHuman } from '@/shared/lib';
 
     interface Props {
         userName: string;
@@ -30,7 +31,7 @@
             <div class="flex items-center justify-between mb-1">
                 <div class="flex items-center gap-2">
                 <span class="font-semibold text-gray-900 text-sm">{{ userName }}</span>
-                <span class="text-xs text-gray-400">• {{ createdAt }}</span>
+                <span class="text-xs text-gray-400">• {{ formatDateHuman(createdAt) }}</span>
                 </div>
 
                 <div v-if="showAction" class="flex items-center gap-1">

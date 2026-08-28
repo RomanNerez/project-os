@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue';
 import { Head } from '@inertiajs/vue3';
 import { AdminLayout } from '@/widgets/admin-layout';
-import { TaskCard, type TaskAssignee, type TaskProject } from '@/entities/task';
+import { STATUS_META, TaskCard, type TaskAssignee, type TaskProject } from '@/entities/task';
 import { TaskCreateFormModal } from '@/features/task-create-form';
 import { TaskDeleteModal } from '@/features/task-delete';
 import type { TaskProp } from '../model/types';
@@ -23,6 +23,18 @@ const isEditModalOpen = ref(false);
 const isDeleteModalOpen = ref(false);
 const selectedTaskId = ref<number | null>(null);
 const selectedTask = computed<TaskProp | null>(() => props.tasks.data.find(t => t.id === selectedTaskId.value) || null);
+
+const transformTasks = computed(() => {
+    return props.tasks.data.map((t) => {
+        const status = STATUS_META[t.status];
+
+        return {
+            ...t,
+            statusLabel: status.label,
+            statusColor: status.severity,
+        }
+    })
+})
 
 function openCreate(): void {
     selectedTaskId.value = null;
@@ -54,9 +66,14 @@ function openDelete(task: TaskProp): void {
         <div class="flex h-full flex-col gap-4">
             <div v-if="props.tasks.data.length" class="flex flex-col gap-2">
                 <TaskCard
-                    v-for="task in props.tasks.data"
+                    v-for="task in transformTasks"
                     :key="task.id"
                     :task="task"
+                    :status-label="task.statusLabel"
+                    :status-color="task.statusColor"
+                    :title="task.title"
+                    :comments-count="task.comments.data.length"
+                    :files-count="task.media.data.length"
                     :assignee-name="task.assignee.data.name"
                     :project-title="task.project.data.title"
                     @edit="openEdit(task)"
