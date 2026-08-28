@@ -19,6 +19,10 @@ final class ListTasksAction extends ParentAction
      */
     public function run(): LengthAwarePaginator
     {
-        return $this->listTasksTask->run(with: ['project', 'assignee', 'comments.user']);
+        return $this->listTasksTask->run(with: [
+            'project',
+            'assignee',
+            'comments' => fn($query) => $query->with('user')->orderBy('updated_at', 'desc')
+        ]);
     }
 }

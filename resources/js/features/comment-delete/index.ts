@@ -1,0 +1,1 @@
+export { default as CommentDeleteModal } from './ui/CommentDeleteModal.vue';

@@ -8,8 +8,9 @@ import { computed, ref, toRefs } from 'vue';
 import { MediaDeleteModal } from '@/features/media-delete';
 import { TaskCreateComment } from '@/features/task-create-comment';
 import { CommentCard } from '@/entities/comment';
-import type { CommentIncludes } from '@/entities/comment';
+import type { CommentID, CommentIncludes } from '@/entities/comment';
 import type { User } from '@/entities/user';
+import { CommentDeleteModal } from '@/features/comment-delete';
 
 const props = defineProps<{
     task: Task | null;
@@ -21,6 +22,9 @@ const props = defineProps<{
 
 const selectedMedia = ref<Media | null>(null);
 const isMediaModalVisible = computed(() => !!selectedMedia.value);
+
+const selectedDeleteCommentId = ref<CommentID | null>(null);
+const isDeleteCommentModalVisible = computed(() => !!selectedDeleteCommentId.value);
 
 const visible = defineModel<boolean>('visible', { required: true });
 
@@ -102,7 +106,6 @@ const { form, submit, reset } = useTaskForm(
                         :pt="{ root: { class: '!px-0' } }"
                     >
                         <TabPanel value="tab1" >
-                            <!-- <Comments /> -->
                             <div class="max-w-3xl mx-auto">
                                 <TaskCreateComment
                                     :task-id="task?.id ?? 0"
@@ -115,8 +118,15 @@ const { form, submit, reset } = useTaskForm(
                                         :body="comment.body"
                                         :created-at="comment.created_at"
                                         class="bg-white rounded-xl p-4 transition-all"
+                                        @on-delete="selectedDeleteCommentId = comment.id"
                                     />
                                 </div>
+                                <CommentDeleteModal
+                                    v-model:visible="isDeleteCommentModalVisible"
+                                    :comment-id="selectedDeleteCommentId ?? 0"
+                                    @on-done="selectedDeleteCommentId = null"
+                                    @on-cancel="selectedDeleteCommentId = null"
+                                />
                             </div>
                         </TabPanel>
                     </TabPanels>
