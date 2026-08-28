@@ -6,17 +6,19 @@
         createdAt: string;
         body: string;
         showAction?: boolean;
+        isEditingMode?: boolean;
     }
 
     const props = withDefaults(defineProps<Props>(), {
         showAction: true,
+        isEditingMode: false,
     });
 
     defineEmits(['onEdit', 'onDelete'])
 </script>
 
 <template>
-    <div class="flex items-start gap-4">
+    <div class="flex items-start gap-4 bg-white rounded-xl p-4 transition-all">
         <UserAvatar
             :name="userName"
             shape="circle"
@@ -53,7 +55,9 @@
                 </div>
             </div>
 
-            <div  class="text-gray-700 text-sm whitespace-pre-line leading-relaxed">
+            <slot name="edit-container" v-if="isEditingMode"></slot>
+
+            <div v-else class="text-gray-700 text-sm whitespace-pre-line leading-relaxed">
                 {{ body }}
             </div>
         </div>

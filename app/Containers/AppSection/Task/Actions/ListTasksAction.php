@@ -22,7 +22,7 @@ final class ListTasksAction extends ParentAction
         return $this->listTasksTask->run(with: [
             'project',
             'assignee',
-            'comments' => fn($query) => $query->with('user')->orderBy('updated_at', 'desc')
+            'comments' => fn($query) => $query->with('user')->orderBy('created_at', 'desc')
         ]);
     }
 }

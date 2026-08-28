@@ -11,6 +11,7 @@ import { CommentCard } from '@/entities/comment';
 import type { CommentID, CommentIncludes } from '@/entities/comment';
 import type { User } from '@/entities/user';
 import { CommentDeleteModal } from '@/features/comment-delete';
+import { CommentEditForm } from '@/features/comment-edit';
 
 const props = defineProps<{
     task: Task | null;
@@ -23,6 +24,7 @@ const props = defineProps<{
 const selectedMedia = ref<Media | null>(null);
 const isMediaModalVisible = computed(() => !!selectedMedia.value);
 
+const selectedEditCommentId = ref<CommentID | null>(null);
 const selectedDeleteCommentId = ref<CommentID | null>(null);
 const isDeleteCommentModalVisible = computed(() => !!selectedDeleteCommentId.value);
 
@@ -117,9 +119,19 @@ const { form, submit, reset } = useTaskForm(
                                         :user-name="comment.user.data.name"
                                         :body="comment.body"
                                         :created-at="comment.created_at"
-                                        class="bg-white rounded-xl p-4 transition-all"
+                                        :is-editing-mode="selectedEditCommentId === comment.id"
+                                        @on-edit="selectedEditCommentId = comment.id"
                                         @on-delete="selectedDeleteCommentId = comment.id"
-                                    />
+                                    >
+                                        <template #edit-container>
+                                            <CommentEditForm
+                                                :comment-id="comment.id"
+                                                :body="comment.body"
+                                                @on-done="selectedEditCommentId = null"
+                                                @on-cancel="selectedEditCommentId = null"
+                                            />
+                                        </template>
+                                    </CommentCard>
                                 </div>
                                 <CommentDeleteModal
                                     v-model:visible="isDeleteCommentModalVisible"
