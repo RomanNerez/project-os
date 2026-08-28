@@ -34,7 +34,7 @@ const groups = computed<DayGroup[]>(() => {
 </script>
 
 <template>
-    <div v-if="groups.length" class="flex flex-col gap-6">
+    <div v-if="groups.length" class="flex flex-col gap-6 h-full overflow-y-auto">
         <section v-for="group in groups" :key="group.key" class="flex flex-col gap-2">
             <header class="flex items-baseline justify-between px-1">
                 <h2 class="text-sm font-semibold capitalize">{{ group.label }}</h2>

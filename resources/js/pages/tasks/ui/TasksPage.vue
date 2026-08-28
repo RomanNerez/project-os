@@ -68,7 +68,7 @@ function openDelete(task: TaskProp): void {
         </template>
 
         <div class="flex h-full flex-col gap-4">
-            <div v-if="props.tasks.data.length" class="flex flex-col gap-2">
+            <div v-if="props.tasks.data.length" class="flex flex-col gap-2 overflow-y-auto">
                 <TaskCard
                     v-for="task in transformTasks"
                     :key="task.id"

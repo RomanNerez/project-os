@@ -58,7 +58,7 @@ function openDelete(project: Project): void {
             <Button label="Новий проєкт" icon="pi pi-plus" @click="openCreate" />
         </template>
 
-        <div class="flex h-full flex-col gap-4">
+        <div class="flex h-full flex-col gap-4 overflow-y-auto">
             <div v-if="props.projects.data.length" class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                 <ProjectCard
                     v-for="project in props.projects.data"

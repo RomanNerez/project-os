@@ -81,8 +81,8 @@ const navGroups = computed<NavGroup[]>(() => [
 </script>
 
 <template>
-    <SidebarLayout class="h-dvh! relative! overflow-hidden">
-        <SidebarBackdrop v-if="isMobile && open" class="absolute!" />
+    <SidebarLayout class="!h-dvh !relative overflow-hidden">
+        <SidebarBackdrop v-if="isMobile && open" class="!absolute" />
         <Sidebar id="preview" :collapsible="isMobile ? 'offcanvas' : 'icon'" :overlay="isMobile" v-model:open="open">
             <SidebarSpacer />
             <SidebarAside>
@@ -150,7 +150,7 @@ const navGroups = computed<NavGroup[]>(() => [
                 </button>
                 <Menu ref="userMenu" :model="userMenuItems" :popup="true" />
             </header>
-            <div class="min-h-0 flex-1 overflow-y-auto p-4 flex flex-col gap-4">
+            <div class="min-h-0 flex-1 p-4 flex flex-col gap-4">
                 <div
                     v-if="title || description || breadcrumbs?.length || $slots.actions"
                     class="shrink-0 rounded-lg border border-[var(--p-content-border-color)] bg-[var(--p-content-background)] px-4 py-4 shadow-sm"
@@ -158,7 +158,7 @@ const navGroups = computed<NavGroup[]>(() => [
                     <div class="flex flex-wrap items-center justify-between gap-3">
                         <div>
                             <h1 v-if="title" class="text-2xl font-semibold">{{ title }}</h1>
-                            <Breadcrumb v-if="breadcrumbs?.length" :model="breadcrumbs" class="mb-2 p-0!">
+                            <Breadcrumb v-if="breadcrumbs?.length" :model="breadcrumbs" class="mb-2 !p-0">
                                 <template #item="{ item, props: itemProps }">
                                     <Link v-if="item.href" :href="item.href" v-bind="itemProps.action">
                                         <span>{{ item.label }}</span>

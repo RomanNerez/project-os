@@ -70,7 +70,7 @@ function onChange(event: DraggableChange, status: TaskStatus): void {
                 animation="200"
                 ghost-class="opacity-40"
                 drag-class="rotate-1"
-                class="flex min-h-[120px] flex-1 flex-col gap-3"
+                class="flex min-h-[120px] flex-1 flex-col gap-3 overflow-y-auto"
                 @change="(event: DraggableChange) => onChange(event, status.value)"
             >
                 <template #item="{ element: task }: { element: Task }">
