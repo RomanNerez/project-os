@@ -26,6 +26,7 @@ declare module 'vue' {
     Message: typeof import('primevue/message')['default']
     Password: typeof import('primevue/password')['default']
     ProgressBar: typeof import('primevue/progressbar')['default']
+    ProgressSpinner: typeof import('primevue/progressspinner')['default']
     Select: typeof import('primevue/select')['default']
     Sidebar: typeof import('primevue/sidebar')['default']
     SidebarAside: typeof import('primevue/sidebaraside')['default']

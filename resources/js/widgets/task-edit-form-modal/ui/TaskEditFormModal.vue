@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Code from '@primeicons/vue/code';
-import { STATUS_OPTIONS, useTaskForm, type Task, type TaskAssignee, type TaskProject } from '@/entities/task';
+import { useTaskForm, type Task, type TaskAssignee, type TaskProject } from '@/entities/task';
 import { MediaPreview, type Media } from '@/entities/media';
 import { TaskUploadFiles } from '@/features/task-upload-files';
 import { FormEditor, FormSelect, FormText } from '@/shared/ui';
@@ -12,6 +12,7 @@ import type { CommentID, CommentIncludes } from '@/entities/comment';
 import type { User } from '@/entities/user';
 import { CommentDeleteModal } from '@/features/comment-delete';
 import { CommentEditForm } from '@/features/comment-edit';
+import TaskSidebarForm from './TaskSidebarForm.vue';
 
 const props = defineProps<{
     task: Task | null;
@@ -49,10 +50,16 @@ const { form, submit, reset } = useTaskForm(
         modal
         header="Редагувати задачу"
         class="overflow-hidden"
-        :style="{ width: '90%' }"
-        :pt="{ content: { class: 'overflow-hidden flex-1 flex flex-col !px-4' } }"
+        :pt="{
+            root: {
+                class: '!max-h-full sm:w-[90%] sm:!max-h-[90%] !rounded-none sm:!rounded-xl',
+            },
+            content: {
+                class: 'overflow-hidden flex-1 flex flex-col !px-4'
+            }
+        }"
     >
-        <form class="grid grid-cols-3 gap-2 h-full overflow-hidden">
+        <form class="grid grid-cols-1 lg:grid-cols-3 gap-2 h-full overflow-hidden">
             <div class="col-span-2 overflow-y-auto px-1 pr-4 flex flex-col gap-2">
                 <FormText
                     v-model="form.title"
@@ -62,7 +69,14 @@ const { form, submit, reset } = useTaskForm(
                     placeholder="Назва задачі"
                     :message="form.errors.title"
                 />
-
+                <div class="flex flex-col gap-2 lg:hidden">
+                    <TaskSidebarForm
+                        :form="form"
+                        :assignees="assignees"
+                        :projects="projects"
+                    />
+                </div>
+                
                 <FormEditor
                     v-model="form.description"
                     name="task-description"
@@ -145,39 +159,8 @@ const { form, submit, reset } = useTaskForm(
                 </Tabs>
             </div>
 
-            <div class="col-span-1 flex flex-col gap-2">
-                <FormSelect
-                    v-model="form.project_id"
-                    name="task-project"
-                    label="Проєкт"
-                    :options="projects"
-                    option-label="title"
-                    option-value="id"
-                    placeholder="Оберіть проєкт"
-                    :message="form.errors.project_id"
-                />
-
-                <FormSelect
-                    v-model="form.assignee_id"
-                    name="task-assignee"
-                    label="Виконавець"
-                    :options="assignees"
-                    option-label="name"
-                    option-value="id"
-                    placeholder="Не призначено"
-                    show-clear
-                    :message="form.errors.assignee_id"
-                />
-
-                <FormSelect
-                    v-model="form.status"
-                    name="task-status"
-                    label="Статус"
-                    :options="STATUS_OPTIONS"
-                    option-label="label"
-                    option-value="value"
-                    :message="form.errors.status"
-                />
+            <div class="col-span-1 lg:flex flex-col gap-2 hidden">
+                <TaskSidebarForm :form="form" :assignees="assignees" :projects="projects" />
             </div>
         </form>
         <template #footer>

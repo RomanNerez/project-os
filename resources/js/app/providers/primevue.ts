@@ -11,6 +11,6 @@ export function installPrimeVue(app: App): void {
                 darkModeSelector: '.dark',
             },
         },
-        license: 'PRIMEUI-LICENSE-KEY'
+        license: 'eyJpZCI6IjJhZTQ0Mjk2LTFlZDctNGQyMS05MzU1LTIyODI4MWNiMTRmYyIsInByb2R1Y3QiOiJwcmltZXVpIiwidGllciI6ImNvbW11bml0eSIsInR5cGUiOiJkZXYiLCJpYXQiOjE3ODgwMjk2MjUsImV4cCI6MTgxOTU2NTYyNX0.X3njUfQsx2VU_7sIOMtWgYXhcTen_VGab59CyAmK5zgzGpoW9-F2QntKLvlWD1m1-TCMTPmuLlKCWYUmzF7mAw'
     });
 }

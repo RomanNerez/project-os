@@ -44,7 +44,7 @@ export interface TaskIncludes<TMedia = null, TProject = null, TAssignee = null, 
  */
 export interface TaskDraft {
     title: string;
-    description: string | null;
+    description: string;
     status: TaskStatus | null;
     project_id: number | null;
     assignee_id: number | null;
@@ -75,7 +75,7 @@ export const emptyTaskDraft = (): TaskDraft => ({
 
 export const toDraft = (task: Task): TaskDraft => ({
     title: task.title,
-    description: task.description,
+    description: task.description ?? '',
     status: task.status,
     project_id: task.project_id ?? null,
     assignee_id: task.assignee_id ?? null,

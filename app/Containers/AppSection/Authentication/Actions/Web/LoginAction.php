@@ -20,7 +20,7 @@ final class LoginAction extends ParentAction
         if (Auth::guard('web')->attempt($credentials, $remember)) {
             session()?->regenerate();
 
-            return redirect()->intended(route('projects.list'));
+            return redirect()->intended(route('projects.index'));
         }
 
         return back()->withErrors([
