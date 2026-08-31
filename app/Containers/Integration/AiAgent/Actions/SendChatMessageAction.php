@@ -4,16 +4,18 @@ namespace App\Containers\Integration\AiAgent\Actions;
 
 use App\Containers\Integration\AiAgent\Models\AiChatMessage;
 use App\Containers\Integration\AiAgent\Tasks\CreateAiChatMessageTask;
+use App\Containers\Integration\AiAgent\Tasks\GetConfigAgentProviderTask;
+use App\Containers\Integration\AiAgent\Tools\CreateProjectTaskTool;
 use App\Containers\Integration\AiAgent\UI\WEB\Requests\SendChatMessageRequest;
 use App\Ship\Parents\Actions\Action as ParentAction;
 use LLPhant\Chat\Enums\ChatRole;
 use LLPhant\Chat\Message;
 use LLPhant\Chat\OpenAIChat;
-use LLPhant\GeminiOpenAIConfig;
 
 final class SendChatMessageAction extends ParentAction
 {
     public function __construct(
+        private readonly GetConfigAgentProviderTask $getConfigAgentProviderTask,
         private readonly CreateAiChatMessageTask $createAiChatMessageTask
     ) {}
 
@@ -23,13 +25,23 @@ final class SendChatMessageAction extends ParentAction
      */
     public function run(SendChatMessageRequest $request): string
     {
-        $model = 'gemini-3.6-flash';
         $user = $request->user();
 
-        $config = new GeminiOpenAIConfig();
-        $config->apiKey = env('GEMINI_API_KEY');
-        $config->model = $model;
+        $this->createAiChatMessageTask->run([
+            'user_id' => $user->id,
+            'role' => ChatRole::User,
+            'content' => $request->message,
+        ]);
+
+        $config = $this->getConfigAgentProviderTask->run();
+
         $chat = new OpenAIChat($config);
+
+        $createTaskFunction = app(CreateProjectTaskTool::class)
+            ->setUserId($user->id)
+            ->toFunctionInfo();
+        
+        $chat->addTool($createTaskFunction);
 
         $historyDbMessages = AiChatMessage::query()
             ->where('user_id', $user->id)
@@ -38,15 +50,8 @@ final class SendChatMessageAction extends ParentAction
             ->get()
             ->reverse();
 
-        $this->createAiChatMessageTask->run([
-            'user_id' => $user->id,
-            'role' => ChatRole::User,
-            'content' => $request->message,
-            'model_name' => $model,
-        ]);
-
         $messages = [
-            Message::system('Ти — AI-консультант менежменту про проєктам, та задачам для цього проєкта. Відповідай чітко та коротко.'),
+            Message::system('Ти — AI-консультант менежменту про проєктам, та задачам для цього проєкта. Відповідай чітко та коротко. Не використовуй MARKDOWN, використовуй HTML, коли виконуєш якісь фінкції'),
         ];
 
         foreach ($historyDbMessages as $historyDbMessage) {
@@ -62,7 +67,7 @@ final class SendChatMessageAction extends ParentAction
             'user_id' => $user->id,
             'role' => ChatRole::Assistant,
             'content' => $response,
-            'model_name' => $model,
+            'model_name' => $config->model,
             'tokens_used' => $chat->getTotalTokens(),
         ]);
 

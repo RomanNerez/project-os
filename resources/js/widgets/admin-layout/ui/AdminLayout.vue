@@ -9,7 +9,7 @@ import SidebarIcon from '@primeicons/vue/sidebar';
 import Stopwatch from '@primeicons/vue/stopwatch';
 import type { BreadcrumbItem } from '../model/types';
 import { AuthAvatar } from '@/entities/user';
-import AssistentChat from './AssistentChat.vue';
+import AiAgentChat from './AiAgentChat.vue';
 
 defineProps<{
     title?: string;
@@ -84,7 +84,7 @@ const navGroups = computed<NavGroup[]>(() => [
 <template>
     <SidebarLayout class="!h-dvh !relative overflow-hidden">
         <SidebarBackdrop v-if="isMobile && open" class="!absolute" />
-        <AssistentChat />
+        <AiAgentChat />
         <Sidebar id="preview" :collapsible="isMobile ? 'offcanvas' : 'icon'" :overlay="isMobile" v-model:open="open">
             <SidebarSpacer />
             <SidebarAside>
