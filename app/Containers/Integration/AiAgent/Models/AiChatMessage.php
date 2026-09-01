@@ -2,6 +2,7 @@
 
 namespace App\Containers\Integration\AiAgent\Models;
 
+use App\Containers\Integration\AiAgent\Enums\AiChatMessageStatus;
 use App\Ship\Parents\Models\Model as ParentModel;
 use LLPhant\Chat\Enums\ChatRole;
 
@@ -15,6 +16,7 @@ final class AiChatMessage extends ParentModel
     protected $fillable = [
         'user_id',
         'session_id',
+        'status',
         'role',
         'content',
         'tool_calls',
@@ -28,6 +30,7 @@ final class AiChatMessage extends ParentModel
     protected function casts(): array
     {
         return [
+            'status' => AiChatMessageStatus::class,
             'role' => ChatRole::class,
         ];
     }

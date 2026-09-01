@@ -1,5 +1,6 @@
 <?php
 
+use App\Containers\Integration\AiAgent\Enums\AiChatMessageStatus;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -18,6 +19,7 @@ return new class() extends Migration
                 ->constrained()
                 ->nullOnDelete();
             $table->string('session_id', 64)->nullable()->index();
+            $table->string('status', 20)->default(AiChatMessageStatus::COMPLETED->value);
             $table->string('role', 20);
             $table->longText('content');
             $table->json('tool_calls')->nullable();

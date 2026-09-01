@@ -16,6 +16,7 @@ class AiChatMessageTransformer extends ParentTransformer
         return [
             'id' => $item->id,
             'user_id' => $item->user_id,
+            'status' => $item->status,
             'role' => $item->role->value,
             'content' => $item->content,
         ];

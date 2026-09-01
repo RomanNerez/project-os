@@ -1,6 +1,8 @@
 <script setup lang="ts">
-  import { useForm, usePage } from '@inertiajs/vue3';
-  import { ref, nextTick, type VNodeRef, computed } from 'vue';
+  import { MessageCard, MessageSpiner, STATUSES, type AiChatMessage } from '@/entities/ai-chat-message';
+  import EmptyList from '@/shared/ui/EmptyList.vue';
+  import { useForm, usePage, usePoll } from '@inertiajs/vue3';
+  import { ref, nextTick, type VNodeRef, computed, watch } from 'vue';
   
   const isChatOpen = ref(false);
   const chatContainer = ref<VNodeRef | null>(null);
@@ -8,6 +10,34 @@
   const page = usePage();
   
   const messages = computed(() => page.props.ai_agent.messages.data);
+  const getPeddingMessage = computed<AiChatMessage | undefined>(
+    () => messages.value.find((m) => m.status === STATUSES.PENDING)
+  );
+
+  const { start, stop } = usePoll(2000, {}, {
+    autoStart: false
+  })
+
+  const scrollToBottom = async () => {
+    await nextTick();
+
+    if (chatContainer.value) {
+      chatContainer.value.scrollTop = chatContainer.value.scrollHeight;
+    }
+  };
+
+  watch(
+    getPeddingMessage,
+    (hasProcessing) => {
+      if (hasProcessing) {
+        start()
+      } else {
+        stop();
+      }
+      scrollToBottom();
+    },
+    { immediate: true }
+  );
   
   const toggleChat = () => {
     isChatOpen.value = !isChatOpen.value;
@@ -16,14 +46,7 @@
       scrollToBottom();
     }
   };
-  
-  const scrollToBottom = async () => {
-    await nextTick();
 
-    if (chatContainer.value) {
-      chatContainer.value.scrollTop = chatContainer.value.scrollHeight;
-    }
-  };
 
   const form = useForm({ message: '' });
   
@@ -34,7 +57,7 @@
         onStart: async () => {
           await scrollToBottom();
         },
-        onSuccess: async (response) => {
+        onSuccess: async () => {
           form.reset();
           await scrollToBottom();
         },
@@ -88,24 +111,21 @@
               class="flex"
               :class="msg.role === 'user' ? 'justify-end' : 'justify-start'"
             >
-              <div
-                class="max-w-[85%] p-3 text-sm leading-relaxed"
-                :class="
-                  msg.role === 'user'
-                    ? 'bg-[var(--p-primary-color)] text-[var(--p-primary-contrast-color)] rounded-2xl rounded-br-none'
-                    : 'bg-[var(--p-surface-100)] dark:bg-[var(--p-surface-800)] text-[var(--p-surface-900)] dark:text-[var(--p-surface-0)] rounded-2xl rounded-bl-none'
-                "
-              >
-                {{ msg.content }}
-              </div>
+              <MessageSpiner v-if="getPeddingMessage?.id === msg.id" />
+              
+              <MessageCard
+                v-else
+                :role="msg.role"
+                :status="msg.status"
+                :content="msg.content"
+              />
             </div>
-  
-            <div v-if="form.processing" class="flex justify-start">
-              <div class="bg-[var(--p-surface-100)] dark:bg-[var(--p-surface-800)] p-3 rounded-2xl rounded-bl-none flex items-center gap-2">
-                <ProgressSpinner style="width: 18px; height: 18px" strokewidth="6" />
-                <span class="text-xs text-surface-500">Думаю...</span>
-              </div>
-            </div>
+
+            <EmptyList
+              v-if="!messages.length"
+              :showAction="false"
+              decription="Поки що ви не маэте переписки..."
+            />
         </div>
         <template #footer>
             <div class="w-full flex items-center gap-2">
@@ -113,13 +133,13 @@
                     v-model="form.message"
                     placeholder="Напишіть задачу або запит..."
                     class="flex-1 !text-sm"
-                    :disabled="form.processing"
+                    :disabled="form.processing || !!getPeddingMessage"
                     @keyup.enter="sendMessage"
                 />
                 <Button
                     icon="pi pi-send"
                     size="small"
-                    :disabled="!form.message.trim() || form.processing"
+                    :disabled="!form.message.trim() || form.processing || !!getPeddingMessage"
                     @click="sendMessage"
                 />
             </div>

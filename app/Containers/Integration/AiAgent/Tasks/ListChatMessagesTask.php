@@ -16,6 +16,10 @@ final class ListChatMessagesTask extends ParentTask
      */
     public function run(): mixed
     {
-        return $this->repository->latest()->paginate()->reverse();
+        /** @var \Illuminate\Pagination\LengthAwarePaginator $paginator */
+        $paginator = $this->repository->latest('id')->paginate();
+
+        // Reorder items inside the paginator collection
+        return $paginator->setCollection($paginator->getCollection()->reverse()->values());
     }
 }
