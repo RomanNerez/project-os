@@ -21,7 +21,7 @@ final class ListProjectsController extends WebController
      */
     public function __invoke(ListProjectsRequest $request): Response
     {
-        $projects = $this->action->run();
+        $projects = $this->action->run($request);
         
         return Inertia::render('projects', [
             'projects' => fractal($projects, new ProjectTransformer())->toArray(),

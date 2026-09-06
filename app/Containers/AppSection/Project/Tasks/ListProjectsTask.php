@@ -15,12 +15,14 @@ final class ListProjectsTask extends ParentTask
     }
 
     /**
+     * @param null|int $userId
      * @return LengthAwarePaginator<int, Project>
      */
-    public function run(): LengthAwarePaginator
+    public function run(?int $userId = null): LengthAwarePaginator
     {
         return $this->repository
             ->addRequestCriteria()
+            ->filterByUserId($userId)
             ->orderBy('created_at', 'desc')
             ->paginate();
     }
