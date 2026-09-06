@@ -15,10 +15,10 @@ final class ListProjectsTask extends ParentTask
     }
 
     /**
-     * @param null|int $userId
+     * @param int $userId
      * @return LengthAwarePaginator<int, Project>
      */
-    public function run(?int $userId = null): LengthAwarePaginator
+    public function run(int $userId): LengthAwarePaginator
     {
         return $this->repository
             ->addRequestCriteria()

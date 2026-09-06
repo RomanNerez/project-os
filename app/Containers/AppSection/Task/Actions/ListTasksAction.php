@@ -4,6 +4,7 @@ namespace App\Containers\AppSection\Task\Actions;
 
 use App\Containers\AppSection\Task\Models\Task;
 use App\Containers\AppSection\Task\Tasks\ListTasksTask;
+use App\Containers\AppSection\Task\UI\WEB\Requests\ListTasksRequest;
 use App\Ship\Parents\Actions\Action as ParentAction;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -11,15 +12,17 @@ final class ListTasksAction extends ParentAction
 {
     public function __construct(
         private readonly ListTasksTask $listTasksTask,
-    ) {
-    }
+    ) {}
 
     /**
+     * @param ListTasksRequest $request
      * @return LengthAwarePaginator<int, Task>
      */
-    public function run(): LengthAwarePaginator
+    public function run(ListTasksRequest $request): LengthAwarePaginator
     {
-        return $this->listTasksTask->run(with: [
+        $user = $request->user();
+
+        return $this->listTasksTask->run(userId:$user->id, with: [
             'project',
             'assignee',
             'comments' => fn($query) => $query->with('user')->orderBy('created_at', 'desc')

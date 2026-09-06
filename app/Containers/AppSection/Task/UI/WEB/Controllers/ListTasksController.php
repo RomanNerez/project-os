@@ -27,7 +27,7 @@ final class ListTasksController extends WebController
      */
     public function __invoke(ListTasksRequest $request): Response
     {
-        $tasks = $this->action->run();
+        $tasks = $this->action->run($request);
         $tasks = fractal($tasks, new TaskTransformer())
             ->parseIncludes(['project', 'assignee', 'media', 'comments.user'])
             ->toArray();

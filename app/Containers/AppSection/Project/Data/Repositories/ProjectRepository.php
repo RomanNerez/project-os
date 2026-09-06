@@ -17,10 +17,10 @@ final class ProjectRepository extends ParentRepository
     ];
 
     /**
-     * @param null|int $userId
+     * @param int $userId
      * @return self
      */
-    public function filterByUserId(?int $userId): self
+    public function filterByUserId(int $userId): self
     {
         $this->scopeQuery(fn($query) =>
             $query->when(
