@@ -11,6 +11,7 @@ export const PROJECT_STATUS = {
 export type ProjectStatus = typeof PROJECT_STATUS[keyof typeof PROJECT_STATUS];
 
 export type ProjectID = number;
+export type ProjectMemberID = number;
 
 export interface Project {
     id: ProjectID;
@@ -21,8 +22,8 @@ export interface Project {
     active_until: string | null;
 }
 
-export interface ProjectMemeber {
-    id: number;
+export interface ProjectMember {
+    id: ProjectMemberID;
     name: string;
     email: string;
     role: typeof MEMEBER_ROLE[keyof typeof MEMEBER_ROLE]

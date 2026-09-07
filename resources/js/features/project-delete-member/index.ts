@@ -1,0 +1,1 @@
+export { default as ProjectDeleteMemberModal } from './ui/ProjectDeleteMemberModal.vue';

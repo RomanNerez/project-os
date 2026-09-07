@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { useForm } from '@inertiajs/vue3';
 import Dialog from 'primevue/dialog';
 import { ProjectAddMemberForm } from '@/features/project-add-member';
 import { MemberItem, PROJECT_OWNER_ROLE } from '@/entities/project';
-import type { ProjectMemeber } from '@/entities/project';
+import type { ProjectMember } from '@/entities/project';
+import { ProjectDeleteMemberModal } from '@/features/project-delete-member';
+import { computed, ref } from 'vue';
 
 interface Owner {
   id: number;
@@ -15,26 +16,17 @@ interface Props {
   visible: boolean;
   projectId: number;
   owner?: Owner;
-  members?: ProjectMemeber[];
+  members?: ProjectMember[];
 }
 
 const props = defineProps<Props>();
 
-const emit = defineEmits<{
+const selectedMember = ref<ProjectMember | null>(null)
+const isOpenDeleteMemeberModal = computed(() => !!selectedMember.value);
+
+defineEmits<{
   (e: 'update:visible', value: boolean): void;
 }>();
-
-const deleteForm = useForm({});
-
-const removeMember = (userId: number) => {
-  deleteForm.delete(route('projects.members.destroy', [props.projectId, userId]), {
-    preserveScroll: true,
-  });
-};
-
-const closeModal = () => {
-  emit('update:visible', false);
-};
 </script>
 
 <template>
@@ -44,7 +36,7 @@ const closeModal = () => {
     header="Управління командою проєкту"
     :style="{ width: '32rem' }"
     :breakpoints="{ '1199px': '75vw', '575px': '90vw' }"
-    @update:visible="closeModal"
+    @update:visible="$emit('update:visible', false)"
   >
     <div class="flex flex-col gap-6 pt-2">
       <ProjectAddMemberForm :id="projectId"/>
@@ -71,9 +63,18 @@ const closeModal = () => {
             :name="member.name"
             :email="member.email"
             :role="member.role"
-            @on-delete="removeMember(member.id)"
+            @on-delete="selectedMember = member"
           />
         </div>
+
+        <ProjectDeleteMemberModal
+          v-model:visible="isOpenDeleteMemeberModal"
+          :project-id="projectId"
+          :member-id="selectedMember?.id ?? 0"
+          :name="selectedMember?.name ?? ''"
+          @on-cancel="selectedMember = null"
+          @on-done="selectedMember = null"
+        />
       </div>
     </div>
   </Dialog>
