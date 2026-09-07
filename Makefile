@@ -2,6 +2,12 @@ DOCKER_EXEC = docker compose exec app
 
 .PHONY: optimize migrate restart-supervisor deploy
 
+local-up:
+	docker compose -f docker-compose.yml -f docker-compose.local.yml up -d
+
+local-down:
+	docker compose -f docker-compose.yml -f docker-compose.local.yml down
+
 optimize:
 	$(DOCKER_EXEC) php artisan optimize:clear
 
