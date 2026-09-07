@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import { UserAvatar } from '@/entities/user';
+    import { UserAvatar } from '@/shared/ui';
     import { formatDateHuman } from '@/shared/lib';
 
     interface Props {

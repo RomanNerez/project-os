@@ -8,6 +8,7 @@
 
     @vite(['resources/css/app.css', 'resources/js/app/index.ts'])
     @inertiaHead
+    @routes
 </head>
 <body class="antialiased">
     @inertia

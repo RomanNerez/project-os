@@ -20,13 +20,13 @@ final class ProjectRepository extends ParentRepository
      * @param int $userId
      * @return self
      */
-    public function filterByUserId(int $userId): self
+    public function scopeAuthUserId(int $userId): self
     {
         $this->scopeQuery(fn($query) =>
-            $query->when(
-                $userId,
-                fn () => $query->where('user_id', $userId)
-            )
+            $query
+                ->where('user_id', $userId)
+                ->orWhereHas('members', fn($query) => $query->where('users.id', $userId))
+
         );
 
         return $this;

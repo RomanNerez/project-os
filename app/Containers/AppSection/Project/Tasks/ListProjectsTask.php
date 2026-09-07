@@ -16,13 +16,15 @@ final class ListProjectsTask extends ParentTask
 
     /**
      * @param int $userId
+     * @param array<int, mixed> $with
      * @return LengthAwarePaginator<int, Project>
      */
-    public function run(int $userId): LengthAwarePaginator
+    public function run(int $userId, array $with = []): LengthAwarePaginator
     {
         return $this->repository
             ->addRequestCriteria()
-            ->filterByUserId($userId)
+            ->with($with)
+            ->scopeAuthUserId($userId)
             ->orderBy('created_at', 'desc')
             ->paginate();
     }

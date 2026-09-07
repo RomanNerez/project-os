@@ -2,47 +2,45 @@
 import { ref } from 'vue';
 import { Head } from '@inertiajs/vue3';
 import { AdminLayout } from '@/widgets/admin-layout';
-import { ProjectCard, type Project } from '@/entities/project';
+import { ProjectCard, type Project, type ProjectIncludes } from '@/entities/project';
 import { ProjectFormModal } from '@/features/project-form';
 import { ProjectDeleteModal } from '@/features/project-delete';
 import { EmptyList } from '@/shared/ui';
+import type { PaginatedServerData } from '@/shared/types';
+import type { User } from '@/entities/user';
+import { ProjectMembersModal } from '@/widgets/project-members';
+
+type ProjectItem = ProjectIncludes<User, User[]>;
 
 interface Props {
-  projects: {
-    data: Project[];
-    meta: {
-        include: string[],
-        pagination: {
-            count: number;
-            current_page: number;
-            links: {};
-            per_page: number;
-            total: number;
-            total_pages: number;
-        }
-    }
-  }
+  projects: PaginatedServerData<ProjectItem[]>
 }
 
 const props = defineProps<Props>();
 
 const isEditModalOpen = ref(false);
 const isDeleteModalOpen = ref(false);
-const selectedProject = ref<Project | null>(null);
+const isShowMembersModal = ref(false);
+const selectedProject = ref<ProjectItem | null>(null);
 
 function openCreate(): void {
     selectedProject.value = null;
     isEditModalOpen.value = true;
 }
 
-function openEdit(project: Project): void {
+function openEdit(project: ProjectItem): void {
     selectedProject.value = project;
     isEditModalOpen.value = true;
 }
 
-function openDelete(project: Project): void {
+function openDelete(project: ProjectItem): void {
     selectedProject.value = project;
     isDeleteModalOpen.value = true;
+}
+
+function openManagerMembers(project: ProjectItem): void {
+    selectedProject.value = project;
+    isShowMembersModal.value = true;
 }
 
 </script>
@@ -63,9 +61,17 @@ function openDelete(project: Project): void {
                 <ProjectCard
                     v-for="project in props.projects.data"
                     :key="project.id"
-                    :project="project"
+                    :id="project.id"
+                    :title="project.title"
+                    :description="project.description"
+                    :active-until="project.active_until"
+                    :proejct-status="project.status"
+                    :budget="project.budget"
+                    :user-name="project.user.data.name"
+                    :members="project.members.data"
                     @edit="openEdit(project)"
                     @delete="openDelete(project)"
+                    @manage-members="openManagerMembers(project)"
                 />
             </div>
 
@@ -89,6 +95,13 @@ function openDelete(project: Project): void {
                 :project="selectedProject"
                 @done="selectedProject = null"
                 @cancel="selectedProject = null"
+            />
+
+            <ProjectMembersModal
+                v-model:visible="isShowMembersModal"
+                :project-id="selectedProject?.id ?? 0"
+                :owner="selectedProject?.user.data ?? {id: 0, name: '', email: ''}"
+                :members="selectedProject?.members.data ?? []"
             />
         </div>
     </AdminLayout>

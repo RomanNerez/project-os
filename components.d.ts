@@ -12,6 +12,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     Avatar: typeof import('primevue/avatar')['default']
+    AvatarGroup: typeof import('primevue/avatargroup')['default']
     Breadcrumb: typeof import('primevue/breadcrumb')['default']
     Button: typeof import('primevue/button')['default']
     Card: typeof import('primevue/card')['default']
@@ -65,5 +66,6 @@ declare module 'vue' {
   }
   export interface GlobalDirectives {
     Mask: typeof import('primevue/mask')['default']
+    Tooltip: typeof import('primevue/tooltip')['default']
   }
 }

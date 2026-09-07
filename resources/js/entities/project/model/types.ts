@@ -1,3 +1,5 @@
+import type { IncludedData } from "@/shared/types";
+
 export const PROJECT_STATUS = {
     DRAFT: 'draft',
     IN_PROGRESS: 'in_progress',
@@ -17,6 +19,11 @@ export interface Project {
     status: ProjectStatus;
     budget: number;
     active_until: string | null;
+}
+
+export interface ProjectIncludes<TUser = null, TMembers = null> extends Project {
+    user: IncludedData<TUser>;
+    members: TMembers extends null ? null : IncludedData<TMembers>;
 }
 
 export type ProjectDraft = Omit<Project, 'id'>;
@@ -49,3 +56,28 @@ export const toDraft = (project: Project): ProjectDraft => ({
     budget: project.budget,
     active_until: project.active_until,
 });
+
+export const MEMEBER_ROLE = {
+    OWNER: 'owner',
+    ADMIN: 'admin',
+    MEMBER: 'member',
+    VIEWER: 'viewer',
+} as const;
+
+export const getRoleLabel = (role?: string) => {
+    switch (role) {
+        case MEMEBER_ROLE.ADMIN: return 'Адмін';
+        case MEMEBER_ROLE.VIEWER: return 'Спостерігач';
+        case MEMEBER_ROLE.OWNER: return 'Власник';
+        default: return 'Учасник';
+    }
+};
+
+export const getRoleSeverity = (role?: string) => {
+    switch (role) {
+      case MEMEBER_ROLE.ADMIN: return 'warn';
+      case MEMEBER_ROLE.VIEWER: return 'info';
+      case MEMEBER_ROLE.OWNER: return 'contrast';
+      default: return 'secondary';
+    }
+};

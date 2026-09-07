@@ -5,6 +5,7 @@ namespace App\Containers\AppSection\Project\Models;
 use App\Containers\AppSection\User\Models\User;
 use App\Ship\Parents\Models\Model as ParentModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 final class Project extends ParentModel
 {
@@ -23,6 +24,7 @@ final class Project extends ParentModel
     ];
 
     protected $casts = [
+        'budget' => 'decimal:2',
         'active_until' => 'immutable_date',
     ];
 
@@ -32,5 +34,13 @@ final class Project extends ParentModel
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * @return BelongsToMany<User, $this>
+     */
+    public function members(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class)->using(ProjectUser::class);
     }
 }

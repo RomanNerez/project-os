@@ -22,6 +22,9 @@ final class ListProjectsAction extends ParentAction
     {
         $user = $request->user();
 
-        return $this->listProjectsTask->run(userId: $user->id);
+        return $this->listProjectsTask->run(
+            userId: $user->id,
+            with: ['user', 'members']
+        );
     }
 }

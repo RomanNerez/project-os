@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Button from 'primevue/button'
 import Textarea from 'primevue/textarea'
-import { AuthAvatar } from '@/entities/user'
+import { AuthAvatar } from '@/shared/ui'
 import { useTaskCommentForm, type TaskID } from '@/entities/task';
 
 interface Props {

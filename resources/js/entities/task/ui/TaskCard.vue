@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { UserAvatar } from '@/entities/user';
+import { UserAvatar } from '@/shared/ui';
 
 const props = withDefaults(defineProps<{
     title: string;
