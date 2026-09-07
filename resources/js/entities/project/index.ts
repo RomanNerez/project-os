@@ -7,8 +7,16 @@ export {
     STATUS_META,
     STATUS_OPTIONS,
     MEMEBER_ROLE,
+    PROJECT_OWNER_ROLE,
     emptyProjectDraft,
     getRoleLabel,
     getRoleSeverity
 } from './model/types';
-export type { Project, ProjectDraft, ProjectStatus, ProjectIncludes } from './model/types';
+export type {
+    ProjectID,
+    Project,
+    ProjectMemeber,
+    ProjectDraft,
+    ProjectStatus,
+    ProjectIncludes
+} from './model/types';

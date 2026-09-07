@@ -17,7 +17,7 @@ final class ProjectTransformer extends ParentTransformer
     ];
 
     /**
-     * @param Project $project
+     * @param Project $item
      * @return array
      */
     public function transform(Project $item): array
@@ -48,6 +48,6 @@ final class ProjectTransformer extends ParentTransformer
      */
     public function includeMembers(Project $item)
     {
-        return $this->collection($item->members, new UserTransformer());
+        return $this->collection($item->members, new ProjectMemberTransformer());
     }
 }

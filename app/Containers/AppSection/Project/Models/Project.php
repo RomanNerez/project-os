@@ -41,6 +41,10 @@ final class Project extends ParentModel
      */
     public function members(): BelongsToMany
     {
-        return $this->belongsToMany(User::class)->using(ProjectUser::class);
+        return $this
+            ->belongsToMany(User::class)
+            ->using(ProjectUser::class)
+            ->withPivot(['role'])
+            ->withTimestamps();
     }
 }

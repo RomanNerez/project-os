@@ -2,16 +2,8 @@
 import { useForm } from '@inertiajs/vue3';
 import Dialog from 'primevue/dialog';
 import { ProjectAddMemberForm } from '@/features/project-add-member';
-import { MemberItem, MEMEBER_ROLE } from '@/entities/project';
-
-interface User {
-  id: number;
-  name: string;
-  email: string;
-  pivot?: {
-    role: string;
-  };
-}
+import { MemberItem, PROJECT_OWNER_ROLE } from '@/entities/project';
+import type { ProjectMemeber } from '@/entities/project';
 
 interface Owner {
   id: number;
@@ -22,8 +14,8 @@ interface Owner {
 interface Props {
   visible: boolean;
   projectId: number;
-  owner: Owner;
-  members: User[];
+  owner?: Owner;
+  members?: ProjectMemeber[];
 }
 
 const props = defineProps<Props>();
@@ -55,26 +47,21 @@ const closeModal = () => {
     @update:visible="closeModal"
   >
     <div class="flex flex-col gap-6 pt-2">
-      <div class="flex flex-col gap-3">
-        <label class="text-sm font-medium text-surface-700 dark:text-surface-200">
-          Запросити нового користувача
-        </label>
-        
-        <ProjectAddMemberForm />
-      </div>
+      <ProjectAddMemberForm :id="projectId"/>
 
       <hr class="border-surface-200 dark:border-surface-700" />
 
       <div class="flex flex-col gap-3">
         <h4 class="text-xs font-semibold uppercase tracking-wider text-surface-500">
-          Учасники проєкту ({{ props.members.length + 1 }})
+          Учасники проєкту ({{ props.members ? props.members.length + 1 : 0 }})
         </h4>
 
         <div class="flex flex-col divide-y divide-[var(--p-surface-100)] dark:divide-surface-800">
           <MemberItem
+            v-if="props.owner"
             :name="props.owner.name"
             :email="props.owner.email"
-            :role="MEMEBER_ROLE.OWNER"
+            :role="PROJECT_OWNER_ROLE"
             :show-delete-action="false"
           />
 
@@ -83,7 +70,7 @@ const closeModal = () => {
             :key="member.id"
             :name="member.name"
             :email="member.email"
-            :role="member.pivot?.role"
+            :role="member.role"
             @on-delete="removeMember(member.id)"
           />
         </div>

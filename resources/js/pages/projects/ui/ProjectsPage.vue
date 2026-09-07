@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { Head } from '@inertiajs/vue3';
 import { AdminLayout } from '@/widgets/admin-layout';
-import { ProjectCard, type Project, type ProjectIncludes } from '@/entities/project';
+import { ProjectCard, type Project, type ProjectID, type ProjectIncludes, type ProjectMemeber } from '@/entities/project';
 import { ProjectFormModal } from '@/features/project-form';
 import { ProjectDeleteModal } from '@/features/project-delete';
 import { EmptyList } from '@/shared/ui';
@@ -10,7 +10,7 @@ import type { PaginatedServerData } from '@/shared/types';
 import type { User } from '@/entities/user';
 import { ProjectMembersModal } from '@/widgets/project-members';
 
-type ProjectItem = ProjectIncludes<User, User[]>;
+type ProjectItem = ProjectIncludes<User, ProjectMemeber[]>;
 
 interface Props {
   projects: PaginatedServerData<ProjectItem[]>
@@ -21,25 +21,28 @@ const props = defineProps<Props>();
 const isEditModalOpen = ref(false);
 const isDeleteModalOpen = ref(false);
 const isShowMembersModal = ref(false);
-const selectedProject = ref<ProjectItem | null>(null);
+const selectedProjectId = ref<ProjectID | null>(null);
+const selectedProject = computed<ProjectItem | null>(
+    () => props.projects.data.find(p => p.id === selectedProjectId.value) ?? null
+)
 
 function openCreate(): void {
-    selectedProject.value = null;
+    selectedProjectId.value = null;
     isEditModalOpen.value = true;
 }
 
-function openEdit(project: ProjectItem): void {
-    selectedProject.value = project;
+function openEdit(projectId: ProjectID): void {
+    selectedProjectId.value = projectId;
     isEditModalOpen.value = true;
 }
 
-function openDelete(project: ProjectItem): void {
-    selectedProject.value = project;
+function openDelete(projectId: ProjectID): void {
+    selectedProjectId.value = projectId;
     isDeleteModalOpen.value = true;
 }
 
-function openManagerMembers(project: ProjectItem): void {
-    selectedProject.value = project;
+function openManagerMembers(projectId: ProjectID): void {
+    selectedProjectId.value = projectId;
     isShowMembersModal.value = true;
 }
 
@@ -69,9 +72,9 @@ function openManagerMembers(project: ProjectItem): void {
                     :budget="project.budget"
                     :user-name="project.user.data.name"
                     :members="project.members.data"
-                    @edit="openEdit(project)"
-                    @delete="openDelete(project)"
-                    @manage-members="openManagerMembers(project)"
+                    @edit="openEdit(project.id)"
+                    @delete="openDelete(project.id)"
+                    @manage-members="openManagerMembers(project.id)"
                 />
             </div>
 
@@ -100,8 +103,8 @@ function openManagerMembers(project: ProjectItem): void {
             <ProjectMembersModal
                 v-model:visible="isShowMembersModal"
                 :project-id="selectedProject?.id ?? 0"
-                :owner="selectedProject?.user.data ?? {id: 0, name: '', email: ''}"
-                :members="selectedProject?.members.data ?? []"
+                :owner="selectedProject?.user.data"
+                :members="selectedProject?.members.data"
             />
         </div>
     </AdminLayout>

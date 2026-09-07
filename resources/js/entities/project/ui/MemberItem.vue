@@ -5,7 +5,7 @@ import { getRoleLabel, getRoleSeverity } from '../model/types';
 interface Props {
     name: string;
     email: string;
-    role?: string;
+    role: string;
     showDeleteAction?: boolean;
 }
 const props = withDefaults(defineProps<Props>(), {
