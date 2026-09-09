@@ -22,7 +22,7 @@ final class ListTasksAction extends ParentAction
     {
         $user = $request->user();
 
-        return $this->listTasksTask->run(userId:$user->id, with: [
+        return $this->listTasksTask->run(userId: $user->id, with: [
             'project',
             'assignee',
             'comments' => fn($query) => $query->with('user')->orderBy('created_at', 'desc')

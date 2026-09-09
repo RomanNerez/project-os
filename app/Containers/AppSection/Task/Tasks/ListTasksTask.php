@@ -24,7 +24,7 @@ final class ListTasksTask extends ParentTask
         return $this->repository
             ->addRequestCriteria()
             ->with($with)
-            ->filterByUserId($userId)
+            ->scopeVisibleForUser($userId)
             ->orderBy('created_at', 'desc')
             ->paginate();
     }

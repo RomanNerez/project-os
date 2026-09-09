@@ -122,38 +122,36 @@ const { form, submit, reset } = useTaskForm(
                         :pt="{ root: { class: '!px-0' } }"
                     >
                         <TabPanel value="tab1" >
-                            <div class="max-w-3xl mx-auto">
-                                <TaskCreateComment
-                                    :task-id="task?.id ?? 0"
-                                />
-                                <div class="space-y-4">
-                                    <CommentCard
-                                        v-for="comment in comments" 
-                                        :key="comment.id"
-                                        :user-name="comment.user.data.name"
-                                        :body="comment.body"
-                                        :created-at="comment.created_at"
-                                        :is-editing-mode="selectedEditCommentId === comment.id"
-                                        @on-edit="selectedEditCommentId = comment.id"
-                                        @on-delete="selectedDeleteCommentId = comment.id"
-                                    >
-                                        <template #edit-container>
-                                            <CommentEditForm
-                                                :comment-id="comment.id"
-                                                :body="comment.body"
-                                                @on-done="selectedEditCommentId = null"
-                                                @on-cancel="selectedEditCommentId = null"
-                                            />
-                                        </template>
-                                    </CommentCard>
-                                </div>
-                                <CommentDeleteModal
-                                    v-model:visible="isDeleteCommentModalVisible"
-                                    :comment-id="selectedDeleteCommentId ?? 0"
-                                    @on-done="selectedDeleteCommentId = null"
-                                    @on-cancel="selectedDeleteCommentId = null"
-                                />
+                            <TaskCreateComment
+                                :task-id="task?.id ?? 0"
+                            />
+                            <div class="space-y-4">
+                                <CommentCard
+                                    v-for="comment in comments" 
+                                    :key="comment.id"
+                                    :user-name="comment.user.data.name"
+                                    :body="comment.body"
+                                    :created-at="comment.created_at"
+                                    :is-editing-mode="selectedEditCommentId === comment.id"
+                                    @on-edit="selectedEditCommentId = comment.id"
+                                    @on-delete="selectedDeleteCommentId = comment.id"
+                                >
+                                    <template #edit-container>
+                                        <CommentEditForm
+                                            :comment-id="comment.id"
+                                            :body="comment.body"
+                                            @on-done="selectedEditCommentId = null"
+                                            @on-cancel="selectedEditCommentId = null"
+                                        />
+                                    </template>
+                                </CommentCard>
                             </div>
+                            <CommentDeleteModal
+                                v-model:visible="isDeleteCommentModalVisible"
+                                :comment-id="selectedDeleteCommentId ?? 0"
+                                @on-done="selectedDeleteCommentId = null"
+                                @on-cancel="selectedDeleteCommentId = null"
+                            />
                         </TabPanel>
                     </TabPanels>
                 </Tabs>
