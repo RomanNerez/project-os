@@ -16,6 +16,7 @@ export {
 export type {
     ProjectID,
     ProjectMemberID,
+    TaskStatusCounts,
     Project,
     ProjectMember,
     ProjectDraft,

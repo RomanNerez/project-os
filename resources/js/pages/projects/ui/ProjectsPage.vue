@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue';
 import { Head } from '@inertiajs/vue3';
 import { AdminLayout } from '@/widgets/admin-layout';
-import { ProjectCard, type Project, type ProjectID, type ProjectIncludes, type ProjectMemeber } from '@/entities/project';
+import { ProjectCard, type ProjectID, type ProjectIncludes, type ProjectMember, type TaskStatusCounts } from '@/entities/project';
 import { ProjectFormModal } from '@/features/project-form';
 import { ProjectDeleteModal } from '@/features/project-delete';
 import { EmptyList } from '@/shared/ui';
@@ -10,7 +10,7 @@ import type { PaginatedServerData } from '@/shared/types';
 import type { User } from '@/entities/user';
 import { ProjectMembersModal } from '@/widgets/project-members';
 
-type ProjectItem = ProjectIncludes<User, ProjectMemeber[]>;
+type ProjectItem = ProjectIncludes<User, ProjectMember[], TaskStatusCounts>;
 
 interface Props {
   projects: PaginatedServerData<ProjectItem[]>
@@ -25,6 +25,12 @@ const selectedProjectId = ref<ProjectID | null>(null);
 const selectedProject = computed<ProjectItem | null>(
     () => props.projects.data.find(p => p.id === selectedProjectId.value) ?? null
 )
+
+const calculateProgress = (counts: TaskStatusCounts): number => {
+  if (!counts || !counts.total) return 0;
+
+  return Math.round((counts.done / counts.total) * 100);
+};
 
 function openCreate(): void {
     selectedProjectId.value = null;
@@ -62,19 +68,20 @@ function openManagerMembers(projectId: ProjectID): void {
         <div class="flex h-full flex-col gap-4 overflow-y-auto">
             <div v-if="props.projects.data.length" class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                 <ProjectCard
-                    v-for="project in props.projects.data"
-                    :key="project.id"
-                    :id="project.id"
-                    :title="project.title"
-                    :description="project.description"
-                    :active-until="project.active_until"
-                    :proejct-status="project.status"
-                    :budget="project.budget"
-                    :user-name="project.user.data.name"
-                    :members="project.members.data"
-                    @edit="openEdit(project.id)"
-                    @delete="openDelete(project.id)"
-                    @manage-members="openManagerMembers(project.id)"
+                    v-for="p in props.projects.data"
+                    :key="p.id"
+                    :id="p.id"
+                    :title="p.title"
+                    :description="p.description"
+                    :active-until="p.active_until"
+                    :proejct-status="p.status"
+                    :budget="p.budget"
+                    :user-name="p.user.data.name"
+                    :members="p.members.data"
+                    :progress="calculateProgress(p.task_status_counts)"
+                    @edit="openEdit(p.id)"
+                    @delete="openDelete(p.id)"
+                    @manage-members="openManagerMembers(p.id)"
                 />
             </div>
 

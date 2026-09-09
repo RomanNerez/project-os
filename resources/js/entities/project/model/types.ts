@@ -29,9 +29,15 @@ export interface ProjectMember {
     role: typeof MEMEBER_ROLE[keyof typeof MEMEBER_ROLE]
 }
 
-export interface ProjectIncludes<TUser = null, TMembers = null> extends Project {
+export interface TaskStatusCounts {
+    total: number;
+    done: number;
+}
+
+export interface ProjectIncludes<TUser = null, TMembers = null, TTaskStatusCount = null> extends Project {
     user: IncludedData<TUser>;
     members: TMembers extends null ? null : IncludedData<TMembers>;
+    task_status_counts: TTaskStatusCount extends null ? null : TaskStatusCounts;
 }
 
 export type ProjectDraft = Omit<Project, 'id'>;

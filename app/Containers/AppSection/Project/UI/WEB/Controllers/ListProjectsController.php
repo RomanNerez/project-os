@@ -24,7 +24,7 @@ final class ListProjectsController extends WebController
         $projects = $this->action->run($request);
 
         $projects = fractal($projects, new ProjectTransformer())
-            ->parseIncludes(['user', 'members'])
+            ->parseIncludes(['user', 'members', 'task_status_counts'])
             ->toArray();
 
         return Inertia::render('projects', [

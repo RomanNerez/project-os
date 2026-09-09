@@ -12,7 +12,7 @@ export interface ProjectUser {
   avatar?: string | null;
 }
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
     id: ProjectID
     title: string;
     description: string;
@@ -21,8 +21,12 @@ const props = defineProps<{
     budget: string | number;
     userName: string;
     members: ProjectUser[];
+    progress?: number;
     maxDisplayedMembers?: number;
-}>();
+}>(), {
+    maxDisplayedMembers: 3,
+    progress: 0,
+});
 
 defineEmits<{
     edit: [];
@@ -77,9 +81,9 @@ const hiddenMembersCount = computed(() => Math.max(0, (props.members?.length ?? 
                 <div class="flex flex-col gap-2">
                     <div class="flex items-center justify-between text-sm">
                         <span class="text-muted-color">Прогрес</span>
-                        <span class="font-medium">50%</span>
+                        <span class="font-medium">{{progress}}%</span>
                     </div>
-                    <ProgressBar :value="50" :show-value="false" class="h-2!" />
+                    <ProgressBar :value="progress" :show-value="false" class="h-2!" />
                 </div>
 
                 <div class="flex items-center justify-between gap-2 pt-3">

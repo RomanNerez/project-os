@@ -1,5 +1,6 @@
 <?php
 
+use App\Containers\AppSection\Task\Enums\TaskStatus;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -18,7 +19,7 @@ return new class() extends Migration
             $table->foreignId('assignee_id')->nullable()->constrained('users')->nullOnDelete();
             $table->string('title');
             $table->text('description')->nullable();
-            $table->string('status', 32)->nullable();
+            $table->string('status', 32)->default(TaskStatus::TODO->value);
             $table->timestamps();
         });
     }

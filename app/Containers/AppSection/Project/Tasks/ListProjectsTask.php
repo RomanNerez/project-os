@@ -19,11 +19,12 @@ final class ListProjectsTask extends ParentTask
      * @param array<int, mixed> $with
      * @return LengthAwarePaginator<int, Project>
      */
-    public function run(int $userId, array $with = []): LengthAwarePaginator
+    public function run(int $userId, array $with = [], array $withCount = []): LengthAwarePaginator
     {
         return $this->repository
             ->addRequestCriteria()
             ->with($with)
+            ->withCount($withCount)
             ->scopeAuthUserId($userId)
             ->orderBy('created_at', 'desc')
             ->paginate();
