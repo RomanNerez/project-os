@@ -42,6 +42,22 @@ export interface ProjectIncludes<TUser = null, TMembers = null, TTaskStatusCount
 
 export type ProjectDraft = Omit<Project, 'id'>;
 
+export interface ProjectFilters {
+    search: string;
+    statuses: ProjectStatus[];
+}
+
+export const emptyProjectFilters = (): ProjectFilters => ({
+    search: '',
+    statuses: [],
+});
+
+export const hasActiveProjectFilters = (filters: ProjectFilters): boolean =>
+    filters.search !== '' || filters.statuses.length > 0;
+
+export const isProjectStatus = (value: string): value is ProjectStatus =>
+    (Object.values(PROJECT_STATUS) as string[]).includes(value);
+
 export const STATUS_META: Record<ProjectStatus, { label: string; severity: 'secondary' | 'warn' | 'danger' }> = {
     draft: { label: 'Чернетка', severity: 'secondary' },
     in_progress: { label: 'У процесі', severity: 'warn' },

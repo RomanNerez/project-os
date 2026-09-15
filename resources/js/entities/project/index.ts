@@ -10,10 +10,14 @@ export {
     MEMEBER_ROLE,
     PROJECT_OWNER_ROLE,
     emptyProjectDraft,
+    emptyProjectFilters,
+    hasActiveProjectFilters,
+    isProjectStatus,
     getRoleLabel,
     getRoleSeverity
 } from './model/types';
 export type {
+    ProjectFilters,
     ProjectID,
     ProjectMemberID,
     TaskStatusCounts,

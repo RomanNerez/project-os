@@ -10,6 +10,9 @@ final class ListProjectsRequest extends ParentRequest
 
     public function rules(): array
     {
-        return [];
+        return [
+            'search' => ['nullable', 'string', 'max:512'],
+            'searchJoin' => ['nullable', 'string', 'in:and,or'],
+        ];
     }
 }

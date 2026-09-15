@@ -13,7 +13,8 @@ use App\Ship\Parents\Repositories\Repository as ParentRepository;
 final class ProjectRepository extends ParentRepository
 {
     protected $fieldSearchable = [
-        // 'id' => '=',
+        'title' => 'ilike',
+        'status' => 'in',
     ];
 
     /**
@@ -22,12 +23,11 @@ final class ProjectRepository extends ParentRepository
      */
     public function scopeAuthUserId(int $userId): self
     {
-        $this->scopeQuery(fn($query) =>
-            $query
+        $this->scopeQuery(fn($query) => $query->where(
+            fn($query) => $query
                 ->where('user_id', $userId)
                 ->orWhereHas('members', fn($query) => $query->where('users.id', $userId))
-
-        );
+        ));
 
         return $this;
     }

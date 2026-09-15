@@ -2,3 +2,4 @@ export { parseDateValue, toDateValue, formatDateLong, formatDateHuman } from './
 export { formatDuration, formatTimeOfDay, formatDayLabel, toDayKey } from './duration';
 export { formatSize } from './file-helpers';
 export { getInitials } from  './string';
+export { debounce } from './debounce';

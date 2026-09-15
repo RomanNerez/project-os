@@ -5,6 +5,7 @@ import { AdminLayout } from '@/widgets/admin-layout';
 import { ProjectCard, type ProjectID, type ProjectIncludes, type ProjectMember, type TaskStatusCounts } from '@/entities/project';
 import { ProjectFormModal } from '@/features/project-form';
 import { ProjectDeleteModal } from '@/features/project-delete';
+import { ProjectFiltersPanel, useActiveProjectFilters } from '@/features/project-filters';
 import { EmptyList } from '@/shared/ui';
 import type { PaginatedServerData } from '@/shared/types';
 import type { User } from '@/entities/user';
@@ -18,6 +19,7 @@ interface Props {
 
 const props = defineProps<Props>();
 
+const hasActiveFilters = useActiveProjectFilters();
 const isEditModalOpen = ref(false);
 const isDeleteModalOpen = ref(false);
 const isShowMembersModal = ref(false);
@@ -66,6 +68,8 @@ function openManagerMembers(projectId: ProjectID): void {
         </template>
 
         <div class="flex h-full flex-col gap-4 overflow-y-auto">
+            <ProjectFiltersPanel />
+
             <div v-if="props.projects.data.length" class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                 <ProjectCard
                     v-for="p in props.projects.data"
@@ -84,6 +88,13 @@ function openManagerMembers(projectId: ProjectID): void {
                     @manage-members="openManagerMembers(p.id)"
                 />
             </div>
+
+            <EmptyList
+                v-else-if="hasActiveFilters"
+                icon-class="pi-search"
+                decription="Проєктів за такими фільтрами не знайдено"
+                :show-action="false"
+            />
 
             <EmptyList
                 v-else

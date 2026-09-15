@@ -1,5 +1,6 @@
 export { default as FormText } from './Text.vue'
 export { default as FormSelect } from './Select.vue'
+export { default as FormMultiSelect } from './MultiSelect.vue'
 export { default as FormEditor } from './Editor.vue'
 export { default as FormPassword } from './Password.vue'
 export { default as FormDate } from './Date.vue'
