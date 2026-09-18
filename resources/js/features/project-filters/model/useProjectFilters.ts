@@ -1,6 +1,6 @@
 import { computed, ref, watch, type ComputedRef, type Ref } from 'vue';
 import { router, usePage } from '@inertiajs/vue3';
-import { debounce } from '@/shared/lib';
+import { buildQuery, debounce, readQuery } from '@/shared/lib';
 import {
     emptyProjectFilters,
     hasActiveProjectFilters,
@@ -25,7 +25,12 @@ export function useProjectFilters(): UseProjectFilters {
     const filters = ref<ProjectFilters>(parseFilterQuery(page.url));
 
     function apply(): void {
-        router.get(projectRoutes.index(), buildFilterQuery(filters.value), {
+        const query = buildQuery({
+            ...buildFilterQuery(filters.value),
+            limit: readQuery(page.url).limit,
+        });
+
+        router.get(projectRoutes.index(), query, {
             preserveState: true,
             preserveScroll: true,
             replace: true,

@@ -6,6 +6,7 @@ import { ProjectCard, type ProjectID, type ProjectIncludes, type ProjectMember, 
 import { ProjectFormModal } from '@/features/project-form';
 import { ProjectDeleteModal } from '@/features/project-delete';
 import { ProjectFiltersPanel, useActiveProjectFilters } from '@/features/project-filters';
+import { ProjectPaginationBar, useExplicitPerPage } from '@/features/project-pagination';
 import { EmptyList } from '@/shared/ui';
 import type { PaginatedServerData } from '@/shared/types';
 import type { User } from '@/entities/user';
@@ -20,6 +21,14 @@ interface Props {
 const props = defineProps<Props>();
 
 const hasActiveFilters = useActiveProjectFilters();
+const hasExplicitPerPage = useExplicitPerPage();
+const pagination = computed(() => props.projects.meta.pagination);
+const showPagination = computed(
+    () => pagination.value.total > pagination.value.per_page
+        || hasExplicitPerPage.value
+        || pagination.value.current_page > 1
+);
+const isBeyondLastPage = computed(() => pagination.value.current_page > pagination.value.total_pages);
 const isEditModalOpen = ref(false);
 const isDeleteModalOpen = ref(false);
 const isShowMembersModal = ref(false);
@@ -97,12 +106,21 @@ function openManagerMembers(projectId: ProjectID): void {
             />
 
             <EmptyList
+                v-else-if="isBeyondLastPage"
+                icon-class="pi-file"
+                decription="На цій сторінці проєктів немає"
+                :show-action="false"
+            />
+
+            <EmptyList
                 v-else
                 icon-class="pi-folder-open"
                 decription="Проєктів поки немає"
                 button-label="Створити перший проєкт"
                 @on-handler="openCreate"
             />
+
+            <ProjectPaginationBar v-if="showPagination" :pagination="pagination" />
 
             <ProjectFormModal
                 v-model:visible="isEditModalOpen"

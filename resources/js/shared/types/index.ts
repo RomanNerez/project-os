@@ -1,1 +1,1 @@
-export type { IncludedData, ServerData, PaginatedServerData } from './server';
+export type { IncludedData, ServerData, PaginatedServerData, Pagination } from './server';
