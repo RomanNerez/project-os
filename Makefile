@@ -1,4 +1,5 @@
 DOCKER_EXEC = docker compose exec app
+DOCKER_TESTING = docker compose -f docker-compose.testing.yml -p project-os-testing
 
 .PHONY: optimize migrate restart-supervisor deploy
 
@@ -7,6 +8,18 @@ local-up:
 
 local-down:
 	docker compose -f docker-compose.yml -f docker-compose.local.yml down
+
+testing-build:
+	$(DOCKER_TESTING) build --no-cache
+
+testing-up:
+	$(DOCKER_TESTING) up -d
+
+testing-bash:
+	$(DOCKER_TESTING) exec app.testing bash
+
+testing-down:
+	$(DOCKER_TESTING) up -d
 
 optimize:
 	$(DOCKER_EXEC) php artisan optimize:clear

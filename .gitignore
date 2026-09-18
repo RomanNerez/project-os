@@ -2,6 +2,7 @@
 .env.*
 !.env.ci
 !.env.example
+!.env.testing.example
 storage/logs/laravel.log
 /public/uploads/
 /laradock*/

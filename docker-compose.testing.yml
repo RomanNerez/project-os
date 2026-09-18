@@ -1,0 +1,48 @@
+services:
+  app.testing:
+    build:
+      context: docker-compose/app
+      dockerfile: Dockerfile
+      args:
+        user: project-os
+        uid: 1000
+    image: project-os-testing
+    container_name: project-os-app-testing
+    working_dir: /var/www/
+    volumes:
+      - ./:/var/www
+      - testing-vendor:/var/www/vendor
+      - ./phpstan_cache:/var/www/phpstan_cache
+      - ./.env.testing:/var/www/.env
+    depends_on:
+      db.testing:
+        condition: service_healthy
+    networks:
+      - project-os-testing
+
+  db.testing:
+    image: postgres:16-alpine
+    container_name: project-os-db-testing
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:54330:5432"
+    environment:
+      - POSTGRES_DB=project_os_test
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d project_os_test"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - project-os-testing
+
+networks:
+  project-os-testing:
+    driver: bridge
+
+volumes:
+  testing-vendor:

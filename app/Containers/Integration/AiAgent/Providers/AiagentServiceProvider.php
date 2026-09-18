@@ -15,8 +15,12 @@ final class AiagentServiceProvider extends ParentServiceProvider
     public function boot(): void
     {
         Inertia::share('ai_agent', [
-            'messages' => fractal(app(ListChatMessagesTask::class)->run(), new AiChatMessageTransformer())
+            'messages' => []
         ]);
+
+        // Inertia::share('ai_agent', [
+        //     'messages' => fractal(app(ListChatMessagesTask::class)->run(), new AiChatMessageTransformer())
+        // ]);
     }
 
     /**

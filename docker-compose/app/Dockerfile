@@ -101,7 +101,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
 # System user
 # -----------------------------
 RUN useradd -m -G www-data,root -u $uid -d /home/$user $user \
-    && mkdir -p /home/$user/.composer \
+    && mkdir -p /home/$user/.composer /var/www/vendor \
     && chown -R $user:$user /home/$user /var/www
 
 # -----------------------------
