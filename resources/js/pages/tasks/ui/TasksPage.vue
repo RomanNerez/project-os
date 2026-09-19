@@ -9,6 +9,7 @@ import type { TaskProp } from '../model/types';
 import type { PaginatedServerData } from '@/shared/types';
 import { EmptyList } from '@/shared/ui';
 import TaskEditFormModal from '@/widgets/task-edit-form-modal/ui/TaskEditFormModal.vue';
+import { TaskFiltersPanel, useActiveTaskFilters } from '@/features/task-filters';
 
 interface Props {
     tasks: PaginatedServerData<TaskProp[]>;
@@ -23,6 +24,8 @@ const isEditModalOpen = ref(false);
 const isDeleteModalOpen = ref(false);
 const selectedTaskId = ref<number | null>(null);
 const selectedTask = computed<TaskProp | null>(() => props.tasks.data.find(t => t.id === selectedTaskId.value) || null);
+
+const isActiveFilters = useActiveTaskFilters();
 
 const transformTasks = computed(() => {
     return props.tasks.data.map((t) => {
@@ -68,6 +71,8 @@ function openDelete(task: TaskProp): void {
         </template>
 
         <div class="flex h-full flex-col gap-4">
+            <TaskFiltersPanel />
+
             <div v-if="props.tasks.data.length" class="flex flex-col gap-2 overflow-y-auto">
                 <TaskCard
                     v-for="task in transformTasks"
@@ -84,6 +89,13 @@ function openDelete(task: TaskProp): void {
                     @delete="openDelete(task)"
                 />
             </div>
+
+            <EmptyList
+                v-else-if="isActiveFilters"
+                icon-class="pi-search"
+                decription="Задач за такими фільтрами не знайдено"
+                :show-action="false"
+            />
 
             <EmptyList
                 v-else

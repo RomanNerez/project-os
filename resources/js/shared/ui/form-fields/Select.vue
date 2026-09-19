@@ -20,6 +20,8 @@ interface Props {
   optionDisabled?: SelectProps['optionDisabled']
   optionGroupLabel?: SelectProps['optionGroupLabel']
   optionGroupChildren?: SelectProps['optionGroupChildren']
+  multiple?: SelectProps['multiple'];
+  checkmark?: SelectProps['checkmark'];
   placeholder?: string
   showClear?: boolean
   filter?: boolean
@@ -69,6 +71,8 @@ const value = computed({
             :option-group-label="optionGroupLabel"
             :option-group-children="optionGroupChildren"
             :placeholder="placeholder"
+            :multiple="multiple"
+            :checkmark="checkmark"
             :show-clear="showClear"
             :filter="filter"
             :filter-placeholder="filterPlaceholder"

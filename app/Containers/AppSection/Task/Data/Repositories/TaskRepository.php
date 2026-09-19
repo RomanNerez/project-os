@@ -13,7 +13,8 @@ use App\Ship\Parents\Repositories\Repository as ParentRepository;
 final class TaskRepository extends ParentRepository
 {
     protected $fieldSearchable = [
-        // 'id' => '=',
+        'title' => 'ilike',
+        'status' => 'in',
     ];
 
     /**

@@ -26,6 +26,6 @@ final class ListTasksTask extends ParentTask
             ->with($with)
             ->scopeVisibleForUser($userId)
             ->orderBy('created_at', 'desc')
-            ->paginate();
+            ->paginate(limit: 50);
     }
 }
