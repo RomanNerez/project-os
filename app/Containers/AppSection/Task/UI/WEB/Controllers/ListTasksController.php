@@ -27,13 +27,13 @@ final class ListTasksController extends WebController
      */
     public function __invoke(ListTasksRequest $request): Response
     {
-        $tasks = $this->action->run($request);
-        $tasks = fractal($tasks, new TaskTransformer())
+        $paginator = $this->action->run($request);
+        $tasks = fractal($paginator, new TaskTransformer())
             ->parseIncludes(['project', 'assignee', 'media', 'comments.user'])
             ->toArray();
 
         return Inertia::render('tasks', [
-            'tasks' => $tasks,
+            'tasks' => Inertia::paginatedScroll($tasks, $paginator),
             'projects' => $this->listAllProjectsAction->run()
                 ->map(static fn (Project $project): array => [
                     'id' => $project->id,

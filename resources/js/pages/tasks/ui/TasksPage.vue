@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { Head } from '@inertiajs/vue3';
+import { InfiniteScroll } from "@inertiajs/vue3";
 import { AdminLayout } from '@/widgets/admin-layout';
 import { STATUS_META, TaskCard, type TaskAssignee, type TaskProject } from '@/entities/task';
 import { TaskCreateFormModal } from '@/features/task-create-form';
@@ -73,21 +74,25 @@ function openDelete(task: TaskProp): void {
         <div class="flex h-full flex-col gap-4">
             <TaskFiltersPanel />
 
-            <div v-if="props.tasks.data.length" class="flex flex-col gap-2 overflow-y-auto">
-                <TaskCard
-                    v-for="task in transformTasks"
-                    :key="task.id"
-                    :task="task"
-                    :status-label="task.statusLabel"
-                    :status-color="task.statusColor"
-                    :title="task.title"
-                    :comments-count="task.comments.data.length"
-                    :files-count="task.media.data.length"
-                    :assignee-name="task.assignee?.data.name ?? ''"
-                    :project-title="task.project?.data.title ?? ''"
-                    @edit="openEdit(task)"
-                    @delete="openDelete(task)"
-                />
+            <div v-if="transformTasks.length" class="min-h-0 flex-1 overflow-y-auto">
+                <InfiniteScroll
+                    class="flex flex-col gap-2"
+                    data="tasks"
+                >
+                    <TaskCard
+                        v-for="task in transformTasks"
+                        :key="task.id"
+                        :status-label="task.statusLabel"
+                        :status-color="task.statusColor"
+                        :title="task.title"
+                        :comments-count="task.comments.data.length"
+                        :files-count="task.media.data.length"
+                        :assignee-name="task.assignee?.data.name ?? ''"
+                        :project-title="task.project?.data.title ?? ''"
+                        @edit="openEdit(task)"
+                        @delete="openDelete(task)"
+                    />
+                </InfiniteScroll>
             </div>
 
             <EmptyList

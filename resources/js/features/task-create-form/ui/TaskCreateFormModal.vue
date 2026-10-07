@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { toRefs } from 'vue';
-import { STATUS_OPTIONS, useTaskForm, type Task, type TaskAssignee, type TaskProject } from '@/entities/task';
-import { FormEditor, FormSelect, FormText } from '@/shared/ui';
+import { useTaskForm, type Task, type TaskAssignee, type TaskProject } from '@/entities/task';
+import { FormText } from '@/shared/ui';
 
 const props = defineProps<{
     task: Task | null;

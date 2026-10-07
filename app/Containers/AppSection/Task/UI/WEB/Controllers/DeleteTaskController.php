@@ -22,6 +22,6 @@ final class DeleteTaskController extends WebController
     {
         $this->action->run($id);
 
-        return to_route('tasks.index');
+        return back();
     }
 }

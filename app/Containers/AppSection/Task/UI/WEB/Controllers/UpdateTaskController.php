@@ -22,6 +22,6 @@ final class UpdateTaskController extends WebController
     {
         $this->action->run($request, $id);
 
-        return to_route('tasks.index');
+        return back();
     }
 }

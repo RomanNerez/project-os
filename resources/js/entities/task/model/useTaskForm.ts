@@ -5,7 +5,7 @@ import { taskRoutes } from "../api/taskRoutes";
 
 export function useTaskForm(task: Ref<Task | null>, onDone: () => void) {
     const form = useForm<TaskDraft>(emptyTaskDraft());
-    const options = { onSuccess: onDone, preserveScroll: true };
+    const options = { onSuccess: onDone, preserveScroll: true, reset: ['tasks'] };
 
     function reset(): void {
         form.defaults(task.value ? toDraft(task.value) : emptyTaskDraft());

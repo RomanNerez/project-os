@@ -22,6 +22,6 @@ final class CreateTaskController extends WebController
     {
         $this->action->run($request);
 
-        return to_route('tasks.index');
+        return back();
     }
 }

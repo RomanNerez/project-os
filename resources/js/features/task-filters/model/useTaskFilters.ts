@@ -19,7 +19,7 @@ export function useTaskFilters() {
     function apply(): void {
         const query = buildQuery({
             ...buildFilterQuery(filters.value),
-            ...excludeQueryParams(readQuery(page.url), ['search', 'searchJoin']),
+            ...excludeQueryParams(readQuery(page.url), ['search', 'searchJoin', 'page']),
         });
 
         router.get(route('tasks.index'), query, {
@@ -27,6 +27,7 @@ export function useTaskFilters() {
             preserveScroll: true,
             replace: true,
             only: ['tasks'],
+            reset: ['tasks'],
         });
     }
 

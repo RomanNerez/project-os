@@ -63,6 +63,7 @@ declare module 'vue' {
     Tag: typeof import('primevue/tag')['default']
     Textarea: typeof import('primevue/textarea')['default']
     Toolbar: typeof import('primevue/toolbar')['default']
+    VirtualScroller: typeof import('primevue/virtualscroller')['default']
   }
   export interface GlobalDirectives {
     Mask: typeof import('primevue/mask')['default']
