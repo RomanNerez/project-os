@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { STATUS_OPTIONS, type ProjectStatus } from '@/entities/project';
-import { FormText, FormMultiSelect } from '@/shared/ui';
+import { STATUS_OPTIONS } from '@/entities/project';
+import { FormText, FormSelect } from '@/shared/ui';
 import { useProjectFilters } from '../model/useProjectFilters';
 
 const { filters, isActive, setSearch, setStatuses, reset } = useProjectFilters();
@@ -12,20 +12,21 @@ const { filters, isActive, setSearch, setStatuses, reset } = useProjectFilters()
             name="project-search"
             placeholder="Пошук за назвою"
             class="w-full sm:w-72"
-            :model-value="filters.search"
+            :model-value="filters.title"
             @update:model-value="setSearch(String($event))"
         />
 
-        <FormMultiSelect
-            name="project-statuses"
-            placeholder="Усі статуси"
+        <FormSelect
+            name="task-status"
             class="w-full sm:w-64"
+            :options="STATUS_OPTIONS"
             option-label="label"
             option-value="value"
-            :options="STATUS_OPTIONS"
-            :model-value="filters.statuses"
-            :show-toggle-all="false"
-            @update:model-value="setStatuses($event as ProjectStatus[])"
+            placeholder="Статус"
+            multiple
+            checkmark
+            :model-value="filters.status"
+            @update:model-value="setStatuses($event)"
         />
 
         <Button

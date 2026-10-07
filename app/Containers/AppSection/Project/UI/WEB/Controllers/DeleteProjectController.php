@@ -22,6 +22,6 @@ final class DeleteProjectController extends WebController
     {
         $this->action->run($id);
 
-        return to_route('projects.index');
+        return back();
     }
 }

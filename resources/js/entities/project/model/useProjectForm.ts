@@ -5,7 +5,7 @@ import { projectRoutes } from "../api/projectRoutes";
 
 export function useProjectForm(project: Ref<Project | null>, onDone: () => void) {
     const form = useForm<ProjectDraft>(emptyProjectDraft());
-    const options = { onSuccess: onDone, preserveScroll: true };
+    const options = { onSuccess: onDone, preserveScroll: true, reset: ['projects'] };
 
     function reset(): void {
         form.defaults(project.value ? toDraft(project.value) : emptyProjectDraft());

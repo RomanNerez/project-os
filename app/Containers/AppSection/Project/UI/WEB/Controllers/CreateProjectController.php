@@ -22,6 +22,6 @@ final class CreateProjectController extends WebController
     {
         $this->action->run($request);
         
-        return to_route('projects.index');
+        return back();
     }
 }

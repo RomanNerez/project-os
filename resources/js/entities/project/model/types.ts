@@ -43,17 +43,17 @@ export interface ProjectIncludes<TUser = null, TMembers = null, TTaskStatusCount
 export type ProjectDraft = Omit<Project, 'id'>;
 
 export interface ProjectFilters {
-    search: string;
-    statuses: ProjectStatus[];
+    title: string;
+    status: ProjectStatus[];
 }
 
 export const emptyProjectFilters = (): ProjectFilters => ({
-    search: '',
-    statuses: [],
+    title: '',
+    status: [],
 });
 
 export const hasActiveProjectFilters = (filters: ProjectFilters): boolean =>
-    filters.search !== '' || filters.statuses.length > 0;
+    filters.title !== '' || filters.status.length > 0;
 
 export const isProjectStatus = (value: string): value is ProjectStatus =>
     (Object.values(PROJECT_STATUS) as string[]).includes(value);

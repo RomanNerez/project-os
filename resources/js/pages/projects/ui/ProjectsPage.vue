@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { Head } from '@inertiajs/vue3';
+import { Head, InfiniteScroll } from '@inertiajs/vue3';
 import { AdminLayout } from '@/widgets/admin-layout';
 import { ProjectCard, type ProjectID, type ProjectIncludes, type ProjectMember, type TaskStatusCounts } from '@/entities/project';
 import { ProjectFormModal } from '@/features/project-form';
 import { ProjectDeleteModal } from '@/features/project-delete';
 import { ProjectFiltersPanel, useActiveProjectFilters } from '@/features/project-filters';
-import { ProjectPaginationBar, useExplicitPerPage } from '@/features/project-pagination';
 import { EmptyList } from '@/shared/ui';
 import type { PaginatedServerData } from '@/shared/types';
 import type { User } from '@/entities/user';
@@ -21,14 +20,6 @@ interface Props {
 const props = defineProps<Props>();
 
 const hasActiveFilters = useActiveProjectFilters();
-const hasExplicitPerPage = useExplicitPerPage();
-const pagination = computed(() => props.projects.meta.pagination);
-const showPagination = computed(
-    () => pagination.value.total > pagination.value.per_page
-        || hasExplicitPerPage.value
-        || pagination.value.current_page > 1
-);
-const isBeyondLastPage = computed(() => pagination.value.current_page > pagination.value.total_pages);
 const isEditModalOpen = ref(false);
 const isDeleteModalOpen = ref(false);
 const isShowMembersModal = ref(false);
@@ -76,72 +67,68 @@ function openManagerMembers(projectId: ProjectID): void {
             <Button label="Новий проєкт" icon="pi pi-plus" @click="openCreate" />
         </template>
 
-        <div class="flex h-full flex-col gap-4 overflow-y-auto">
+        <div class="flex h-full flex-col gap-4">
             <ProjectFiltersPanel />
 
-            <div v-if="props.projects.data.length" class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                <ProjectCard
-                    v-for="p in props.projects.data"
-                    :key="p.id"
-                    :id="p.id"
-                    :title="p.title"
-                    :description="p.description"
-                    :active-until="p.active_until"
-                    :proejct-status="p.status"
-                    :budget="p.budget"
-                    :user-name="p.user.data.name"
-                    :members="p.members.data"
-                    :progress="calculateProgress(p.task_status_counts)"
-                    @edit="openEdit(p.id)"
-                    @delete="openDelete(p.id)"
-                    @manage-members="openManagerMembers(p.id)"
-                />
+            <div class="overflow-y-auto">
+                <InfiniteScroll
+                    class="grid gap-4 md:grid-cols-2 xl:grid-cols-3 pb-1"
+                    data="projects"
+                >
+                    <ProjectCard
+                        v-for="p in projects.data"
+                        :key="p.id"
+                        :id="p.id"
+                        :title="p.title"
+                        :description="p.description"
+                        :active-until="p.active_until"
+                        :proejct-status="p.status"
+                        :budget="p.budget"
+                        :user-name="p.user.data.name"
+                        :members="p.members.data"
+                        :progress="calculateProgress(p.task_status_counts)"
+                        @edit="openEdit(p.id)"
+                        @delete="openDelete(p.id)"
+                        @manage-members="openManagerMembers(p.id)"
+                    />
+                </InfiniteScroll>
             </div>
 
             <EmptyList
-                v-else-if="hasActiveFilters"
+                v-if="hasActiveFilters && !projects.data.length"
                 icon-class="pi-search"
                 decription="Проєктів за такими фільтрами не знайдено"
                 :show-action="false"
             />
 
             <EmptyList
-                v-else-if="isBeyondLastPage"
-                icon-class="pi-file"
-                decription="На цій сторінці проєктів немає"
-                :show-action="false"
-            />
-
-            <EmptyList
-                v-else
+                v-else-if="!projects.data.length"
                 icon-class="pi-folder-open"
                 decription="Проєктів поки немає"
                 button-label="Створити перший проєкт"
                 @on-handler="openCreate"
             />
-
-            <ProjectPaginationBar v-if="showPagination" :pagination="pagination" />
-
-            <ProjectFormModal
-                v-model:visible="isEditModalOpen"
-                :project="selectedProject"
-                @done="selectedProject = null"
-                @cancel="selectedProject = null"
-            />
-
-            <ProjectDeleteModal
-                v-model:visible="isDeleteModalOpen"
-                :project="selectedProject"
-                @done="selectedProject = null"
-                @cancel="selectedProject = null"
-            />
-
-            <ProjectMembersModal
-                v-model:visible="isShowMembersModal"
-                :project-id="selectedProject?.id ?? 0"
-                :owner="selectedProject?.user.data"
-                :members="selectedProject?.members.data"
-            />
         </div>
+
+        <ProjectFormModal
+            v-model:visible="isEditModalOpen"
+            :project="selectedProject"
+            @done="selectedProjectId = null"
+            @cancel="selectedProjectId = null"
+        />
+
+        <ProjectDeleteModal
+            v-model:visible="isDeleteModalOpen"
+            :project="selectedProject"
+            @done="selectedProjectId = null"
+            @cancel="selectedProjectId = null"
+        />
+
+        <ProjectMembersModal
+            v-model:visible="isShowMembersModal"
+            :project-id="selectedProject?.id ?? 0"
+            :owner="selectedProject?.user.data"
+            :members="selectedProject?.members.data"
+        />
     </AdminLayout>
 </template>

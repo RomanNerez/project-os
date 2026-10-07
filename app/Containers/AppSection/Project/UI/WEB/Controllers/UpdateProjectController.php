@@ -22,6 +22,6 @@ final class UpdateProjectController extends WebController
     {
         $this->action->run($request, $id);
         
-        return to_route('projects.index');
+        return back();
     }
 }

@@ -21,14 +21,14 @@ final class ListProjectsController extends WebController
      */
     public function __invoke(ListProjectsRequest $request): Response
     {
-        $projects = $this->action->run($request);
+        $paginator = $this->action->run($request);
 
-        $projects = fractal($projects, new ProjectTransformer())
+        $projects = fractal($paginator->getCollection(), new ProjectTransformer())
             ->parseIncludes(['user', 'members', 'task_status_counts'])
             ->toArray();
 
         return Inertia::render('projects', [
-            'projects' => $projects,
+            'projects' => Inertia::paginatedScroll($projects, $paginator),
         ]);
     }
 }
