@@ -3,6 +3,7 @@
 namespace App\Containers\AppSection\Project\UI\WEB\Controllers;
 
 use App\Containers\AppSection\Project\Actions\UpdateProjectAction;
+use App\Containers\AppSection\Project\Models\Project;
 use App\Containers\AppSection\Project\UI\WEB\Requests\UpdateProjectRequest;
 use App\Ship\Parents\Controllers\WebController;
 use Illuminate\Http\RedirectResponse;
@@ -16,11 +17,12 @@ final class UpdateProjectController extends WebController
 
     /**
      * @param UpdateProjectRequest $request
+     * @param Project $project
      * @return Redirector|RedirectResponse
      */
-    public function __invoke(UpdateProjectRequest $request, int $id): Redirector|RedirectResponse
+    public function __invoke(UpdateProjectRequest $request, Project $project): Redirector|RedirectResponse
     {
-        $this->action->run($request, $id);
+        $this->action->run($request, $project->id);
         
         return back();
     }

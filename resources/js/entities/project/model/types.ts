@@ -13,6 +13,12 @@ export type ProjectStatus = typeof PROJECT_STATUS[keyof typeof PROJECT_STATUS];
 export type ProjectID = number;
 export type ProjectMemberID = number;
 
+export interface ProjectPermissions {
+    update: boolean;
+    delete: boolean;
+    manage_members: boolean;
+}
+
 export interface Project {
     id: ProjectID;
     title: string;
@@ -20,6 +26,7 @@ export interface Project {
     status: ProjectStatus;
     budget: number;
     active_until: string | null;
+    permissions: ProjectPermissions;
 }
 
 export interface ProjectMember {
@@ -40,7 +47,7 @@ export interface ProjectIncludes<TUser = null, TMembers = null, TTaskStatusCount
     task_status_counts: TTaskStatusCount extends null ? null : TaskStatusCounts;
 }
 
-export type ProjectDraft = Omit<Project, 'id'>;
+export type ProjectDraft = Omit<Project, 'id' | 'permissions'>;
 
 export interface ProjectFilters {
     title: string;

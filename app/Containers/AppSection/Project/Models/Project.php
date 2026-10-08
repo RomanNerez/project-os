@@ -2,6 +2,7 @@
 
 namespace App\Containers\AppSection\Project\Models;
 
+use App\Containers\AppSection\Project\Enums\ProjectRole;
 use App\Containers\AppSection\Task\Models\Task;
 use App\Containers\AppSection\User\Models\User;
 use App\Ship\Parents\Models\Model as ParentModel;
@@ -56,5 +57,27 @@ final class Project extends ParentModel
             ->using(ProjectUser::class)
             ->withPivot(['role'])
             ->withTimestamps();
+    }
+
+    /**
+     * @param User $user
+     * @return bool
+     */
+    public function isOwnedBy(User $user): bool
+    {
+        return $this->user_id === $user->id;
+    }
+
+    /**
+     * @param User $user
+     * @return ProjectRole|null
+     */
+    public function memberRole(User $user): ProjectRole|null
+    {
+        $member = $this->relationLoaded('members')
+            ? $this->members->firstWhere('id', $user->id)
+            : $this->members()->whereKey($user->id)->first();
+
+        return null === $member ? null : ProjectRole::tryFrom($member->pivot->role);
     }
 }

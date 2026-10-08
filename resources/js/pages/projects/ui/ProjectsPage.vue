@@ -87,6 +87,8 @@ function openManagerMembers(projectId: ProjectID): void {
                         :user-name="p.user.data.name"
                         :members="p.members.data"
                         :progress="calculateProgress(p.task_status_counts)"
+                        :can-edit="p.permissions.update"
+                        :can-delete="p.permissions.delete"
                         @edit="openEdit(p.id)"
                         @delete="openDelete(p.id)"
                         @manage-members="openManagerMembers(p.id)"
@@ -129,6 +131,7 @@ function openManagerMembers(projectId: ProjectID): void {
             :project-id="selectedProject?.id ?? 0"
             :owner="selectedProject?.user.data"
             :members="selectedProject?.members.data"
+            :can-manage="selectedProject?.permissions.manage_members ?? false"
         />
     </AdminLayout>
 </template>

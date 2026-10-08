@@ -24,6 +24,7 @@ export type {
     Project,
     ProjectMember,
     ProjectDraft,
+    ProjectPermissions,
     ProjectStatus,
     ProjectIncludes
 } from './model/types';

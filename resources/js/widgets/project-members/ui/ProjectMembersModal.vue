@@ -17,9 +17,10 @@ interface Props {
   projectId: number;
   owner?: Owner;
   members?: ProjectMember[];
+  canManage?: boolean;
 }
 
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), { canManage: false });
 
 const selectedMember = ref<ProjectMember | null>(null)
 const isOpenDeleteMemeberModal = computed(() => !!selectedMember.value);
@@ -33,15 +34,17 @@ defineEmits<{
   <Dialog
     :visible="props.visible"
     modal
-    header="Управління командою проєкту"
+    :header="props.canManage ? 'Управління командою проєкту' : 'Команда проєкту'"
     :style="{ width: '32rem' }"
     :breakpoints="{ '1199px': '75vw', '575px': '90vw' }"
     @update:visible="$emit('update:visible', false)"
   >
     <div class="flex flex-col gap-6 pt-2">
-      <ProjectAddMemberForm :id="projectId"/>
+      <template v-if="props.canManage">
+        <ProjectAddMemberForm :id="projectId"/>
 
-      <hr class="border-surface-200 dark:border-surface-700" />
+        <hr class="border-surface-200 dark:border-surface-700" />
+      </template>
 
       <div class="flex flex-col gap-3">
         <h4 class="text-xs font-semibold uppercase tracking-wider text-surface-500">
@@ -63,6 +66,7 @@ defineEmits<{
             :name="member.name"
             :email="member.email"
             :role="member.role"
+            :show-delete-action="props.canManage"
             @on-delete="selectedMember = member"
           />
         </div>

@@ -8,6 +8,11 @@ final class DeleteProjectRequest extends ParentRequest
 {
     protected array $decode = [];
 
+    public function authorize(): bool
+    {
+        return $this->user()->can('delete', $this->route('project'));
+    }
+
     public function rules(): array
     {
         return [];
