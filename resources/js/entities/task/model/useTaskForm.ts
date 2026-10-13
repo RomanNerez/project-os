@@ -3,12 +3,16 @@ import { emptyTaskDraft, toDraft, type Task, type TaskDraft } from "./types";
 import { useForm } from "@inertiajs/vue3";
 import { taskRoutes } from "../api/taskRoutes";
 
-export function useTaskForm(task: Ref<Task | null>, onDone: () => void) {
+export function useTaskForm(
+    task: Ref<Task | null>,
+    onDone: () => void,
+    defaults: () => Partial<TaskDraft> = () => ({}),
+) {
     const form = useForm<TaskDraft>(emptyTaskDraft());
     const options = { onSuccess: onDone, preserveScroll: true, reset: ['tasks'] };
 
     function reset(): void {
-        form.defaults(task.value ? toDraft(task.value) : emptyTaskDraft());
+        form.defaults(task.value ? toDraft(task.value) : { ...emptyTaskDraft(), ...defaults() });
         form.reset();
         form.clearErrors();
     }

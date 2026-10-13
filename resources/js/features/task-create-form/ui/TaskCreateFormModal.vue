@@ -1,12 +1,21 @@
 <script setup lang="ts">
-import { toRefs } from 'vue';
-import { useTaskForm, type Task, type TaskAssignee, type TaskProject } from '@/entities/task';
+import { computed, toRefs, watch } from 'vue';
+import {
+    STATUS_META,
+    useTaskForm,
+    type Task,
+    type TaskAssignee,
+    type TaskProject,
+    type TaskStatus,
+} from '@/entities/task';
 import { FormText } from '@/shared/ui';
 
 const props = defineProps<{
     task: Task | null;
-    projects: TaskProject[];
-    assignees: TaskAssignee[];
+    projects?: TaskProject[];
+    assignees?: TaskAssignee[];
+    projectId?: number | null;
+    status?: TaskStatus | null;
 }>();
 
 const emit = defineEmits(['onDone', 'onCancel']);
@@ -21,7 +30,17 @@ const { form, submit, reset } = useTaskForm(
         emit('onDone');
         reset()
     },
+    () => ({
+        ...(props.projectId ? { project_id: props.projectId } : {}),
+        ...(props.status ? { status: props.status } : {}),
+    }),
 );
+
+watch(() => [props.projectId, props.status], reset);
+
+const header = computed(() => props.status
+    ? `Нова задача · ${STATUS_META[props.status].label}`
+    : 'Нова задача');
 
 function cancel() {
     form.reset();
@@ -33,7 +52,7 @@ function cancel() {
     <Dialog
         v-model:visible="visible"
         modal
-        header="Нова задача"
+        :header="header"
         :style="{ width: '25rem' }"
     >
         <FormText

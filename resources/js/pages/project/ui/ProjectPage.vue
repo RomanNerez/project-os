@@ -42,7 +42,11 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
         </template>
 
         <div class="flex h-full flex-col gap-4">
-            <ProjectKanban :tasks="tasks" />
+            <ProjectKanban
+                :project-id="project.id"
+                :tasks="tasks"
+                :can-create="project.permissions.create_task"
+            />
         </div>
     </AdminLayout>
 </template>

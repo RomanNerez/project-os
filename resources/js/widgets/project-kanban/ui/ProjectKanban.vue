@@ -9,9 +9,12 @@ import {
     type Task,
     type TaskStatus,
 } from '@/entities/task';
+import { TaskCreateFormModal } from '@/features/task-create-form';
 
 interface Props {
+    projectId: number;
     tasks: Task[];
+    canCreate?: boolean;
 }
 
 const props = defineProps<Props>();
@@ -43,6 +46,14 @@ function onChange(event: DraggableChange, status: TaskStatus): void {
 
     updateTaskStatus(event.added.element.id, status);
 }
+
+const isCreateOpen = ref(false);
+const createStatus = ref<TaskStatus | null>(null);
+
+function openCreate(status: TaskStatus): void {
+    createStatus.value = status;
+    isCreateOpen.value = true;
+}
 </script>
 
 <template>
@@ -61,6 +72,18 @@ function onChange(event: DraggableChange, status: TaskStatus): void {
                 <span class="text-xs font-bold text-gray-500">
                     {{ columns[status.value].length }}
                 </span>
+                <Button
+                    v-if="canCreate"
+                    v-tooltip.top="'Додати задачу'"
+                    icon="pi pi-plus"
+                    text
+                    rounded
+                    size="small"
+                    severity="secondary"
+                    class="ml-auto"
+                    aria-label="Додати задачу"
+                    @click="openCreate(status.value)"
+                />
             </div>
 
             <draggable
@@ -85,5 +108,14 @@ function onChange(event: DraggableChange, status: TaskStatus): void {
                 Перетягніть задачу сюди
             </p>
         </div>
+
+        <TaskCreateFormModal
+            v-model:visible="isCreateOpen"
+            :task="null"
+            :project-id="projectId"
+            :status="createStatus"
+            @on-done="isCreateOpen = false"
+            @on-cancel="isCreateOpen = false"
+        />
     </div>
 </template>

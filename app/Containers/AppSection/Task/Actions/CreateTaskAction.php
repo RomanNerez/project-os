@@ -20,8 +20,8 @@ final class CreateTaskAction extends ParentAction
     public function run(CreateTaskRequest $request): Task
     {
         return $this->createTaskTask->run([
+            ...array_filter($request->validated(), static fn (mixed $value): bool => null !== $value),
             'user_id' => $request->user()->id,
-            'title' => $request->title
         ]);
     }
 }
