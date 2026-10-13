@@ -64,6 +64,19 @@ final class CreateTaskTest extends WebTestCase
         self::assertTrue(Task::query()->where('project_id', $project->id)->exists());
     }
 
+    public function testViewerCannotCreateTaskInProject(): void
+    {
+        $project = $this->createProject(User::factory()->createOne());
+        $project->members()->attach($this->user->id, ['role' => ProjectRole::VIEWER->value]);
+
+        $this->post(action(CreateTaskController::class), [
+            'title' => 'Задача спостерігача',
+            'project_id' => $project->id,
+        ])->assertForbidden();
+
+        self::assertFalse(Task::query()->where('project_id', $project->id)->exists());
+    }
+
     public function testOutsiderCannotCreateTaskInForeignProject(): void
     {
         $project = $this->createProject(User::factory()->createOne());

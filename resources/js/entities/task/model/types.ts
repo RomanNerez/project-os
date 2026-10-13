@@ -31,6 +31,10 @@ export interface Task {
     assignee_id: number | null;
 }
 
+export type TaskWithAssignee = Task & {
+    assignee?: IncludedData<TaskAssignee> | null;
+};
+
 export interface TaskIncludes<TMedia = null, TProject = null, TAssignee = null, TComments = null> extends Task {
     media: IncludedData<TMedia>;
     project: TProject extends null ? null : IncludedData<TProject>;

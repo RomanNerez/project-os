@@ -6,18 +6,31 @@ import {
     STATUS_OPTIONS,
     TaskKanbanCard,
     updateTaskStatus,
-    type Task,
     type TaskStatus,
+    type TaskWithAssignee,
 } from '@/entities/task';
 import { TaskCreateFormModal } from '@/features/task-create-form';
+
+type Task = TaskWithAssignee;
 
 interface Props {
     projectId: number;
     tasks: Task[];
     canCreate?: boolean;
+    canEdit?: boolean;
 }
 
 const props = defineProps<Props>();
+
+const emit = defineEmits<{
+    edit: [task: Task];
+}>();
+
+function onEdit(task: Task): void {
+    if (!props.canEdit) return;
+
+    emit('edit', task);
+}
 
 type Columns = Record<TaskStatus, Task[]>;
 
@@ -26,7 +39,7 @@ function groupByStatus(tasks: Task[]): Columns {
         STATUS_OPTIONS.map((option) => [option.value, [] as Task[]]),
     ) as Columns;
 
-    tasks.forEach((task) => grouped[task.status]?.push(task));
+    tasks.forEach((task) => task.status && grouped[task.status]?.push(task));
 
     return grouped;
 }
@@ -90,6 +103,7 @@ function openCreate(status: TaskStatus): void {
                 :list="columns[status.value]"
                 group="kanban-tasks"
                 item-key="id"
+                :disabled="!canEdit"
                 animation="200"
                 ghost-class="opacity-40"
                 drag-class="rotate-1"
@@ -97,7 +111,11 @@ function openCreate(status: TaskStatus): void {
                 @change="(event: DraggableChange) => onChange(event, status.value)"
             >
                 <template #item="{ element: task }: { element: Task }">
-                    <TaskKanbanCard :task="task" />
+                    <TaskKanbanCard
+                        :task="task"
+                        :class="{ 'select-none': canEdit }"
+                        @dblclick="onEdit(task)"
+                    />
                 </template>
             </draggable>
 

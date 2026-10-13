@@ -18,7 +18,7 @@ const props = defineProps<{
     task: Task | null;
     media: Media[];
     comments: CommentIncludes<User>[];
-    projects: TaskProject[];
+    projects?: TaskProject[];
     assignees: TaskAssignee[];
 }>();
 

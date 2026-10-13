@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import type { Task } from '../model/types';
+import type { TaskWithAssignee } from '../model/types';
 
 const props = defineProps<{
-    task: Task;
+    task: TaskWithAssignee;
 }>();
 
+const assigneeName = computed(() => props.task.assignee?.data?.name ?? null);
+
 const assigneeInitials = computed(() =>
-    (props.task.assignee?.name ?? '')
+    (assigneeName.value ?? '')
         .split(' ')
         .filter(Boolean)
         .map((part) => part[0])
@@ -27,14 +29,14 @@ const assigneeInitials = computed(() =>
         <div class="mt-3 flex items-center justify-between gap-2">
             <div class="flex min-w-0 items-center gap-2">
                 <Avatar
-                    v-if="task.assignee"
+                    v-if="assigneeName"
                     :label="assigneeInitials"
                     shape="circle"
                     class="size-6 shrink-0 text-xs"
                 />
                 <Avatar v-else icon="pi pi-user" shape="circle" class="size-6 shrink-0 text-xs" />
                 <span class="truncate text-xs text-gray-500 dark:text-gray-400">
-                    {{ task.assignee?.name ?? 'Не призначено' }}
+                    {{ assigneeName ?? 'Не призначено' }}
                 </span>
             </div>
             <span class="shrink-0 text-xs text-gray-400">#{{ task.id }}</span>

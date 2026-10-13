@@ -1,18 +1,21 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { Head } from '@inertiajs/vue3';
 import { AdminLayout, type BreadcrumbItem } from '@/widgets/admin-layout';
 import { STATUS_META, projectRoutes, type Project } from '@/entities/project';
-import { type Task } from '@/entities/task';
+import { type TaskAssignee, type TaskWithAssignee } from '@/entities/task';
 import { ProjectKanban } from '@/widgets/project-kanban';
+import { TaskEditFormModal } from '@/widgets/task-edit-form-modal';
+import type { ProjectTaskProp } from '../model/types';
 
 interface Props {
     project: {
         data: Project;
     };
     tasks: {
-        data: Task[];
+        data: ProjectTaskProp[];
     };
+    assignees: TaskAssignee[];
 }
 
 const props = defineProps<Props>();
@@ -27,6 +30,17 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
     { label: 'Проєкти', href: projectRoutes.index() },
     { label: project.value.title },
 ]);
+
+const isEditModalOpen = ref(false);
+const selectedTaskId = ref<number | null>(null);
+const selectedTask = computed<ProjectTaskProp | null>(
+    () => tasks.value.find((t) => t.id === selectedTaskId.value) ?? null,
+);
+
+function openEdit(task: TaskWithAssignee): void {
+    selectedTaskId.value = task.id;
+    isEditModalOpen.value = true;
+}
 </script>
 
 <template>
@@ -46,7 +60,19 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
                 :project-id="project.id"
                 :tasks="tasks"
                 :can-create="project.permissions.create_task"
+                :can-edit="project.permissions.update_task"
+                @edit="openEdit"
             />
         </div>
+
+        <TaskEditFormModal
+            v-model:visible="isEditModalOpen"
+            :task="selectedTask"
+            :media="selectedTask?.media.data ?? []"
+            :comments="selectedTask?.comments.data ?? []"
+            :assignees="props.assignees"
+            @on-done="isEditModalOpen = false"
+            @on-cancel="isEditModalOpen = false"
+        />
     </AdminLayout>
 </template>

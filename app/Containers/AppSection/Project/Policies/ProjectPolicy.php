@@ -34,6 +34,16 @@ final class ProjectPolicy extends BasePolicy
      */
     public function createTask(User $user, Project $project): bool
     {
-        return $project->isOwnedBy($user) || null !== $project->memberRole($user);
+        return $this->canManageTasks($user, $project);
+    }
+
+    /**
+     * @param User $user
+     * @param Project $project
+     * @return bool
+     */
+    public function updateTask(User $user, Project $project): bool
+    {
+        return $this->canManageTasks($user, $project);
     }
 }

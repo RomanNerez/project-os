@@ -13,5 +13,6 @@ export type {
     TaskStatus,
     TaskProject,
     TaskAssignee,
-    TaskIncludes
+    TaskIncludes,
+    TaskWithAssignee,
 } from './model/types';

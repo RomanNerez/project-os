@@ -18,6 +18,7 @@ export interface ProjectPermissions {
     delete: boolean;
     manage_members: boolean;
     create_task: boolean;
+    update_task: boolean;
 }
 
 export interface Project {

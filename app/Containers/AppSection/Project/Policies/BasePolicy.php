@@ -18,4 +18,17 @@ abstract class BasePolicy extends ParentPolicy
     {
         return $project->isOwnedBy($user) || ProjectRole::ADMIN === $project->memberRole($user);
     }
+
+    /**
+     * Owner, admin or member: everyone except viewers.
+     *
+     * @param User $user
+     * @param Project $project
+     * @return bool
+     */
+    protected function canManageTasks(User $user, Project $project): bool
+    {
+        return $project->isOwnedBy($user)
+            || \in_array($project->memberRole($user), [ProjectRole::ADMIN, ProjectRole::MEMBER], true);
+    }
 }

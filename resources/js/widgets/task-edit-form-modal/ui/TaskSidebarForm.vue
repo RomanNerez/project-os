@@ -5,7 +5,7 @@ import type { InertiaForm } from '@inertiajs/vue3';
 
 interface Props {
     form: InertiaForm<TaskDraft>;
-    projects: TaskProject[];
+    projects?: TaskProject[];
     assignees: TaskAssignee[];
 }
 
@@ -15,6 +15,7 @@ defineProps<Props>()
 
 <template>
     <FormSelect
+        v-if="projects"
         v-model="form.project_id"
         name="task-project"
         label="Проєкт"
