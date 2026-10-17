@@ -3,8 +3,7 @@ import type { TaskID } from '../model/types';
 export const taskRoutes = {
     index: () => '/tasks',
     store: (projectId: number) => `/projects/${projectId}/tasks`,
-    update: (id: TaskID) => `/tasks/${id}`,
-    updateStatus: (id: TaskID) => `/tasks/${id}/status`,
+    update: (projectId: number, id: TaskID) => `/projects/${projectId}/tasks/${id}`,
     destroy: (id: TaskID) => `/tasks/${id}`,
     uploadFiles: (id: TaskID) => `/tasks/${id}/files`,
     createTaskComment: (id: TaskID) => `/tasks/${id}/comment`,

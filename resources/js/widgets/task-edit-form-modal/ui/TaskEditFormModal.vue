@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import Code from '@primeicons/vue/code';
-import { useTaskForm, type Task, type TaskAssignee, type TaskProject } from '@/entities/task';
+import { type Task, type TaskAssignee } from '@/entities/task';
 import { MediaPreview, type Media } from '@/entities/media';
 import { TaskUploadFiles } from '@/features/task-upload-files';
-import { FormEditor, FormSelect, FormText } from '@/shared/ui';
-import { computed, ref, toRefs } from 'vue';
+import { TaskDescriptionField, TaskTitleField } from '@/features/task-inline-edit';
+import { computed, ref } from 'vue';
 import { MediaDeleteModal } from '@/features/media-delete';
 import { TaskCreateComment } from '@/features/task-create-comment';
 import { CommentCard } from '@/entities/comment';
@@ -14,12 +14,12 @@ import { CommentDeleteModal } from '@/features/comment-delete';
 import { CommentEditForm } from '@/features/comment-edit';
 import TaskSidebarForm from './TaskSidebarForm.vue';
 
-const props = defineProps<{
+defineProps<{
     task: Task | null;
     media: Media[];
     comments: CommentIncludes<User>[];
-    projects?: TaskProject[];
     assignees: TaskAssignee[];
+    canEdit: boolean;
 }>();
 
 const selectedMedia = ref<Media | null>(null);
@@ -31,24 +31,14 @@ const isDeleteCommentModalVisible = computed(() => !!selectedDeleteCommentId.val
 
 const visible = defineModel<boolean>('visible', { required: true });
 
-const emit = defineEmits(['onDone', 'onCancel']);
-
-const { task } = toRefs(props);
-
-const { form, submit, reset } = useTaskForm(
-    task,
-    () => {
-        emit('onDone');
-        reset()
-    },
-);
+defineEmits(['onClose']);
 </script>
 
 <template>
     <Dialog
         v-model:visible="visible"
         modal
-        header="Редагувати задачу"
+        header="Задача"
         class="overflow-hidden"
         :pt="{
             root: {
@@ -59,36 +49,17 @@ const { form, submit, reset } = useTaskForm(
             }
         }"
     >
-        <form class="grid grid-cols-1 lg:grid-cols-3 gap-2 h-full overflow-hidden">
+        <div v-if="task" class="grid grid-cols-1 lg:grid-cols-3 gap-2 h-full overflow-hidden">
             <div class="col-span-2 overflow-y-auto px-1 pr-4 flex flex-col gap-2">
-                <FormText
-                    v-model="form.title"
-                    autofocus
-                    fluid
-                    label="Назва"
-                    placeholder="Назва задачі"
-                    :message="form.errors.title"
-                />
-                <div class="flex flex-col gap-2 lg:hidden">
-                    <TaskSidebarForm
-                        :form="form"
-                        :assignees="assignees"
-                        :projects="projects"
-                    />
-                </div>
-                
-                <FormEditor
-                    v-model="form.description"
-                    name="task-description"
-                    label="Опис"
-                    placeholder="Введіть опис завдання..."
-                    :message="form.errors.description"
-                />
+                <TaskTitleField :task="task" :disabled="!canEdit" />
 
-                <TaskUploadFiles
-                    v-if="task?.id"
-                    :task-id="task?.id"
-                />
+                <div class="flex flex-col gap-2 lg:hidden">
+                    <TaskSidebarForm :task="task" :assignees="assignees" :disabled="!canEdit" />
+                </div>
+
+                <TaskDescriptionField :task="task" :disabled="!canEdit" />
+
+                <TaskUploadFiles :task-id="task.id" />
 
                 <div v-if="media.length > 0" >
                     <div class="grid grid-flow-col auto-cols-[120px] gap-2 overflow-x-auto w-full">
@@ -122,9 +93,7 @@ const { form, submit, reset } = useTaskForm(
                         :pt="{ root: { class: '!px-0' } }"
                     >
                         <TabPanel value="tab1" >
-                            <TaskCreateComment
-                                :task-id="task?.id ?? 0"
-                            />
+                            <TaskCreateComment :task-id="task.id" />
                             <div class="space-y-4">
                                 <CommentCard
                                     v-for="comment in comments" 
@@ -158,20 +127,18 @@ const { form, submit, reset } = useTaskForm(
             </div>
 
             <div class="col-span-1 lg:flex flex-col gap-2 hidden">
-                <TaskSidebarForm :form="form" :assignees="assignees" :projects="projects" />
+                <TaskSidebarForm :task="task" :assignees="assignees" :disabled="!canEdit" />
             </div>
-        </form>
+        </div>
         <template #footer>
             <div class="mt-2 flex justify-end gap-2">
                 <Button
                     type="button"
-                    label="Скасувати"
+                    label="Закрити"
                     severity="secondary"
                     text
-                    :disabled="form.processing"
-                    @click="$emit('onCancel');"
+                    @click="$emit('onClose')"
                 />
-                <Button type="button" label="Зберегти" :loading="form.processing" @click="submit" />
             </div>
         </template>
     </Dialog>

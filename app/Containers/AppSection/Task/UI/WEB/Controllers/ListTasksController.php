@@ -8,8 +8,6 @@ use App\Containers\AppSection\Project\Models\Project;
 use App\Containers\AppSection\Task\Actions\ListTasksAction;
 use App\Containers\AppSection\Task\UI\API\Transformers\TaskTransformer;
 use App\Containers\AppSection\Task\UI\WEB\Requests\ListTasksRequest;
-use App\Containers\AppSection\User\Actions\ListAllUsersAction;
-use App\Containers\AppSection\User\Models\User;
 use App\Ship\Parents\Controllers\WebController;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -20,7 +18,6 @@ final class ListTasksController extends WebController
         private readonly ListTasksAction $action,
         private readonly ListAllProjectsAction $listAllProjectsAction,
         private readonly ListTaskCreatableProjectsAction $listTaskCreatableProjectsAction,
-        private readonly ListAllUsersAction $listAllUsersAction,
     ) {}
 
     /**
@@ -31,7 +28,7 @@ final class ListTasksController extends WebController
     {
         $paginator = $this->action->run($request);
         $tasks = fractal($paginator, new TaskTransformer())
-            ->parseIncludes(['project', 'assignee', 'media', 'comments.user'])
+            ->parseIncludes(['project.user', 'project.members', 'assignee', 'media', 'comments.user'])
             ->toArray();
 
         return Inertia::render('tasks', [
@@ -45,11 +42,6 @@ final class ListTasksController extends WebController
                 ->map(static fn (Project $project): array => [
                     'id' => $project->id,
                     'title' => $project->title,
-                ])->values(),
-            'assignees' => $this->listAllUsersAction->run()
-                ->map(static fn (User $user): array => [
-                    'id' => $user->id,
-                    'name' => $user->name,
                 ])->values(),
         ]);
     }

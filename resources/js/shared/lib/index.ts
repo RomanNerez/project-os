@@ -1,7 +1,7 @@
 export { parseDateValue, toDateValue, formatDateLong, formatDateHuman } from './date';
 export { formatDuration, formatTimeOfDay, formatDayLabel, toDayKey } from './duration';
 export { formatSize } from './file-helpers';
-export { getInitials } from  './string';
+export { getInitials, isBlankHtml } from  './string';
 export { debounce } from './debounce';
 export { readQuery, buildQuery, excludeQueryParams, type Query, type QueryValue } from './query';
 export {

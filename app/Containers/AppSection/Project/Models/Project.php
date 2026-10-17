@@ -9,6 +9,7 @@ use App\Ship\Parents\Models\Model as ParentModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Collection;
 
 final class Project extends ParentModel
 {
@@ -79,5 +80,20 @@ final class Project extends ParentModel
             : $this->members()->whereKey($user->id)->first();
 
         return null === $member ? null : ProjectRole::tryFrom($member->pivot->role);
+    }
+
+    /**
+     * Ids of everyone who can be assigned to the project's tasks: the owner and all members.
+     *
+     * @return Collection<int, int>
+     */
+    public function participantIds(): Collection
+    {
+        return $this->members()
+            ->pluck('users.id')
+            ->prepend($this->user_id)
+            ->map(static fn (mixed $id): int => (int) $id)
+            ->unique()
+            ->values();
     }
 }

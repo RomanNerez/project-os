@@ -57,7 +57,7 @@ interface DraggableChange {
 function onChange(event: DraggableChange, status: TaskStatus): void {
     if (!event.added) return;
 
-    updateTaskStatus(event.added.element.id, status);
+    updateTaskStatus(props.projectId, event.added.element.id, status);
 }
 
 const isCreateOpen = ref(false);

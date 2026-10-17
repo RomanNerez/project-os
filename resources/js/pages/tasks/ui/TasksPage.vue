@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { Head } from '@inertiajs/vue3';
 import { InfiniteScroll } from "@inertiajs/vue3";
 import { AdminLayout } from '@/widgets/admin-layout';
@@ -9,14 +9,13 @@ import { TaskDeleteModal } from '@/features/task-delete';
 import type { TaskProp } from '../model/types';
 import type { PaginatedServerData } from '@/shared/types';
 import { EmptyList } from '@/shared/ui';
-import TaskEditFormModal from '@/widgets/task-edit-form-modal/ui/TaskEditFormModal.vue';
+import { TaskEditFormModal } from '@/widgets/task-edit-form-modal';
 import { TaskFiltersPanel, useActiveTaskFilters } from '@/features/task-filters';
 
 interface Props {
     tasks: PaginatedServerData<TaskProp[]>;
     projects: TaskProject[];
     creatableProjects: TaskProject[];
-    assignees: TaskAssignee[];
 }
 
 const props = defineProps<Props>();
@@ -26,6 +25,22 @@ const isEditModalOpen = ref(false);
 const isDeleteModalOpen = ref(false);
 const selectedTaskId = ref<number | null>(null);
 const selectedTask = computed<TaskProp | null>(() => props.tasks.data.find(t => t.id === selectedTaskId.value) || null);
+
+// Only the owner and members of the task's project can be assigned.
+const selectedTaskAssignees = computed<TaskAssignee[]>(() => {
+    const project = selectedTask.value?.project?.data;
+
+    if (!project) return [];
+
+    return [project.user.data, ...(project.members?.data ?? [])]
+        .filter((user, index, users) => users.findIndex((u) => u.id === user.id) === index)
+        .map(({ id, name }) => ({ id, name }));
+});
+
+// A saved field can move the task out of the filtered list.
+watch(selectedTask, (task) => {
+    if (!task && isEditModalOpen.value) closeEdit();
+});
 
 const isActiveFilters = useActiveTaskFilters();
 
@@ -53,6 +68,11 @@ function openCreate(): void {
 function openEdit(task: TaskProp): void {
     selectedTaskId.value = task.id;
     isEditModalOpen.value = true;
+}
+
+function closeEdit(): void {
+    selectedTaskId.value = null;
+    isEditModalOpen.value = false;
 }
 
 function openDelete(task: TaskProp): void {
@@ -120,7 +140,6 @@ function openDelete(task: TaskProp): void {
             <TaskCreateFormModal
                 v-model:visible="isCreateModalOpen"
                 :projects="props.creatableProjects"
-                :assignees="props.assignees"
                 @on-done="() => {
                     selectedTaskId = null;
                     isCreateModalOpen = false;
@@ -136,16 +155,9 @@ function openDelete(task: TaskProp): void {
                 :task="selectedTask"
                 :media="selectedTask?.media.data ?? []"
                 :comments="selectedTask?.comments.data ?? []"
-                :projects="props.projects"
-                :assignees="props.assignees"
-                @on-done="() => {
-                    selectedTaskId = null;
-                    isEditModalOpen = false;
-                }"
-                @on-cancel="() => {
-                    selectedTaskId = null;
-                    isEditModalOpen = false;
-                }"
+                :assignees="selectedTaskAssignees"
+                :can-edit="selectedTask?.project?.data.permissions.update_task ?? false"
+                @on-close="closeEdit"
             />
 
             <TaskDeleteModal

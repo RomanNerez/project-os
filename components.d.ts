@@ -23,7 +23,6 @@ declare module 'vue' {
     IconField: typeof import('primevue/iconfield')['default']
     InputIcon: typeof import('primevue/inputicon')['default']
     InputNumber: typeof import('primevue/inputnumber')['default']
-    InputPassword: typeof import('primevue/inputpassword')['default']
     InputText: typeof import('primevue/inputtext')['default']
     Label: typeof import('primevue/label')['default']
     Menu: typeof import('primevue/menu')['default']
@@ -31,7 +30,6 @@ declare module 'vue' {
     Password: typeof import('primevue/password')['default']
     ProgressBar: typeof import('primevue/progressbar')['default']
     ProgressSpinner: typeof import('primevue/progressspinner')['default']
-    RadioButton: typeof import('primevue/radiobutton')['default']
     Select: typeof import('primevue/select')['default']
     Sidebar: typeof import('primevue/sidebar')['default']
     SidebarAside: typeof import('primevue/sidebaraside')['default']
@@ -62,8 +60,6 @@ declare module 'vue' {
     Tabs: typeof import('primevue/tabs')['default']
     Tag: typeof import('primevue/tag')['default']
     Textarea: typeof import('primevue/textarea')['default']
-    Toolbar: typeof import('primevue/toolbar')['default']
-    VirtualScroller: typeof import('primevue/virtualscroller')['default']
   }
   export interface GlobalDirectives {
     Mask: typeof import('primevue/mask')['default']

@@ -6,3 +6,6 @@ export const getInitials = (name: string): string => name
     .join('')
     .toUpperCase() || '?';
     
+/** True for HTML without visible text, e.g. an empty editor's `<p></p>`. */
+export const isBlankHtml = (html: string | null | undefined): boolean =>
+    !html || html.replace(/<[^>]*>|&nbsp;/g, '').trim() === '';

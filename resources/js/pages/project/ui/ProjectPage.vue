@@ -71,8 +71,8 @@ function openEdit(task: TaskWithAssignee): void {
             :media="selectedTask?.media.data ?? []"
             :comments="selectedTask?.comments.data ?? []"
             :assignees="props.assignees"
-            @on-done="isEditModalOpen = false"
-            @on-cancel="isEditModalOpen = false"
+            :can-edit="project.permissions.update_task"
+            @on-close="isEditModalOpen = false"
         />
     </AdminLayout>
 </template>

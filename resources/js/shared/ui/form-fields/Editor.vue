@@ -28,6 +28,8 @@ interface Props {
   name?: string
   placeholder?: string
   disabled?: boolean
+  /** Renders only the content, without toolbar and border. */
+  readonly?: boolean
   invalid?: boolean
   headingLevels?: HeadingLevel[]
   minHeight?: string
@@ -47,11 +49,15 @@ const emit = defineEmits<{
   (e: 'update:modelValue', value: string): void
 }>()
 
-const EMPTY_HTML = ''
+// Tiptap keeps an empty paragraph (<p></p>) for an empty document.
+const getValue = (instance: { isEmpty: boolean; getHTML: () => string }): string =>
+  instance.isEmpty ? '' : instance.getHTML()
+
+const contentMinHeight = computed(() => props.readonly ? '0' : props.minHeight)
 
 const editor = useEditor({
   content: props.modelValue,
-  editable: !props.disabled,
+  editable: !props.disabled && !props.readonly,
 
   extensions: [
     StarterKit.configure({
@@ -83,23 +89,22 @@ const editor = useEditor({
   },
 
   onUpdate: ({ editor }) => {
-    const html = editor.getHTML()
-    emit('update:modelValue', html === EMPTY_HTML ? '' : html)
+    emit('update:modelValue', getValue(editor))
   }
 })
 
 watch(
   () => props.modelValue,
   (value) => {
-    if (!editor.value || editor.value.getHTML() === (value || EMPTY_HTML)) return
+    if (!editor.value || getValue(editor.value) === (value || '')) return
 
     editor.value.commands.setContent(value || '', { emitUpdate: false })
   }
 )
 
 watch(
-  () => props.disabled,
-  (disabled) => editor.value?.setEditable(!disabled)
+  () => [props.disabled, props.readonly],
+  ([disabled, readonly]) => editor.value?.setEditable(!disabled && !readonly)
 )
 
 const blockOptions = computed(() => [
@@ -192,11 +197,11 @@ defineExpose({ editor })
         </Label>
 
         <div
-            class="editor overflow-hidden rounded-md border"
-            :class="invalid || message ? 'border-red-500' : 'border-gray-300'"
+            class="editor overflow-hidden rounded-md"
+            :class="readonly ? '' : ['border', invalid || message ? 'border-red-500' : 'border-gray-300']"
         >
             <div
-                v-if="editor"
+                v-if="editor && !readonly"
                 class="flex flex-wrap items-center gap-1 border-b border-gray-200 bg-gray-50 p-1"
             >
                 <Select
@@ -292,7 +297,7 @@ defineExpose({ editor })
 
 <style scoped>
 .editor-content :deep(.tiptap) {
-    min-height: v-bind(minHeight);
+    min-height: v-bind(contentMinHeight);
     overflow-wrap: anywhere;
 }
 
