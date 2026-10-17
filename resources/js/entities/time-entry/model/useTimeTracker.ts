@@ -1,19 +1,31 @@
+import { ref } from 'vue';
 import { router, useForm } from '@inertiajs/vue3';
 import { timeEntryRoutes } from '../api/timeEntryRoutes';
-import { emptyTimeEntryDraft, type TimeEntryDraft, type TimeEntryID } from './types';
+import {
+    emptyTimeEntryDraft,
+    TIME_TRACKER_MODE,
+    type TimeEntryDraft,
+    type TimeEntryID,
+    type TimeTrackerMode,
+} from './types';
 
 /**
  * Start and stop timestamps are assigned by the server, so both actions send no
- * time at all — the client only says *what* is being tracked.
+ * time at all — the client only says *what* is being tracked. Only the fields of the
+ * current `mode` are sent: a task brings its own project and title.
  */
 export function useTimeTracker() {
     const form = useForm<TimeEntryDraft>(emptyTimeEntryDraft());
+    const mode = ref<TimeTrackerMode>(TIME_TRACKER_MODE.TASK);
     const options = { preserveScroll: true };
 
     function start(): void {
-        form.post(timeEntryRoutes.start(), {
+        form.transform((data) => mode.value === TIME_TRACKER_MODE.TASK
+            ? { ...data, description: null, project_id: null }
+            : { ...data, task_id: null },
+        ).post(timeEntryRoutes.start(), {
             ...options,
-            onSuccess: () => form.reset('description'),
+            onSuccess: () => form.reset('description', 'task_id'),
         });
     }
 
@@ -21,7 +33,7 @@ export function useTimeTracker() {
         router.post(timeEntryRoutes.stop(), {}, options);
     }
 
-    return { form, start, stop };
+    return { form, mode, start, stop };
 }
 
 export function deleteTimeEntry(id: TimeEntryID): void {

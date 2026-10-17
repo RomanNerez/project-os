@@ -23,7 +23,14 @@ const range = computed(() => {
 <template>
     <div class="flex items-center gap-3 rounded-lg border border-gray-200 bg-white px-4 py-3 shadow-sm dark:border-gray-700 dark:bg-gray-800">
         <div class="min-w-0 flex-1">
-            <p class="truncate text-sm font-medium">{{ entry.description }}</p>
+            <p class="flex items-center gap-1.5 text-sm font-medium">
+                <i
+                    v-if="entry.task"
+                    class="pi pi-check-square shrink-0 text-xs text-primary"
+                    title="Задача"
+                />
+                <span class="truncate">{{ entry.description }}</span>
+            </p>
             <p class="truncate text-xs text-gray-500 dark:text-gray-400">{{ range }}</p>
         </div>
 

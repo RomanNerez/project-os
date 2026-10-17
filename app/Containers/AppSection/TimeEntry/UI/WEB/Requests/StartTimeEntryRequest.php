@@ -11,8 +11,9 @@ final class StartTimeEntryRequest extends ParentRequest
     public function rules(): array
     {
         return [
-            'description' => ['required', 'string', 'max:255'],
+            'description' => ['required_without:task_id', 'nullable', 'string', 'max:255'],
             'project_id' => ['nullable', 'integer', 'exists:projects,id'],
+            'task_id' => ['required_without:description', 'nullable', 'integer', 'exists:tasks,id'],
         ];
     }
 }

@@ -2,8 +2,10 @@
 
 namespace App\Containers\AppSection\TimeEntry\Tests\Functional\WEB;
 
+use App\Containers\AppSection\Project\Enums\ProjectRole;
 use App\Containers\AppSection\Project\Enums\ProjectStatus;
 use App\Containers\AppSection\Project\Models\Project;
+use App\Containers\AppSection\Task\Models\Task;
 use App\Containers\AppSection\TimeEntry\Models\TimeEntry;
 use App\Containers\AppSection\TimeEntry\Tests\Functional\WebTestCase;
 use App\Containers\AppSection\TimeEntry\UI\WEB\Controllers\DeleteTimeEntryController;
@@ -66,12 +68,12 @@ final class TimeTrackerTest extends WebTestCase
         self::assertSame(1800, TimeEntry::where('description', 'Перша')->sole()->durationInSeconds());
     }
 
-    public function testStartRequiresDescription(): void
+    public function testStartRequiresDescriptionOrTask(): void
     {
         $this->actingAs(User::factory()->createOne(), 'web');
 
-        $this->post(action(StartTimeEntryController::class), ['description' => ''])
-            ->assertSessionHasErrors('description');
+        $this->post(action(StartTimeEntryController::class), ['description' => '', 'task_id' => null])
+            ->assertSessionHasErrors(['description', 'task_id']);
 
         self::assertSame(0, TimeEntry::count());
     }
@@ -130,6 +132,81 @@ final class TimeTrackerTest extends WebTestCase
             );
     }
 
+    public function testStartWithTaskTakesProjectAndTitleFromTheTask(): void
+    {
+        $user = User::factory()->createOne();
+        $this->actingAs($user, 'web');
+        $task = $this->createTask($this->createProject($user), 'Зверстати хедер');
+
+        $this->post(action(StartTimeEntryController::class), [
+            'task_id' => $task->id,
+            'description' => '',
+            'project_id' => $this->createProject($user)->id,
+        ])->assertSessionHasNoErrors();
+
+        $entry = TimeEntry::sole();
+
+        self::assertSame($task->id, $entry->task_id);
+        self::assertSame($task->project_id, $entry->project_id);
+        self::assertSame('Зверстати хедер', $entry->description);
+    }
+
+    public function testStartWithTaskKeepsAnExplicitDescription(): void
+    {
+        $user = User::factory()->createOne();
+        $this->actingAs($user, 'web');
+        $task = $this->createTask($this->createProject($user), 'Зверстати хедер');
+
+        $this->post(action(StartTimeEntryController::class), [
+            'task_id' => $task->id,
+            'description' => 'Мобільна версія хедера',
+        ])->assertSessionHasNoErrors();
+
+        self::assertSame('Мобільна версія хедера', TimeEntry::sole()->description);
+    }
+
+    public function testCanTrackATaskOfAProjectUserIsMemberOf(): void
+    {
+        $user = User::factory()->createOne();
+        $this->actingAs($user, 'web');
+        $project = $this->createProject(User::factory()->createOne());
+        $project->members()->attach($user->id, ['role' => ProjectRole::MEMBER->value]);
+
+        $this->post(action(StartTimeEntryController::class), [
+            'task_id' => $this->createTask($project, 'Спільна задача')->id,
+        ])->assertSessionHasNoErrors();
+
+        self::assertSame(1, TimeEntry::count());
+    }
+
+    public function testCannotTrackATaskFromAForeignProject(): void
+    {
+        $this->actingAs(User::factory()->createOne(), 'web');
+        $task = $this->createTask($this->createProject(User::factory()->createOne()), 'Чужа задача');
+
+        $this->post(action(StartTimeEntryController::class), ['task_id' => $task->id])
+            ->assertSessionHasErrors('task_id');
+
+        self::assertSame(0, TimeEntry::count());
+    }
+
+    public function testExposesTheTrackedTaskToThePage(): void
+    {
+        $user = User::factory()->createOne();
+        $this->actingAs($user, 'web');
+        $task = $this->createTask($this->createProject($user), 'Зверстати хедер');
+
+        $this->post(action(StartTimeEntryController::class), ['task_id' => $task->id]);
+
+        $this->get(action(ListTimeEntriesController::class))
+            ->assertOk()
+            ->assertInertia(
+                fn ($page) => $page->component('time-tracker')
+                    ->where('running.data.task.id', $task->id)
+                    ->where('running.data.task.title', 'Зверстати хедер'),
+            );
+    }
+
     public function testCannotDeleteAnotherUsersEntry(): void
     {
         $this->actingAs(User::factory()->createOne(), 'web');
@@ -146,13 +223,23 @@ final class TimeTrackerTest extends WebTestCase
         self::assertSame(1, TimeEntry::count());
     }
 
-    private function createProject(): Project
+    private function createProject(?User $owner = null): Project
     {
         return Project::create([
+            'user_id' => $owner?->id,
             'title' => 'Лендінг',
             'status' => ProjectStatus::IN_PROGRESS->value,
             'description' => 'Тестовий проєкт',
             'budget' => 1000,
+        ]);
+    }
+
+    private function createTask(Project $project, string $title): Task
+    {
+        return Task::create([
+            'user_id' => $project->user_id,
+            'project_id' => $project->id,
+            'title' => $title,
         ]);
     }
 }

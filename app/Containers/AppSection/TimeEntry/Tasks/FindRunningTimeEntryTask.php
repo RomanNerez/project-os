@@ -17,7 +17,7 @@ final class FindRunningTimeEntryTask extends ParentTask
     public function run(int $userId): ?TimeEntry
     {
         return $this->repository
-            ->with(['project'])
+            ->with(['project', 'task'])
             ->scopeQuery(static fn (Builder $query): Builder => $query
                 ->where('user_id', $userId)
                 ->whereNull('stopped_at')

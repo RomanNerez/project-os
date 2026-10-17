@@ -11,6 +11,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AutoComplete: typeof import('primevue/autocomplete')['default']
     Avatar: typeof import('primevue/avatar')['default']
     AvatarGroup: typeof import('primevue/avatargroup')['default']
     Breadcrumb: typeof import('primevue/breadcrumb')['default']
@@ -31,6 +32,7 @@ declare module 'vue' {
     ProgressBar: typeof import('primevue/progressbar')['default']
     ProgressSpinner: typeof import('primevue/progressspinner')['default']
     Select: typeof import('primevue/select')['default']
+    SelectButton: typeof import('primevue/selectbutton')['default']
     Sidebar: typeof import('primevue/sidebar')['default']
     SidebarAside: typeof import('primevue/sidebaraside')['default']
     SidebarBackdrop: typeof import('primevue/sidebarbackdrop')['default']

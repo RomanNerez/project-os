@@ -3,6 +3,7 @@
 namespace App\Containers\AppSection\TimeEntry\Models;
 
 use App\Containers\AppSection\Project\Models\Project;
+use App\Containers\AppSection\Task\Models\Task;
 use App\Containers\AppSection\User\Models\User;
 use App\Ship\Parents\Models\Model as ParentModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,6 +13,7 @@ final class TimeEntry extends ParentModel
     protected $fillable = [
         'user_id',
         'project_id',
+        'task_id',
         'description',
         'started_at',
         'stopped_at',
@@ -30,6 +32,11 @@ final class TimeEntry extends ParentModel
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class);
+    }
+
+    public function task(): BelongsTo
+    {
+        return $this->belongsTo(Task::class);
     }
 
     public function isRunning(): bool

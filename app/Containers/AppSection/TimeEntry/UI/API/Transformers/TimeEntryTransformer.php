@@ -23,6 +23,10 @@ final class TimeEntryTransformer extends ParentTransformer
                 'id' => $timeEntry->project->id,
                 'title' => $timeEntry->project->title,
             ] : null,
+            'task' => $timeEntry->task ? [
+                'id' => $timeEntry->task->id,
+                'title' => $timeEntry->task->title,
+            ] : null,
         ];
     }
 }

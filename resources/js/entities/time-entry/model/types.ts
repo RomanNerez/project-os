@@ -1,6 +1,24 @@
 export type TimeEntryID = number;
 
+/** What a new timer is tracked against: one of the user's tasks or a free-form description. */
+export const TIME_TRACKER_MODE = {
+    TASK: 'task',
+    FREE: 'free',
+} as const;
+
+export type TimeTrackerMode = typeof TIME_TRACKER_MODE[keyof typeof TIME_TRACKER_MODE];
+
+export const TIME_TRACKER_MODE_OPTIONS: { value: TimeTrackerMode; label: string }[] = [
+    { value: TIME_TRACKER_MODE.TASK, label: 'Задача' },
+    { value: TIME_TRACKER_MODE.FREE, label: 'Довільна назва' },
+];
+
 export interface TimeEntryProject {
+    id: number;
+    title: string;
+}
+
+export interface TimeEntryTask {
     id: number;
     title: string;
 }
@@ -14,14 +32,19 @@ export interface TimeEntry {
     /** Whole seconds between start and stop, `null` while running. */
     duration: number | null;
     project: TimeEntryProject | null;
+    /** The task being tracked, `null` for a free-form description. */
+    task: TimeEntryTask | null;
 }
 
 export interface TimeEntryDraft {
     description: string;
     project_id: number | null;
+    /** When set, the server takes the project (and, if empty, the description) from the task. */
+    task_id: number | null;
 }
 
 export const emptyTimeEntryDraft = (): TimeEntryDraft => ({
     description: '',
     project_id: null,
+    task_id: null,
 });

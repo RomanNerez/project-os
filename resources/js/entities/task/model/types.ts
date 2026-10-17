@@ -78,3 +78,8 @@ export const emptyTaskCreateDraft = (): TaskCreateDraft => ({
     project_id: null,
     status: TASK_STATUS.TODO,
 });
+
+/** A task as offered by `TaskSelect`: listed from `tasks.index` as JSON, with its project. */
+export type TaskOption = Task & {
+    project: IncludedData<TaskProject> | null;
+};
