@@ -15,6 +15,7 @@ import { TaskFiltersPanel, useActiveTaskFilters } from '@/features/task-filters'
 interface Props {
     tasks: PaginatedServerData<TaskProp[]>;
     projects: TaskProject[];
+    creatableProjects: TaskProject[];
     assignees: TaskAssignee[];
 }
 
@@ -68,7 +69,12 @@ function openDelete(task: TaskProp): void {
         description="Керуйте задачами робочого простору"
     >
         <template #actions>
-            <Button label="Нова задача" icon="pi pi-plus" @click="openCreate" />
+            <Button
+                v-if="props.creatableProjects.length"
+                label="Нова задача"
+                icon="pi pi-plus"
+                @click="openCreate"
+            />
         </template>
 
         <div class="flex h-full flex-col gap-4">
@@ -107,14 +113,13 @@ function openDelete(task: TaskProp): void {
                 icon-class="pi-check-square"
                 decription="Задач поки немає"
                 button-label="Створити першу задачу"
-                :show-action="!!props.projects.length"
+                :show-action="!!props.creatableProjects.length"
                 @on-handler="openCreate"
             />
 
             <TaskCreateFormModal
                 v-model:visible="isCreateModalOpen"
-                :task="selectedTask"
-                :projects="props.projects"
+                :projects="props.creatableProjects"
                 :assignees="props.assignees"
                 @on-done="() => {
                     selectedTaskId = null;

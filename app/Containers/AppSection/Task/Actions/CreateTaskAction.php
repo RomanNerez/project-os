@@ -4,7 +4,6 @@ namespace App\Containers\AppSection\Task\Actions;
 
 use App\Containers\AppSection\Task\Models\Task;
 use App\Containers\AppSection\Task\Tasks\CreateTaskTask;
-use App\Containers\AppSection\Task\UI\WEB\Requests\CreateTaskRequest;
 use App\Ship\Parents\Actions\Action as ParentAction;
 
 final class CreateTaskAction extends ParentAction
@@ -14,14 +13,17 @@ final class CreateTaskAction extends ParentAction
     ) {}
 
     /**
-     * @param CreateTaskRequest $request
+     * @param int $projectId
+     * @param int $userId
+     * @param array<string, mixed> $data
      * @return Task
      */
-    public function run(CreateTaskRequest $request): Task
+    public function run(int $projectId, int $userId, array $data): Task
     {
         return $this->createTaskTask->run([
-            ...array_filter($request->validated(), static fn (mixed $value): bool => null !== $value),
-            'user_id' => $request->user()->id,
+            'project_id' => $projectId,
+            'user_id' => $userId,
+            ...array_filter($data, static fn (mixed $value): bool => null !== $value),
         ]);
     }
 }

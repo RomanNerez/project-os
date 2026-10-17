@@ -1,19 +1,19 @@
 <?php
 
-namespace App\Containers\AppSection\Task\Tests\Functional\WEB;
+namespace App\Containers\AppSection\Project\Tests\Functional\WEB;
 
 use App\Containers\AppSection\Project\Enums\ProjectRole;
 use App\Containers\AppSection\Project\Enums\ProjectStatus;
 use App\Containers\AppSection\Project\Models\Project;
+use App\Containers\AppSection\Project\Tests\Functional\WebTestCase;
+use App\Containers\AppSection\Project\UI\WEB\Controllers\CreateProjectTaskController;
 use App\Containers\AppSection\Task\Enums\TaskStatus;
 use App\Containers\AppSection\Task\Models\Task;
-use App\Containers\AppSection\Task\Tests\Functional\WebTestCase;
-use App\Containers\AppSection\Task\UI\WEB\Controllers\CreateTaskController;
 use App\Containers\AppSection\User\Models\User;
 use PHPUnit\Framework\Attributes\CoversClass;
 
-#[CoversClass(CreateTaskController::class)]
-final class CreateTaskTest extends WebTestCase
+#[CoversClass(CreateProjectTaskController::class)]
+final class CreateProjectTaskTest extends WebTestCase
 {
     private User $user;
 
@@ -25,13 +25,15 @@ final class CreateTaskTest extends WebTestCase
         $this->actingAs($this->user, 'web');
     }
 
-    public function testCreatesTaskWithoutProjectWithDefaultStatus(): void
+    public function testOwnerCreatesTaskWithDefaultStatus(): void
     {
-        $this->post(action(CreateTaskController::class), ['title' => 'Особиста задача'])
+        $project = $this->createProject($this->user);
+
+        $this->post(action(CreateProjectTaskController::class, $project), ['title' => 'Задача проєкту'])
             ->assertRedirect();
 
-        $task = Task::query()->where('title', 'Особиста задача')->firstOrFail();
-        self::assertNull($task->project_id);
+        $task = Task::query()->where('title', 'Задача проєкту')->firstOrFail();
+        self::assertSame($project->id, $task->project_id);
         self::assertSame($this->user->id, $task->user_id);
         self::assertSame(TaskStatus::TODO->value, $task->status);
     }
@@ -40,9 +42,8 @@ final class CreateTaskTest extends WebTestCase
     {
         $project = $this->createProject($this->user);
 
-        $this->post(action(CreateTaskController::class), [
+        $this->post(action(CreateProjectTaskController::class, $project), [
             'title' => 'Задача з канбану',
-            'project_id' => $project->id,
             'status' => TaskStatus::IN_REVIEW->value,
         ])->assertRedirect();
 
@@ -56,9 +57,8 @@ final class CreateTaskTest extends WebTestCase
         $project = $this->createProject(User::factory()->createOne());
         $project->members()->attach($this->user->id, ['role' => ProjectRole::MEMBER->value]);
 
-        $this->post(action(CreateTaskController::class), [
+        $this->post(action(CreateProjectTaskController::class, $project), [
             'title' => 'Задача учасника',
-            'project_id' => $project->id,
         ])->assertRedirect();
 
         self::assertTrue(Task::query()->where('project_id', $project->id)->exists());
@@ -69,9 +69,8 @@ final class CreateTaskTest extends WebTestCase
         $project = $this->createProject(User::factory()->createOne());
         $project->members()->attach($this->user->id, ['role' => ProjectRole::VIEWER->value]);
 
-        $this->post(action(CreateTaskController::class), [
+        $this->post(action(CreateProjectTaskController::class, $project), [
             'title' => 'Задача спостерігача',
-            'project_id' => $project->id,
         ])->assertForbidden();
 
         self::assertFalse(Task::query()->where('project_id', $project->id)->exists());
@@ -81,17 +80,33 @@ final class CreateTaskTest extends WebTestCase
     {
         $project = $this->createProject(User::factory()->createOne());
 
-        $this->post(action(CreateTaskController::class), [
+        $this->post(action(CreateProjectTaskController::class, $project), [
             'title' => 'Чужа задача',
-            'project_id' => $project->id,
         ])->assertForbidden();
 
         self::assertFalse(Task::query()->where('project_id', $project->id)->exists());
     }
 
+    public function testReturnsNotFoundForUnknownProject(): void
+    {
+        $this->post(action(CreateProjectTaskController::class, ['project' => 999999]), [
+            'title' => 'Задача',
+        ])->assertNotFound();
+    }
+
+    public function testRequiresTitle(): void
+    {
+        $project = $this->createProject($this->user);
+
+        $this->post(action(CreateProjectTaskController::class, $project), [])
+            ->assertSessionHasErrors('title');
+    }
+
     public function testRejectsUnknownStatus(): void
     {
-        $this->post(action(CreateTaskController::class), [
+        $project = $this->createProject($this->user);
+
+        $this->post(action(CreateProjectTaskController::class, $project), [
             'title' => 'Задача',
             'status' => 'archived',
         ])->assertSessionHasErrors('status');

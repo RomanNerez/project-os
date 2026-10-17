@@ -81,29 +81,6 @@ final class UpdateTaskTest extends WebTestCase
         ])->assertForbidden();
     }
 
-    public function testCreatorAndAssigneeUpdateTaskWithoutProject(): void
-    {
-        $assignee = User::factory()->createOne();
-        $task = $this->createTask($this->user, null, $assignee);
-
-        $this->put(action(UpdateTaskController::class, ['id' => $task->id]), ['title' => 'Від автора'])
-            ->assertRedirect();
-
-        $this->actingAs($assignee, 'web')
-            ->put(action(UpdateTaskController::class, ['id' => $task->id]), ['title' => 'Від виконавця'])
-            ->assertRedirect();
-
-        self::assertSame('Від виконавця', $task->refresh()->title);
-    }
-
-    public function testStrangerCannotUpdateTaskWithoutProject(): void
-    {
-        $task = $this->createTask(User::factory()->createOne());
-
-        $this->put(action(UpdateTaskController::class, ['id' => $task->id]), ['title' => 'Чужа правка'])
-            ->assertForbidden();
-    }
-
     public function testCannotMoveTaskIntoForeignProject(): void
     {
         $project = $this->createProject($this->user);
@@ -129,12 +106,11 @@ final class UpdateTaskTest extends WebTestCase
         ]);
     }
 
-    private function createTask(User $creator, ?Project $project = null, ?User $assignee = null): Task
+    private function createTask(User $creator, Project $project): Task
     {
         return Task::create([
             'user_id' => $creator->id,
-            'project_id' => $project?->id,
-            'assignee_id' => $assignee?->id,
+            'project_id' => $project->id,
             'title' => 'Задача',
             'status' => TaskStatus::TODO->value,
         ]);

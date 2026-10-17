@@ -54,6 +54,13 @@ export interface TaskDraft {
     assignee_id: number | null;
 }
 
+/** Creating a task only needs a title and the project it belongs to. */
+export interface TaskCreateDraft {
+    title: string;
+    project_id: number | null;
+    status: TaskStatus | null;
+}
+
 type Severity = 'secondary' | 'info' | 'warn' | 'success' | 'danger';
 
 export const STATUS_META: Record<TaskStatus, { label: string; severity: Severity }> = {
@@ -83,4 +90,10 @@ export const toDraft = (task: Task): TaskDraft => ({
     status: task.status,
     project_id: task.project_id ?? null,
     assignee_id: task.assignee_id ?? null,
+});
+
+export const emptyTaskCreateDraft = (): TaskCreateDraft => ({
+    title: '',
+    project_id: null,
+    status: TASK_STATUS.TODO,
 });

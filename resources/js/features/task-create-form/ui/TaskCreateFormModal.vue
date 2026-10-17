@@ -1,17 +1,15 @@
 <script setup lang="ts">
-import { computed, toRefs, watch } from 'vue';
+import { computed, watch } from 'vue';
 import {
     STATUS_META,
-    useTaskForm,
-    type Task,
+    useCreateTask,
     type TaskAssignee,
     type TaskProject,
     type TaskStatus,
 } from '@/entities/task';
-import { FormText } from '@/shared/ui';
+import { FormSelect, FormText } from '@/shared/ui';
 
 const props = defineProps<{
-    task: Task | null;
     projects?: TaskProject[];
     assignees?: TaskAssignee[];
     projectId?: number | null;
@@ -20,12 +18,9 @@ const props = defineProps<{
 
 const emit = defineEmits(['onDone', 'onCancel']);
 
-const { task } = toRefs(props);
-
 const visible = defineModel<boolean>('visible', { required: true });
 
-const { form, submit, reset } = useTaskForm(
-    task,
+const { form, submit, reset } = useCreateTask(
     () => {
         emit('onDone');
         reset()
@@ -62,6 +57,18 @@ function cancel() {
             label="Назва"
             placeholder="Назва задачі"
             :message="form.errors.title"
+        />
+        <FormSelect
+            v-if="!props.projectId"
+            v-model="form.project_id"
+            class="mt-3"
+            label="Проєкт"
+            placeholder="Оберіть проєкт"
+            :options="props.projects ?? []"
+            option-label="title"
+            option-value="id"
+            filter
+            :message="form.errors.project_id"
         />
         <template #footer>
             <div class="mt-2 flex justify-end gap-2">

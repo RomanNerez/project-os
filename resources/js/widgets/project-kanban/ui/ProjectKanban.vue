@@ -129,7 +129,6 @@ function openCreate(status: TaskStatus): void {
 
         <TaskCreateFormModal
             v-model:visible="isCreateOpen"
-            :task="null"
             :project-id="projectId"
             :status="createStatus"
             @on-done="isCreateOpen = false"

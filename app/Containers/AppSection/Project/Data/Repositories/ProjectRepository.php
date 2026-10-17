@@ -2,6 +2,7 @@
 
 namespace App\Containers\AppSection\Project\Data\Repositories;
 
+use App\Containers\AppSection\Project\Enums\ProjectRole;
 use App\Containers\AppSection\Project\Models\Project;
 use App\Ship\Parents\Repositories\Repository as ParentRepository;
 
@@ -27,6 +28,25 @@ final class ProjectRepository extends ParentRepository
             fn($query) => $query
                 ->where('user_id', $userId)
                 ->orWhereHas('members', fn($query) => $query->where('users.id', $userId))
+        ));
+
+        return $this;
+    }
+
+    /**
+     * Owner, admin or member (mirrors BasePolicy::canManageTasks).
+     *
+     * @param int $userId
+     * @return self
+     */
+    public function scopeTaskCreatableBy(int $userId): self
+    {
+        $this->scopeQuery(fn($query) => $query->where(
+            fn($query) => $query
+                ->where('user_id', $userId)
+                ->orWhereHas('members', fn($query) => $query
+                    ->where('users.id', $userId)
+                    ->whereIn('project_user.role', [ProjectRole::ADMIN->value, ProjectRole::MEMBER->value]))
         ));
 
         return $this;
