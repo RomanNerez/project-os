@@ -16,7 +16,8 @@ final class UpdateUserController extends ApiController
         $user = $action->run(
             $request->user_id,
             $request->sanitize([
-                'name',
+                'first_name',
+                'last_name',
                 'gender',
                 'birth',
                 'password' => $request->new_password,

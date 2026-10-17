@@ -9,6 +9,7 @@ import SidebarIcon from '@primeicons/vue/sidebar';
 import Stopwatch from '@primeicons/vue/stopwatch';
 import Wallet from '@primeicons/vue/wallet';
 import type { BreadcrumbItem } from '../model/types';
+import { userRoutes } from '@/entities/user';
 import { AuthAvatar } from '@/shared/ui';
 import AiAgentChat from './AiAgentChat.vue';
 
@@ -23,6 +24,12 @@ const user = computed(() => page.props.auth?.user);
 
 const userMenu = ref();
 const userMenuItems = [
+    {
+        label: 'Профіль',
+        icon: 'pi pi-user',
+        command: () => router.visit(userRoutes.profile()),
+    },
+    { separator: true },
     {
         label: 'Вийти',
         icon: 'pi pi-sign-out',

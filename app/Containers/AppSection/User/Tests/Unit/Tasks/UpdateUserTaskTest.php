@@ -15,13 +15,14 @@ final class UpdateUserTaskTest extends UnitTestCase
     {
         $user = User::factory()->createOne();
         $data = [
-            'name' => 'new name',
+            'first_name' => 'New',
+            'last_name' => 'Name',
         ];
 
         $updatedUser = app(UpdateUserTask::class)->run($user->id, $data);
 
         $this->assertSame($user->id, $updatedUser->id);
-        $this->assertSame($data['name'], $updatedUser->name);
+        $this->assertSame('New Name', $updatedUser->name);
     }
 
     public function testUpdatedPasswordShouldBeHashed(): void

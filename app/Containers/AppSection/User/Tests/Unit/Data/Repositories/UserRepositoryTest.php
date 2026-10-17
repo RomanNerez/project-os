@@ -13,7 +13,8 @@ final class UserRepositoryTest extends UnitTestCase
     {
         $data = [
             'id' => '=',
-            'name' => 'like',
+            'first_name' => 'like',
+            'last_name' => 'like',
             'email' => '=',
             'email_verified_at' => 'like',
             'created_at' => 'like',

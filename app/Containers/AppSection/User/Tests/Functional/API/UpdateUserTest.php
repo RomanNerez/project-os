@@ -18,13 +18,15 @@ final class UpdateUserTest extends ApiTestCase
     public function testCanUpdateAsOwner(): void
     {
         $user = User::factory()->createOne([
-            'name' => 'He who must not be named',
+            'first_name' => 'Tom',
+            'last_name' => 'Riddle',
             'gender' => Gender::FEMALE,
             'password' => 'Av@dakedavra!',
         ]);
         $this->actingAs($user);
         $data = [
-            'name' => 'Updated Name',
+            'first_name' => 'Updated',
+            'last_name' => 'Name',
             'gender' => Gender::MALE->value,
             'birth' => Date::today()->toIso8601String(),
             'current_password' => 'Av@dakedavra!',
@@ -41,7 +43,9 @@ final class UpdateUserTest extends ApiTestCase
                 fn (AssertableJson $json): AssertableJson => $json
                     ->where('type', 'User')
                     ->where('email', $user->email)
-                    ->where('name', $data['name'])
+                    ->where('name', 'Updated Name')
+                    ->where('first_name', $data['first_name'])
+                    ->where('last_name', $data['last_name'])
                     ->where('gender', $data['gender'])
                     ->where('birth', static fn ($birth) => Date::parse($data['birth'])->isSameDay($birth))
                     ->missing('password')

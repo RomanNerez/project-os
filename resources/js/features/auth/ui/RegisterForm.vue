@@ -3,7 +3,8 @@ import { FormDate, FormPassword, FormRadioGroup, FormText } from '@/shared/ui';
 import { Link, router, useForm } from '@inertiajs/vue3';
 
 const form = useForm({
-    name: '',
+    first_name: '',
+    last_name: '',
     email: '',
     password: '',
     password_confirmation: '',
@@ -20,12 +21,21 @@ function submit(): void {
 
 <template>
     <form class="space-y-6" @submit.prevent="submit">
-        <FormText
-            v-model="form.name"
-            label="Імʼя та призвіще"
-            placeholder="Тарас Шевченко"
-            :message="form.errors.name"
-        />
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <FormText
+                v-model="form.first_name"
+                label="Імʼя"
+                placeholder="Тарас"
+                :message="form.errors.first_name"
+            />
+
+            <FormText
+                v-model="form.last_name"
+                label="Прізвище"
+                placeholder="Шевченко"
+                :message="form.errors.last_name"
+            />
+        </div>
 
         <FormText
             v-model="form.email"

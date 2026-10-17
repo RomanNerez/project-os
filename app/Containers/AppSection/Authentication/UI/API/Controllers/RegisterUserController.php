@@ -16,7 +16,8 @@ final class RegisterUserController extends ApiController
         $user = $action->transactionalRun($request->sanitize([
             'email',
             'password',
-            'name',
+            'first_name',
+            'last_name',
             'gender',
             'birth',
         ]));

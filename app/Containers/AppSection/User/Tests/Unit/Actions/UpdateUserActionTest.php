@@ -19,7 +19,8 @@ final class UpdateUserActionTest extends UnitTestCase
             ->gender(Gender::FEMALE)
             ->createOne(['password' => 'youShallNotPass']);
         $data = [
-            'name' => 'a name',
+            'first_name' => 'Arwen',
+            'last_name' => 'Undomiel',
             'gender' => Gender::MALE->value,
             'birth' => Date::today()->toIso8601String(),
             'password' => 'test',
@@ -28,7 +29,7 @@ final class UpdateUserActionTest extends UnitTestCase
 
         $result = $action->run($user->id, $data);
 
-        $this->assertSame($data['name'], $result->name);
+        $this->assertSame('Arwen Undomiel', $result->name);
         $this->assertSame(Gender::from($data['gender']), $result->gender);
         $this->assertTrue($result->birth->isSameDay($data['birth']));
         $this->assertTrue(Hash::check($data['password'], $result->password));

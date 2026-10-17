@@ -14,7 +14,8 @@ final class CreateAdminActionTest extends UnitTestCase
         $data = [
             'email' => 'ganldalf@the.grey',
             'password' => 'youShallNotPass',
-            'name' => 'Super Admin',
+            'first_name' => 'Super',
+            'last_name' => 'Admin',
         ];
 
         $admin = app(CreateAdminAction::class)->run($data);

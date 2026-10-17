@@ -17,7 +17,7 @@ final class RegisterUserAction extends ParentAction
 
     public function run(RegisterUserRequest $request): User
     {
-        $data = $request->only(['name', 'email', 'password', 'birth', 'gender']);
+        $data = $request->only(['first_name', 'last_name', 'email', 'password', 'birth', 'gender']);
 
         $user = $this->createUserTask->run($data);
 

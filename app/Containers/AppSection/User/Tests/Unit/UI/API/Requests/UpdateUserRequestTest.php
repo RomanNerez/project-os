@@ -26,7 +26,8 @@ final class UpdateUserRequestTest extends UnitTestCase
         $rules = $this->request->rules();
 
         $this->assertEquals([
-            'name' => 'min:2|max:50',
+            'first_name' => 'min:2|max:50',
+            'last_name' => 'min:2|max:50',
             'gender' => [Rule::enum(Gender::class), 'nullable'],
             'birth' => ['date', 'nullable'],
             'current_password' => [

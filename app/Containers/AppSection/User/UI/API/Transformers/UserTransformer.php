@@ -22,6 +22,9 @@ class UserTransformer extends ParentTransformer
         return [
             'id' => $user->id,
             'name' => $user->name,
+            'first_name' => $user->first_name,
+            'last_name' => $user->last_name,
+            'avatar_url' => $user->getAvatarUrl(),
             'email' => $user->email,
             'email_verified_at' => $user->email_verified_at,
             'gender' => $user->gender,

@@ -23,7 +23,8 @@ final class UserFactory extends ParentFactory
     public function definition(): array
     {
         return [
-            'name' => fake()->name(),
+            'first_name' => fake()->firstName(),
+            'last_name' => fake()->lastName(),
             'email' => fake()->unique()->safeEmail(),
             'password' => self::$password ??= Hash::make('password'),
             'email_verified_at' => now(),

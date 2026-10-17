@@ -7,11 +7,20 @@ use App\Containers\AppSection\User\Data\Collections\UserCollection;
 use App\Containers\AppSection\User\Enums\Gender;
 use App\Ship\Parents\Models\UserModel as ParentUserModel;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Spatie\Image\Enums\Fit;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-final class User extends ParentUserModel
+final class User extends ParentUserModel implements HasMedia
 {
+    use InteractsWithMedia;
+
+    public const AVATAR_COLLECTION = 'avatar';
+
     protected $fillable = [
-        'name',
+        'first_name',
+        'last_name',
         'email',
         'password',
         'gender',
@@ -52,6 +61,40 @@ final class User extends ParentUserModel
         }
 
         return true;
+    }
+
+    public function getAvatarUrl(): string|null
+    {
+        $url = $this->getFirstMediaUrl(self::AVATAR_COLLECTION, 'thumb');
+
+        return '' === $url ? null : $url;
+    }
+
+    public function registerMediaCollections(): void
+    {
+        $this
+            ->addMediaCollection(self::AVATAR_COLLECTION)
+            ->singleFile()
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp']);
+    }
+
+    public function registerMediaConversions(Media|null $media = null): void
+    {
+        $this
+            ->addMediaConversion('thumb')
+            ->performOnCollections(self::AVATAR_COLLECTION)
+            ->fit(Fit::Crop, 128, 128)
+            ->nonQueued();
+    }
+
+    /**
+     * Only first_name and last_name are stored; name is the display value built from them.
+     */
+    protected function name(): Attribute
+    {
+        return new Attribute(
+            get: fn (): string => trim($this->first_name . ' ' . $this->last_name),
+        );
     }
 
     protected function email(): Attribute

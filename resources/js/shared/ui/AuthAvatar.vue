@@ -7,8 +7,9 @@ const page = usePage();
 const user = computed(() => page.props.auth?.user);
 
 const name = computed(() => user.value?.name ?? '');
+const image = computed(() => user.value?.avatar_url ?? null);
 </script>
 
 <template>
-    <UserAvatar :name="name" />
+    <UserAvatar :name="name" :image="image" />
 </template>

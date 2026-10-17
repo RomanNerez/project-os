@@ -17,7 +17,8 @@ final class UpdateUserRequest extends ParentRequest
     public function rules(): array
     {
         return [
-            'name' => 'min:2|max:50',
+            'first_name' => 'min:2|max:50',
+            'last_name' => 'min:2|max:50',
             'gender' => [Rule::enum(Gender::class), 'nullable'],
             'birth' => ['date', 'nullable'],
             'current_password' => [

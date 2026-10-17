@@ -14,13 +14,15 @@ final class CreateAdminTest extends CliTestCase
     public function testCanCreateAdmin(): void
     {
         $data = [
-            'name' => 'admin',
+            'first_name' => 'Admin',
+            'last_name' => 'User',
             'email' => 'new@admin.com',
             'password' => 'password',
             'password_confirmation' => 'password',
         ];
         $this->artisan('create:admin')
-            ->expectsQuestion('Enter the username for this user', $data['name'])
+            ->expectsQuestion('Enter the first name for this user', $data['first_name'])
+            ->expectsQuestion('Enter the last name for this user', $data['last_name'])
             ->expectsQuestion('Enter the email address of this user', $data['email'])
             ->expectsQuestion('Enter the password for this user', $data['password'])
             ->expectsQuestion('Please confirm the password', $data['password_confirmation'])
@@ -28,7 +30,8 @@ final class CreateAdminTest extends CliTestCase
             ->assertSuccessful();
 
         $this->assertDatabaseHas('users', [
-            'name' => $data['name'],
+            'first_name' => $data['first_name'],
+            'last_name' => $data['last_name'],
             'email' => $data['email'],
         ]);
         $this->assertTrue(Hash::check($data['password'], User::where('email', $data['email'])->first()->password));
@@ -37,14 +40,16 @@ final class CreateAdminTest extends CliTestCase
     public function testErrorsOnNotMatchingPassword(): void
     {
         $data = [
-            'name' => 'admin',
+            'first_name' => 'Admin',
+            'last_name' => 'User',
             'email' => 'new@admin.com',
             'password' => 'password',
             'password_confirmation' => 'not_matching_password',
         ];
 
         $this->artisan('create:admin')
-            ->expectsQuestion('Enter the username for this user', $data['name'])
+            ->expectsQuestion('Enter the first name for this user', $data['first_name'])
+            ->expectsQuestion('Enter the last name for this user', $data['last_name'])
             ->expectsQuestion('Enter the email address of this user', $data['email'])
             ->expectsQuestion('Enter the password for this user', $data['password'])
             ->expectsQuestion('Please confirm the password', $data['password_confirmation'])
@@ -52,7 +57,8 @@ final class CreateAdminTest extends CliTestCase
             ->assertSuccessful();
 
         $this->assertDatabaseMissing('users', [
-            'name' => $data['name'],
+            'first_name' => $data['first_name'],
+            'last_name' => $data['last_name'],
             'email' => $data['email'],
         ]);
     }

@@ -19,6 +19,6 @@ final class ListAllUsersTask extends ParentTask
      */
     public function run(): Collection
     {
-        return $this->repository->orderBy('name')->all();
+        return $this->repository->orderBy('first_name')->orderBy('last_name')->all();
     }
 }

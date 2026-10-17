@@ -19,7 +19,8 @@ final class RegisterUserRequest extends ParentRequest
                 'required',
                 Password::default(),
             ],
-            'name' => 'min:2|max:50',
+            'first_name' => 'min:2|max:50',
+            'last_name' => 'min:2|max:50',
             'gender' => Rule::enum(Gender::class),
             'birth' => 'date',
         ];

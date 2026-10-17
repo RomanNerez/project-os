@@ -23,7 +23,8 @@ final class UserTest extends UnitTestCase
     {
         $user = User::factory()->createOne();
         $fillable = [
-            'name',
+            'first_name',
+            'last_name',
             'email',
             'password',
             'gender',
@@ -56,6 +57,14 @@ final class UserTest extends UnitTestCase
         ];
 
         $this->assertSame($hiddens, $user->getHidden());
+    }
+
+    public function testNameIsBuiltFromFirstAndLastName(): void
+    {
+        $user = User::factory()->createOne(['first_name' => 'Taras', 'last_name' => 'Shevchenko']);
+
+        $this->assertSame('Taras Shevchenko', $user->name);
+        $this->assertSame('Taras', User::factory()->createOne(['first_name' => 'Taras', 'last_name' => null])->name);
     }
 
     public function testHasCorrectResourceKey(): void

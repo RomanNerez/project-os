@@ -12,7 +12,8 @@ final class CreateAdmin extends ParentCommand
 
     public function handle(CreateAdminAction $action): void
     {
-        $username = $this->ask('Enter the username for this user');
+        $firstName = $this->ask('Enter the first name for this user');
+        $lastName = $this->ask('Enter the last name for this user');
         $email = $this->ask('Enter the email address of this user');
         $password = $this->secret('Enter the password for this user');
         $password_confirmation = $this->secret('Please confirm the password');
@@ -24,7 +25,8 @@ final class CreateAdmin extends ParentCommand
         }
 
         $data = [
-            'name' => $username,
+            'first_name' => $firstName,
+            'last_name' => $lastName,
             'email' => $email,
             'password' => $password,
         ];

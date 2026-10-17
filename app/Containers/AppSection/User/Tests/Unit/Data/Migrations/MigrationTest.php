@@ -12,7 +12,8 @@ final class MigrationTest extends UnitTestCase
     {
         $columns = [
             'id' => 'int8',
-            'name' => 'varchar',
+            'first_name' => 'varchar',
+            'last_name' => 'varchar',
             'email' => 'varchar',
             'email_verified_at' => 'timestamp',
             'password' => 'varchar',

@@ -14,7 +14,8 @@ final class RegisterUserRequest extends ParentRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|min:2|max:50',
+            'first_name' => 'required|string|min:2|max:50',
+            'last_name' => 'required|string|min:2|max:50',
             'email' => 'required|email|unique:users,email',
             'password' => [
                 'required',
@@ -23,6 +24,14 @@ final class RegisterUserRequest extends ParentRequest
             ],
             'gender' => ['required', Rule::enum(Gender::class)],
             'birth' => 'date',
+        ];
+    }
+
+    public function attributes(): array
+    {
+        return [
+            'first_name' => 'імʼя',
+            'last_name' => 'прізвище',
         ];
     }
 }
