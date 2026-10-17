@@ -23,24 +23,36 @@ final class ListTasksTest extends WebTestCase
         $this->actingAs($this->user, 'web');
     }
 
-    public function testCreatableProjectsContainOnlyProjectsWhereUserCanCreateTasks(): void
+    public function testCanCreateTasksAsProjectMember(): void
     {
-        $this->createProject('Власний', $this->user);
-        $this->createProject('Адмін', User::factory()->createOne())
-            ->members()->attach($this->user->id, ['role' => ProjectRole::ADMIN->value]);
         $this->createProject('Учасник', User::factory()->createOne())
             ->members()->attach($this->user->id, ['role' => ProjectRole::MEMBER->value]);
+
+        self::assertTrue($this->canCreateTasks());
+    }
+
+    public function testCanCreateTasksAsProjectOwner(): void
+    {
+        $this->createProject('Власний', $this->user);
+
+        self::assertTrue($this->canCreateTasks());
+    }
+
+    public function testCannotCreateTasksWhenOnlyViewer(): void
+    {
         $this->createProject('Спостерігач', User::factory()->createOne())
             ->members()->attach($this->user->id, ['role' => ProjectRole::VIEWER->value]);
         $this->createProject('Чужий', User::factory()->createOne());
 
+        self::assertFalse($this->canCreateTasks());
+    }
+
+    private function canCreateTasks(): bool
+    {
         $response = $this->get(action(ListTasksController::class));
         $response->assertOk();
 
-        self::assertSame(
-            ['Адмін', 'Власний', 'Учасник'],
-            array_column($response->viewData('page')['props']['creatableProjects'], 'title'),
-        );
+        return $response->viewData('page')['props']['canCreateTasks'];
     }
 
     private function createProject(string $title, User $owner): Project

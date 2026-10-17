@@ -2,7 +2,9 @@
 
 namespace App\Containers\AppSection\Project\UI\WEB\Requests;
 
+use App\Containers\AppSection\Project\Enums\ProjectRole;
 use App\Ship\Parents\Requests\Request as ParentRequest;
+use Illuminate\Validation\Rule;
 
 final class ListProjectsRequest extends ParentRequest
 {
@@ -15,6 +17,8 @@ final class ListProjectsRequest extends ParentRequest
             'searchJoin' => ['nullable', 'string', 'in:and,or'],
             'page' => ['nullable', 'integer', 'min:1'],
             'limit' => ['nullable', 'integer', 'in:10,20,50'],
+            'exclude_roles' => ['nullable', 'array'],
+            'exclude_roles.*' => [Rule::enum(ProjectRole::class)],
         ];
     }
 }

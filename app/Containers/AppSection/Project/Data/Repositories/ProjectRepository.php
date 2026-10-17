@@ -19,15 +19,21 @@ final class ProjectRepository extends ParentRepository
     ];
 
     /**
+     * Projects the user owns or is a member of. `$excludeRoles` hides projects where
+     * the user is a member with one of these roles (owners are never excluded).
+     *
      * @param int $userId
+     * @param array<int, string> $excludeRoles
      * @return self
      */
-    public function scopeAuthUserId(int $userId): self
+    public function scopeAuthUserId(int $userId, array $excludeRoles = []): self
     {
         $this->scopeQuery(fn($query) => $query->where(
             fn($query) => $query
                 ->where('user_id', $userId)
-                ->orWhereHas('members', fn($query) => $query->where('users.id', $userId))
+                ->orWhereHas('members', fn($query) => $query
+                    ->where('users.id', $userId)
+                    ->when([] !== $excludeRoles, fn($query) => $query->whereNotIn('project_user.role', $excludeRoles)))
         ));
 
         return $this;

@@ -32,6 +32,7 @@ final class ListProjectsAction extends ParentAction
                     $query->where('tasks.status', TaskStatus::DONE);
                 }
             ],
+            excludeRoles: $request->input('exclude_roles', []),
         );
     }
 }

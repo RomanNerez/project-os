@@ -159,6 +159,61 @@ final class ListProjectsTest extends WebTestCase
             ->assertSessionHasErrors('search');
     }
 
+    public function testExcludesProjectsWhereUserHasExcludedRole(): void
+    {
+        $this->createProject(['title' => 'Власний проєкт'], $this->user);
+        $this->createMemberProject(['title' => 'Учасник'], ProjectRole::MEMBER);
+        $this->createMemberProject(['title' => 'Адмін'], ProjectRole::ADMIN);
+        $this->createMemberProject(['title' => 'Спостерігач'], ProjectRole::VIEWER);
+
+        self::assertSame(
+            ['Адмін', 'Власний проєкт', 'Учасник'],
+            $this->listedTitles(['exclude_roles' => [ProjectRole::VIEWER->value]]),
+        );
+    }
+
+    public function testExcludedRoleDoesNotHideOwnProjectWithOtherViewers(): void
+    {
+        $project = $this->createProject(['title' => 'Власний проєкт'], $this->user);
+        $project->members()->attach(User::factory()->createOne()->id, ['role' => ProjectRole::VIEWER->value]);
+
+        self::assertSame(
+            ['Власний проєкт'],
+            $this->listedTitles(['exclude_roles' => [ProjectRole::VIEWER->value]]),
+        );
+    }
+
+    public function testExcludedRoleCombinesWithTitleFilter(): void
+    {
+        $this->createMemberProject(['title' => 'Сайт клініки'], ProjectRole::MEMBER);
+        $this->createMemberProject(['title' => 'Сайт школи'], ProjectRole::VIEWER);
+        $this->createMemberProject(['title' => 'Застосунок'], ProjectRole::MEMBER);
+
+        self::assertSame(
+            ['Сайт клініки'],
+            $this->listedTitles([...$this->filters('сайт'), 'exclude_roles' => [ProjectRole::VIEWER->value]]),
+        );
+    }
+
+    public function testRejectsUnknownExcludedRole(): void
+    {
+        $this->get(action(ListProjectsController::class, ['exclude_roles' => ['owner']]))
+            ->assertSessionHasErrors('exclude_roles.0');
+    }
+
+    public function testJsonRequestReturnsPlainProjectList(): void
+    {
+        $this->createProject(['title' => 'Власний проєкт'], $this->user);
+        $this->createMemberProject(['title' => 'Спостерігач'], ProjectRole::VIEWER);
+
+        $this->getJson(action(ListProjectsController::class, ['exclude_roles' => [ProjectRole::VIEWER->value]]))
+            ->assertOk()
+            ->assertHeaderMissing('X-Inertia')
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.title', 'Власний проєкт')
+            ->assertJsonMissingPath('data.0.members');
+    }
+
     /**
      * @param array<int, string> $statuses
      * @return array<string, string>
@@ -214,10 +269,10 @@ final class ListProjectsTest extends WebTestCase
     /**
      * @param array<string, mixed> $attributes
      */
-    private function createMemberProject(array $attributes): Project
+    private function createMemberProject(array $attributes, ProjectRole $role = ProjectRole::MEMBER): Project
     {
         $project = $this->createProject($attributes, User::factory()->createOne());
-        $project->members()->attach($this->user->id, ['role' => ProjectRole::MEMBER->value]);
+        $project->members()->attach($this->user->id, ['role' => $role->value]);
 
         return $project;
     }

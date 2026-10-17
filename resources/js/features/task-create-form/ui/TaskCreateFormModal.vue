@@ -4,13 +4,12 @@ import {
     STATUS_META,
     useCreateTask,
     type TaskAssignee,
-    type TaskProject,
     type TaskStatus,
 } from '@/entities/task';
-import { FormSelect, FormText } from '@/shared/ui';
+import { MEMEBER_ROLE, ProjectSelect } from '@/entities/project';
+import { FormText } from '@/shared/ui';
 
 const props = defineProps<{
-    projects?: TaskProject[];
     assignees?: TaskAssignee[];
     projectId?: number | null;
     status?: TaskStatus | null;
@@ -58,16 +57,12 @@ function cancel() {
             placeholder="Назва задачі"
             :message="form.errors.title"
         />
-        <FormSelect
+        <ProjectSelect
             v-if="!props.projectId"
             v-model="form.project_id"
             class="mt-3"
             label="Проєкт"
-            placeholder="Оберіть проєкт"
-            :options="props.projects ?? []"
-            option-label="title"
-            option-value="id"
-            filter
+            :exclude-roles="[MEMEBER_ROLE.VIEWER]"
             :message="form.errors.project_id"
         />
         <template #footer>

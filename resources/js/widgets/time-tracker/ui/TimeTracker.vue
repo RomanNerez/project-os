@@ -5,12 +5,11 @@ import {
     useElapsedSeconds,
     useTimeTracker,
     type TimeEntry,
-    type TimeEntryProject,
 } from '@/entities/time-entry';
+import { ProjectSelect } from '@/entities/project';
 
 const props = defineProps<{
     running: TimeEntry | null;
-    projects: TimeEntryProject[];
     serverTime: string;
 }>();
 
@@ -51,25 +50,17 @@ function submit(): void {
         </div>
 
         <div class="w-full lg:w-56">
-            <Select
+            <ProjectSelect
                 v-if="isRunning"
                 :model-value="running!.project?.id ?? null"
-                :options="projects"
-                option-label="title"
-                option-value="id"
                 placeholder="Без проєкту"
                 disabled
-                fluid
             />
-            <Select
+            <ProjectSelect
                 v-else
                 v-model="form.project_id"
-                :options="projects"
-                option-label="title"
-                option-value="id"
                 placeholder="Без проєкту"
                 show-clear
-                fluid
             />
             <small v-if="form.errors.project_id" class="text-red-500">{{ form.errors.project_id }}</small>
         </div>

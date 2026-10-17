@@ -3,7 +3,7 @@ import { computed, ref, watch } from 'vue';
 import { Head } from '@inertiajs/vue3';
 import { InfiniteScroll } from "@inertiajs/vue3";
 import { AdminLayout } from '@/widgets/admin-layout';
-import { STATUS_META, TaskCard, type TaskAssignee, type TaskProject } from '@/entities/task';
+import { STATUS_META, TaskCard, type TaskAssignee } from '@/entities/task';
 import { TaskCreateFormModal } from '@/features/task-create-form';
 import { TaskDeleteModal } from '@/features/task-delete';
 import type { TaskProp } from '../model/types';
@@ -14,8 +14,7 @@ import { TaskFiltersPanel, useActiveTaskFilters } from '@/features/task-filters'
 
 interface Props {
     tasks: PaginatedServerData<TaskProp[]>;
-    projects: TaskProject[];
-    creatableProjects: TaskProject[];
+    canCreateTasks: boolean;
 }
 
 const props = defineProps<Props>();
@@ -90,7 +89,7 @@ function openDelete(task: TaskProp): void {
     >
         <template #actions>
             <Button
-                v-if="props.creatableProjects.length"
+                v-if="props.canCreateTasks"
                 label="Нова задача"
                 icon="pi pi-plus"
                 @click="openCreate"
@@ -133,13 +132,12 @@ function openDelete(task: TaskProp): void {
                 icon-class="pi-check-square"
                 decription="Задач поки немає"
                 button-label="Створити першу задачу"
-                :show-action="!!props.creatableProjects.length"
+                :show-action="props.canCreateTasks"
                 @on-handler="openCreate"
             />
 
             <TaskCreateFormModal
                 v-model:visible="isCreateModalOpen"
-                :projects="props.creatableProjects"
                 @on-done="() => {
                     selectedTaskId = null;
                     isCreateModalOpen = false;

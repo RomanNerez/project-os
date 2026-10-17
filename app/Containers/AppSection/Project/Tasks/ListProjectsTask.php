@@ -17,15 +17,17 @@ final class ListProjectsTask extends ParentTask
     /**
      * @param int $userId
      * @param array<int, mixed> $with
+     * @param array<int|string, mixed> $withCount
+     * @param array<int, string> $excludeRoles
      * @return LengthAwarePaginator<int, Project>
      */
-    public function run(int $userId, array $with = [], array $withCount = []): LengthAwarePaginator
+    public function run(int $userId, array $with = [], array $withCount = [], array $excludeRoles = []): LengthAwarePaginator
     {
         return $this->repository
             ->addRequestCriteria()
             ->with($with)
             ->withCount($withCount)
-            ->scopeAuthUserId($userId)
+            ->scopeAuthUserId($userId, $excludeRoles)
             ->orderBy('created_at', 'desc')
             ->paginate();
     }

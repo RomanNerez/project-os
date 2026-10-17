@@ -36,7 +36,7 @@ export interface ProjectMember {
     id: ProjectMemberID;
     name: string;
     email: string;
-    role: typeof MEMEBER_ROLE[keyof typeof MEMEBER_ROLE]
+    role: MemberRole;
 }
 
 export interface TaskStatusCounts {
@@ -104,6 +104,8 @@ export const MEMEBER_ROLE = {
     MEMBER: 'member',
     VIEWER: 'viewer',
 } as const;
+
+export type MemberRole = typeof MEMEBER_ROLE[keyof typeof MEMEBER_ROLE];
 
 export const getRoleLabel = (role?: string) => {
     switch (role) {

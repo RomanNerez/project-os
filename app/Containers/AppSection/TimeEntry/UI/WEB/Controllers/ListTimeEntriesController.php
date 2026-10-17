@@ -2,8 +2,6 @@
 
 namespace App\Containers\AppSection\TimeEntry\UI\WEB\Controllers;
 
-use App\Containers\AppSection\Project\Actions\ListAllProjectsAction;
-use App\Containers\AppSection\Project\Models\Project;
 use App\Containers\AppSection\TimeEntry\Actions\FindRunningTimeEntryAction;
 use App\Containers\AppSection\TimeEntry\Actions\ListTimeEntriesAction;
 use App\Containers\AppSection\TimeEntry\UI\API\Transformers\TimeEntryTransformer;
@@ -17,7 +15,6 @@ final class ListTimeEntriesController extends WebController
     public function __construct(
         private readonly ListTimeEntriesAction $action,
         private readonly FindRunningTimeEntryAction $findRunningTimeEntryAction,
-        private readonly ListAllProjectsAction $listAllProjectsAction,
     ) {
     }
 
@@ -33,11 +30,6 @@ final class ListTimeEntriesController extends WebController
         return Inertia::render('time-tracker', [
             'entries' => fractal($this->action->run($userId), new TimeEntryTransformer())->toArray(),
             'running' => $running ? fractal($running, new TimeEntryTransformer())->toArray() : null,
-            'projects' => $this->listAllProjectsAction->run()
-                ->map(static fn (Project $project): array => [
-                    'id' => $project->id,
-                    'title' => $project->title,
-                ])->values(),
             'serverTime' => now()->toIso8601String(),
         ]);
     }

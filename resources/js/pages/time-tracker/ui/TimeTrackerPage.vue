@@ -4,7 +4,7 @@ import { Head } from '@inertiajs/vue3';
 import { AdminLayout } from '@/widgets/admin-layout';
 import { TimeTracker } from '@/widgets/time-tracker';
 import { TimeEntryList } from '@/widgets/time-entry-list';
-import type { TimeEntry, TimeEntryProject } from '@/entities/time-entry';
+import type { TimeEntry } from '@/entities/time-entry';
 
 interface Props {
     entries: {
@@ -13,7 +13,6 @@ interface Props {
     running: {
         data: TimeEntry;
     } | null;
-    projects: TimeEntryProject[];
     serverTime: string;
 }
 
@@ -32,7 +31,6 @@ const running = computed(() => props.running?.data ?? null);
         <div class="flex h-full flex-col gap-6">
             <TimeTracker
                 :running="running"
-                :projects="props.projects"
                 :server-time="props.serverTime"
             />
 

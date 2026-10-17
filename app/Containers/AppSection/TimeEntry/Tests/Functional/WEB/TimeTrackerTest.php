@@ -125,7 +125,7 @@ final class TimeTrackerTest extends WebTestCase
                     ->where('running.data.stopped_at', null)
                     ->where('running.data.duration', null)
                     ->where('running.data.project.title', $project->title)
-                    ->has('projects', 1)
+                    ->missing('projects')
                     ->has('serverTime'),
             );
     }

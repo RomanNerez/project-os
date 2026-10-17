@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import PrimeSelect, { type SelectProps } from 'primevue/select'
+import PrimeSelect, { type SelectFilterEvent, type SelectProps } from 'primevue/select'
 import type { MessageProps } from 'primevue/message'
 
 interface Props {
@@ -43,6 +43,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: SelectProps['modelValue']): void
+  (e: 'filter', event: SelectFilterEvent): void
 }>()
 
 const value = computed({
@@ -82,6 +83,7 @@ const value = computed({
             :invalid="invalid || !!message"
             :size="size"
             v-bind="selectProps"
+            @filter="emit('filter', $event)"
         />
 
         <Message 

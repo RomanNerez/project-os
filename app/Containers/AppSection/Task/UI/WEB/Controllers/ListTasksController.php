@@ -2,9 +2,7 @@
 
 namespace App\Containers\AppSection\Task\UI\WEB\Controllers;
 
-use App\Containers\AppSection\Project\Actions\ListAllProjectsAction;
 use App\Containers\AppSection\Project\Actions\ListTaskCreatableProjectsAction;
-use App\Containers\AppSection\Project\Models\Project;
 use App\Containers\AppSection\Task\Actions\ListTasksAction;
 use App\Containers\AppSection\Task\UI\API\Transformers\TaskTransformer;
 use App\Containers\AppSection\Task\UI\WEB\Requests\ListTasksRequest;
@@ -16,7 +14,6 @@ final class ListTasksController extends WebController
 {
     public function __construct(
         private readonly ListTasksAction $action,
-        private readonly ListAllProjectsAction $listAllProjectsAction,
         private readonly ListTaskCreatableProjectsAction $listTaskCreatableProjectsAction,
     ) {}
 
@@ -33,16 +30,7 @@ final class ListTasksController extends WebController
 
         return Inertia::render('tasks', [
             'tasks' => Inertia::paginatedScroll($tasks, $paginator),
-            'projects' => $this->listAllProjectsAction->run()
-                ->map(static fn (Project $project): array => [
-                    'id' => $project->id,
-                    'title' => $project->title,
-                ])->values(),
-            'creatableProjects' => $this->listTaskCreatableProjectsAction->run($request->user()->id)
-                ->map(static fn (Project $project): array => [
-                    'id' => $project->id,
-                    'title' => $project->title,
-                ])->values(),
+            'canCreateTasks' => $this->listTaskCreatableProjectsAction->run($request->user()->id)->isNotEmpty(),
         ]);
     }
 }
