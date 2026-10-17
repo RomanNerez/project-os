@@ -1,6 +1,6 @@
 export { default as TaskCard } from './ui/TaskCard.vue';
 export { default as TaskKanbanCard } from './ui/TaskKanbanCard.vue'
-export { useTaskForm } from './model/useTaskForm';
+export { useTaskDelete } from './model/useTaskDelete';
 export { useCreateTask } from './model/useCreateTask';
 export { useTaskFieldForm } from './model/useTaskFieldForm';
 export { updateTaskStatus } from './model/updateTaskStatus';

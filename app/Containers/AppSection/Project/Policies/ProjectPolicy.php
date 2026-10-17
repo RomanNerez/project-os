@@ -46,4 +46,14 @@ final class ProjectPolicy extends BasePolicy
     {
         return $this->canManageTasks($user, $project);
     }
+
+    /**
+     * @param User $user
+     * @param Project $project
+     * @return bool
+     */
+    public function deleteTask(User $user, Project $project): bool
+    {
+        return $this->isOwnerOrAdmin($user, $project);
+    }
 }

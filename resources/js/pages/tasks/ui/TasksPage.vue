@@ -161,8 +161,11 @@ function openDelete(task: TaskProp): void {
             />
 
             <TaskDeleteModal
+                v-if="selectedTask"
                 v-model:visible="isDeleteModalOpen"
-                :task="selectedTask"
+                :project-id="selectedTask.project_id"
+                :task-id="selectedTask.id"
+                :title="selectedTask.title"
                 @on-done="() => {
                     selectedTaskId = null;
                     isDeleteModalOpen = false;

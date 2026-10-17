@@ -1,19 +1,24 @@
 <script setup lang="ts">
-import { toRefs } from 'vue';
 import { ConfirmModal } from '@/shared/ui';
-import { useTaskForm, type Task } from '@/entities/task';
+import { useTaskDelete, type TaskID } from '@/entities/task';
 
 const props = defineProps<{
-    task: Task | null;
+    projectId: number;
+    taskId: TaskID;
+    title: string;
 }>();
 
 const emit = defineEmits(['onDone', 'onCancel']);
 
-const { task } = toRefs(props);
-
 const visible = defineModel<boolean>('visible', { required: true });
 
-const { form, remove } = useTaskForm(task, () => emit('onDone'));
+const { isDeleting, destroy } = useTaskDelete();
+
+function remove() {
+    destroy(props.projectId, props.taskId, {
+        onSuccess: () => emit('onDone')
+    });
+}
 </script>
 
 <template>
@@ -23,12 +28,12 @@ const { form, remove } = useTaskForm(task, () => emit('onDone'));
         icon="pi pi-exclamation-triangle"
         severity="danger"
         confirm-label="Видалити"
-        :processing="form.processing"
+        :processing="isDeleting"
         @confirm="remove"
         @cancel="$emit('onCancel')"
     >
         Ви впевнені, що хочете видалити задачу
-        <span class="font-semibold">«{{ task?.title }}»</span>?
+        <span class="font-semibold">«{{ title }}»</span>?
         Цю дію неможливо скасувати.
     </ConfirmModal>
 </template>

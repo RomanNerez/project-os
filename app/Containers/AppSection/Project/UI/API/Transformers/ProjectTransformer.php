@@ -42,6 +42,7 @@ final class ProjectTransformer extends ParentTransformer
                 'manage_members' => $user?->can('addMember', [ProjectUser::class, $item]) ?? false,
                 'create_task' => $user?->can('createTask', $item) ?? false,
                 'update_task' => $user?->can('updateTask', $item) ?? false,
+                'delete_task' => $user?->can('deleteTask', $item) ?? false,
             ],
         ];
     }
