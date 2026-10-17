@@ -7,6 +7,7 @@ import ListCheck from '@primeicons/vue/list-check';
 import Plus from '@primeicons/vue/plus';
 import SidebarIcon from '@primeicons/vue/sidebar';
 import Stopwatch from '@primeicons/vue/stopwatch';
+import Wallet from '@primeicons/vue/wallet';
 import type { BreadcrumbItem } from '../model/types';
 import { AuthAvatar } from '@/shared/ui';
 import AiAgentChat from './AiAgentChat.vue';
@@ -76,6 +77,7 @@ const navGroups = computed<NavGroup[]>(() => [
             { icon: Folder, label: 'Проєкти', href: '/projects', badge: false, isActive: page.url.startsWith('/projects') },
             { icon: ListCheck, label: 'Задачі', href: '/tasks', badge: false, isActive: page.url.startsWith('/tasks') },
             { icon: Stopwatch, label: 'Трекер часу', href: '/time-tracker', badge: false, isActive: page.url.startsWith('/time-tracker') },
+            { icon: Wallet, label: 'Фінанси', href: '/finances', badge: false, isActive: page.url.startsWith('/finances') },
         ]
     },
 ]);

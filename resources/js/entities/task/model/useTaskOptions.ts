@@ -1,6 +1,6 @@
 import { computed, ref, type ComputedRef, type Ref } from 'vue';
 import { useHttp } from '@inertiajs/vue3';
-import { buildSearchParam, debounce, sanitizeSearchText, SEARCH_JOIN } from '@/shared/lib';
+import { buildArrayField, buildSearchParam, debounce, sanitizeSearchText, SEARCH_JOIN, type FilterQuery } from '@/shared/lib';
 import { taskRoutes } from '../api/taskRoutes';
 import type { TaskOption } from './types';
 
@@ -8,6 +8,12 @@ interface TaskOptionsQuery {
     search: string;
     searchJoin: typeof SEARCH_JOIN.AND;
     limit: number;
+}
+
+interface TaskOptionsParams {
+    /** Only tasks of these projects; empty means all visible projects. */
+    projectIds?: () => number[];
+    limit?: 10 | 20 | 50;
 }
 
 interface UseTaskOptions {
@@ -20,20 +26,27 @@ interface UseTaskOptions {
 /**
  * Tasks visible to the current user (with their project), loaded from `tasks.index` as JSON.
  */
-export function useTaskOptions(): UseTaskOptions {
+export function useTaskOptions({ projectIds = () => [], limit = 20 }: TaskOptionsParams = {}): UseTaskOptions {
     const tasks = ref<TaskOption[]>([]);
 
     const http = useHttp<TaskOptionsQuery, { data: TaskOption[] }>({
         search: '',
         searchJoin: SEARCH_JOIN.AND,
-        limit: 20,
+        limit,
     });
 
     async function load(title = ''): Promise<void> {
         const value = sanitizeSearchText(title);
 
         http.cancel();
-        http.search = value ? buildSearchParam({ title: value }) : '';
+
+        const filters: FilterQuery = {};
+        const ids = projectIds();
+
+        if (value) filters.title = value;
+        if (ids.length) filters.project_id = buildArrayField(ids.map(String));
+
+        http.search = buildSearchParam(filters);
 
         try {
             const response = await http.get(taskRoutes.index());

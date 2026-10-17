@@ -1,15 +1,15 @@
 import '@/shared/api/http';
 
-import { createApp, h, type DefineComponent } from 'vue';
+import { createApp, h } from 'vue';
 import { createInertiaApp } from '@inertiajs/vue3';
 import { installPrimeVue } from './providers/primevue';
+import { pages } from './pages';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Project OS';
 
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
     resolve: (name) => {
-        const pages = import.meta.glob<{ default: DefineComponent }>('../pages/*/index.ts', { eager: true });
         const page = pages[`../pages/${name}/index.ts`];
 
         if (!page) {
