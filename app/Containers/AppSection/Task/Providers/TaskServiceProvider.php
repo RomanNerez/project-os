@@ -2,7 +2,10 @@
 
 namespace App\Containers\AppSection\Task\Providers;
 
+use App\Containers\AppSection\Task\Models\Task;
+use App\Containers\AppSection\Task\Policies\TaskPolicy;
 use App\Ship\Parents\Providers\ServiceProvider as ParentServiceProvider;
+use Illuminate\Support\Facades\Gate;
 
 final class TaskServiceProvider extends ParentServiceProvider
 {
@@ -11,7 +14,7 @@ final class TaskServiceProvider extends ParentServiceProvider
      */
     public function boot(): void
     {
-        //
+        Gate::policy(Task::class, TaskPolicy::class);
     }
 
     /**

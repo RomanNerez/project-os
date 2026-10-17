@@ -8,8 +8,10 @@
     url: string;
     size: number;
     isUploaded?: boolean;
+    removable?: boolean;
   }>(), {
-    isUploaded: true
+    isUploaded: true,
+    removable: true
   });
 
   const emit = defineEmits(['onDownload', 'onRemove']);
@@ -38,6 +40,7 @@
                 <Download />
             </Button>
             <Button
+                v-if="removable"
                 iconOnly
                 rounded
                 severity="danger"

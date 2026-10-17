@@ -32,6 +32,8 @@ final class TaskTransformer extends ParentTransformer
      */
     public function transform(Task $item): array
     {
+        $user = auth()->user();
+
         return [
             'id' => $item->id,
             'title' => $item->title,
@@ -39,6 +41,11 @@ final class TaskTransformer extends ParentTransformer
             'status' => $item->status,
             'project_id' => $item->project_id,
             'assignee_id' => $item->assignee_id,
+            'permissions' => [
+                'comment' => $user?->can('comment', $item) ?? false,
+                'upload_files' => $user?->can('uploadFiles', $item) ?? false,
+                'delete_files' => $user?->can('deleteFiles', $item) ?? false,
+            ],
         ];
     }
 
@@ -75,6 +82,9 @@ final class TaskTransformer extends ParentTransformer
      */
     public function includeComments(Task $task)
     {
+        // The comment policy checks the commented task; reuse it instead of lazy-loading per comment.
+        $task->comments->each->setRelation('model', $task);
+
         return $this->collection($task->comments, new CommentTransformer());
     }
 }

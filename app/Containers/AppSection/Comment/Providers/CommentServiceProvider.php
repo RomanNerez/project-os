@@ -2,7 +2,10 @@
 
 namespace App\Containers\AppSection\Comment\Providers;
 
+use App\Containers\AppSection\Comment\Models\Comment;
+use App\Containers\AppSection\Comment\Policies\CommentPolicy;
 use App\Ship\Parents\Providers\ServiceProvider as ParentServiceProvider;
+use Illuminate\Support\Facades\Gate;
 
 final class CommentServiceProvider extends ParentServiceProvider
 {
@@ -11,7 +14,7 @@ final class CommentServiceProvider extends ParentServiceProvider
      */
     public function boot(): void
     {
-        //
+        Gate::policy(Comment::class, CommentPolicy::class);
     }
 
     /**

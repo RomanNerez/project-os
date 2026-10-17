@@ -22,6 +22,12 @@ export interface TaskAssignee {
     name: string;
 }
 
+export interface TaskPermissions {
+    comment: boolean;
+    upload_files: boolean;
+    delete_files: boolean;
+}
+
 export interface Task {
     id: TaskID;
     title: string;
@@ -29,6 +35,7 @@ export interface Task {
     status: TaskStatus | null;
     project_id: number;
     assignee_id: number | null;
+    permissions: TaskPermissions;
 }
 
 export type TaskEditableField = 'title' | 'description' | 'status' | 'assignee_id';

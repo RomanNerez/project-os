@@ -1,0 +1,145 @@
+<?php
+
+namespace App\Containers\AppSection\Comment\Tests\Functional\WEB;
+
+use App\Containers\AppSection\Comment\Models\Comment;
+use App\Containers\AppSection\Comment\Tests\Functional\WebTestCase;
+use App\Containers\AppSection\Comment\UI\WEB\Controllers\DeleteCommentController;
+use App\Containers\AppSection\Comment\UI\WEB\Controllers\UpdateCommentController;
+use App\Containers\AppSection\Project\Enums\ProjectRole;
+use App\Containers\AppSection\Project\Enums\ProjectStatus;
+use App\Containers\AppSection\Project\Models\Project;
+use App\Containers\AppSection\Task\Enums\TaskStatus;
+use App\Containers\AppSection\Task\Models\Task;
+use App\Containers\AppSection\User\Models\User;
+use Illuminate\Testing\TestResponse;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+
+#[CoversClass(UpdateCommentController::class)]
+#[CoversClass(DeleteCommentController::class)]
+final class CommentAccessTest extends WebTestCase
+{
+    private User $user;
+
+    private Project $project;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->user = User::factory()->createOne();
+        $this->actingAs($this->user, 'web');
+
+        $this->project = Project::create([
+            'user_id' => User::factory()->createOne()->id,
+            'title' => 'Проєкт',
+            'description' => 'Тестовий проєкт',
+            'status' => ProjectStatus::IN_PROGRESS->value,
+            'budget' => 1000,
+        ]);
+    }
+
+    public function testAuthorUpdatesOwnComment(): void
+    {
+        $comment = $this->createComment($this->user);
+
+        $this->updateComment($comment)->assertRedirect();
+
+        self::assertSame('Змінено', $comment->refresh()->body);
+    }
+
+    public function testProjectAdminCannotUpdateForeignComment(): void
+    {
+        $this->project->members()->attach($this->user->id, ['role' => ProjectRole::ADMIN->value]);
+        $comment = $this->createComment(User::factory()->createOne());
+
+        $this->updateComment($comment)->assertForbidden();
+
+        self::assertSame('Коментар', $comment->refresh()->body);
+    }
+
+    public function testAuthorDeletesOwnComment(): void
+    {
+        $comment = $this->createComment($this->user);
+
+        $this->deleteComment($comment)->assertRedirect();
+
+        $this->assertModelMissing($comment);
+    }
+
+    public function testProjectOwnerDeletesForeignComment(): void
+    {
+        $this->actingAs($this->project->user, 'web');
+        $comment = $this->createComment(User::factory()->createOne());
+
+        $this->deleteComment($comment)->assertRedirect();
+
+        $this->assertModelMissing($comment);
+    }
+
+    /**
+     * @return array<string, array{ProjectRole, bool}>
+     */
+    public static function memberRoles(): array
+    {
+        return [
+            'admin' => [ProjectRole::ADMIN, true],
+            'member' => [ProjectRole::MEMBER, false],
+            'viewer' => [ProjectRole::VIEWER, false],
+        ];
+    }
+
+    #[DataProvider('memberRoles')]
+    public function testMemberRoleDecidesDeletingForeignComment(ProjectRole $role, bool $allowed): void
+    {
+        $this->project->members()->attach($this->user->id, ['role' => $role->value]);
+        $comment = $this->createComment(User::factory()->createOne());
+
+        $response = $this->deleteComment($comment);
+
+        if ($allowed) {
+            $response->assertRedirect();
+            $this->assertModelMissing($comment);
+        } else {
+            $response->assertForbidden();
+            $this->assertModelExists($comment);
+        }
+    }
+
+    public function testOutsiderCannotDeleteComment(): void
+    {
+        $comment = $this->createComment(User::factory()->createOne());
+
+        $this->deleteComment($comment)->assertForbidden();
+
+        $this->assertModelExists($comment);
+    }
+
+    private function updateComment(Comment $comment): TestResponse
+    {
+        return $this->patch(action(UpdateCommentController::class, ['id' => $comment->id]), ['body' => 'Змінено']);
+    }
+
+    private function deleteComment(Comment $comment): TestResponse
+    {
+        return $this->delete(action(DeleteCommentController::class, ['id' => $comment->id]));
+    }
+
+    private function createComment(User $author): Comment
+    {
+        $task = Task::create([
+            'user_id' => $this->project->user_id,
+            'project_id' => $this->project->id,
+            'title' => 'Задача',
+            'status' => TaskStatus::TODO->value,
+        ]);
+
+        return Comment::create([
+            'user_id' => $author->id,
+            'model_type' => Task::class,
+            'model_id' => $task->id,
+            'body' => 'Коментар',
+        ]);
+    }
+}

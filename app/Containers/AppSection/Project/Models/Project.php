@@ -83,6 +83,17 @@ final class Project extends ParentModel
     }
 
     /**
+     * Owner or a member with any role.
+     *
+     * @param User $user
+     * @return bool
+     */
+    public function hasParticipant(User $user): bool
+    {
+        return $this->isOwnedBy($user) || null !== $this->memberRole($user);
+    }
+
+    /**
      * Ids of everyone who can be assigned to the project's tasks: the owner and all members.
      *
      * @return Collection<int, int>

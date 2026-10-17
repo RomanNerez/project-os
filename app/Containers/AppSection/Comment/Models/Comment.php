@@ -5,6 +5,7 @@ namespace App\Containers\AppSection\Comment\Models;
 use App\Containers\AppSection\User\Models\User;
 use App\Ship\Parents\Models\Model as ParentModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 final class Comment extends ParentModel
 {
@@ -26,5 +27,15 @@ final class Comment extends ParentModel
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * The commented entity (e.g. a task).
+     *
+     * @return MorphTo
+     */
+    public function model(): MorphTo
+    {
+        return $this->morphTo();
     }
 }

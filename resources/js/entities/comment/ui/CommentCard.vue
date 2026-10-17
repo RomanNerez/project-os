@@ -7,11 +7,15 @@
         createdAt: string;
         body: string;
         showAction?: boolean;
+        canEdit?: boolean;
+        canDelete?: boolean;
         isEditingMode?: boolean;
     }
 
     const props = withDefaults(defineProps<Props>(), {
         showAction: true,
+        canEdit: true,
+        canDelete: true,
         isEditingMode: false,
     });
 
@@ -34,8 +38,9 @@
                 <span class="text-xs text-gray-400">• {{ formatDateHuman(createdAt) }}</span>
                 </div>
 
-                <div v-if="showAction" class="flex items-center gap-1">
+                <div v-if="showAction && (canEdit || canDelete)" class="flex items-center gap-1">
                     <Button 
+                        v-if="canEdit"
                         icon="pi pi-pencil" 
                         text 
                         rounded 
@@ -45,6 +50,7 @@
                         @click="$emit('onEdit')"
                     />
                     <Button 
+                        v-if="canDelete"
                         icon="pi pi-trash" 
                         text 
                         rounded 

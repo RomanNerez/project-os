@@ -28,6 +28,8 @@ final class ShowProjectController extends WebController
         $project = $this->action->run($id);
         $tasks = $this->listProjectTasksAction->run($project->id);
         $project->loadMissing(['user', 'members']);
+        // Task permissions check the project's members; share the loaded project instead of querying per task.
+        $tasks->each->setRelation('project', $project);
 
         return Inertia::render('project', [
             'project' => fractal($project, new ProjectTransformer())->toArray(),

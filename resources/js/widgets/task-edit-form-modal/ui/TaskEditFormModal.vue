@@ -59,7 +59,7 @@ defineEmits(['onClose']);
 
                 <TaskDescriptionField :task="task" :disabled="!canEdit" />
 
-                <TaskUploadFiles :task-id="task.id" />
+                <TaskUploadFiles v-if="task.permissions.upload_files" :task-id="task.id" />
 
                 <div v-if="media.length > 0" >
                     <div class="grid grid-flow-col auto-cols-[120px] gap-2 overflow-x-auto w-full">
@@ -69,6 +69,7 @@ defineEmits(['onClose']);
                             :file-name="m.file_name"
                             :url="m.preview_url"
                             :size="m.size"
+                            :removable="task.permissions.delete_files"
                             @on-remove="selectedMedia = m"
                         />
                     </div>
@@ -93,7 +94,7 @@ defineEmits(['onClose']);
                         :pt="{ root: { class: '!px-0' } }"
                     >
                         <TabPanel value="tab1" >
-                            <TaskCreateComment :task-id="task.id" />
+                            <TaskCreateComment v-if="task.permissions.comment" :task-id="task.id" />
                             <div class="space-y-4">
                                 <CommentCard
                                     v-for="comment in comments" 
@@ -102,6 +103,8 @@ defineEmits(['onClose']);
                                     :body="comment.body"
                                     :created-at="comment.created_at"
                                     :is-editing-mode="selectedEditCommentId === comment.id"
+                                    :can-edit="comment.permissions.update"
+                                    :can-delete="comment.permissions.delete"
                                     @on-edit="selectedEditCommentId = comment.id"
                                     @on-delete="selectedDeleteCommentId = comment.id"
                                 >

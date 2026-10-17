@@ -21,12 +21,18 @@ final class CommentTransformer extends ParentTransformer
      */
     public function transform(Comment $item): array
     {
+        $user = auth()->user();
+
         return [
             'id' => $item->id,
             'user_id' => $item->user_id,
             'body' => $item->body,
             'created_at' => $item->created_at,
             'updated_at' => $item->updated_at,
+            'permissions' => [
+                'update' => $user?->can('update', $item) ?? false,
+                'delete' => $user?->can('delete', $item) ?? false,
+            ],
         ];
     }
 

@@ -2,12 +2,18 @@ import type { IncludedData } from "@/shared/types";
 
 export type CommentID = number;
 
+export interface CommentPermissions {
+    update: boolean;
+    delete: boolean;
+}
+
 export interface Comment {
     id: CommentID;
     user_id: number;
     body: string;
     created_at: string;
     updated_at: string;
+    permissions: CommentPermissions;
 }
 
 export interface CommentIncludes<TUser = null> extends Comment {

@@ -12,6 +12,16 @@ final class ProjectPolicy extends BasePolicy
      * @param Project $project
      * @return bool
      */
+    public function view(User $user, Project $project): bool
+    {
+        return $project->hasParticipant($user);
+    }
+
+    /**
+     * @param User $user
+     * @param Project $project
+     * @return bool
+     */
     public function update(User $user, Project $project): bool
     {
         return $this->isOwnerOrAdmin($user, $project);
