@@ -18,6 +18,7 @@ npm run build                            # production asset build
 npm run type-check                       # vue-tsc --noEmit
 make migrate                             # php artisan migrate --force
 make optimize                            # php artisan optimize:clear
+make seed-projects / seed-tasks PROJECT=<id> / seed-comments PROJECT=<id> / seed-media PROJECT=<id>  # dev data, see README.md
 php artisan ziggy:generate               # regenerate resources/js/ziggy.js after adding/renaming routes
 ```
 
