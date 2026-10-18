@@ -22,7 +22,7 @@ final class ListFinancesTask extends ParentTask
     {
         return $this->repository
             ->addRequestCriteria()
-            ->with(['tasks.project', 'media'])
+            ->with(['project', 'tasks', 'media'])
             ->scopeVisibleForUser($userId)
             ->orderBy('created_at', 'desc')
             ->paginate();

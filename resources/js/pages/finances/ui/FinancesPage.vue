@@ -10,7 +10,7 @@ import {
     STATUS_META,
     TYPE_META,
 } from '@/entities/finance';
-import { FinanceCreateFormModal } from '@/features/finance-create-form';
+import { FinanceFormModal } from '@/features/finance-form';
 import { formatDateLong } from '@/shared/lib';
 import type { PaginatedServerData } from '@/shared/types';
 import { EmptyList } from '@/shared/ui';
@@ -20,13 +20,16 @@ const props = defineProps<{
     finances: PaginatedServerData<FinanceProp[]>;
 }>();
 
-const isCreateModalOpen = ref(false);
+const isFormOpen = ref(false);
+const editingFinance = ref<FinanceProp | null>(null);
 
 const cards = computed(() => props.finances.data.map((finance) => {
     const isIncome = finance.type === FINANCE_TYPE.INCOME;
 
     return {
         id: finance.id,
+        finance,
+        canEdit: finance.permissions.update,
         title: finance.title,
         isIncome,
         amount: `${isIncome ? '+' : '−'}${formatMoney(finance.amount_uah, FINANCE_CURRENCY.UAH)}`,
@@ -38,7 +41,7 @@ const cards = computed(() => props.finances.data.map((finance) => {
         statusLabel: STATUS_META[finance.status].label,
         statusColor: STATUS_META[finance.status].severity,
         description: finance.description,
-        projects: finance.projects.map((project) => project.title),
+        projects: [finance.project.title],
         tasks: finance.tasks.data.map((task) => task.title),
         dueDate: formatDateLong(finance.due_date),
         paidAt: formatDateLong(finance.paid_at),
@@ -52,11 +55,17 @@ const cards = computed(() => props.finances.data.map((finance) => {
 }));
 
 function openCreate(): void {
-    isCreateModalOpen.value = true;
+    editingFinance.value = null;
+    isFormOpen.value = true;
 }
 
-function closeCreate(): void {
-    isCreateModalOpen.value = false;
+function openEdit(finance: FinanceProp): void {
+    editingFinance.value = finance;
+    isFormOpen.value = true;
+}
+
+function closeForm(): void {
+    isFormOpen.value = false;
 }
 </script>
 
@@ -91,7 +100,19 @@ function closeCreate(): void {
                         :due-date="card.dueDate"
                         :paid-at="card.paidAt"
                         :files="card.files"
-                    />
+                    >
+                        <template v-if="card.canEdit" #actions>
+                            <Button
+                                icon="pi pi-pencil"
+                                text
+                                rounded
+                                size="small"
+                                severity="secondary"
+                                aria-label="Редагувати"
+                                @click="openEdit(card.finance)"
+                            />
+                        </template>
+                    </FinanceCard>
                 </InfiniteScroll>
             </div>
 
@@ -104,10 +125,11 @@ function closeCreate(): void {
                 @on-handler="openCreate"
             />
 
-            <FinanceCreateFormModal
-                v-model:visible="isCreateModalOpen"
-                @on-done="closeCreate"
-                @on-cancel="closeCreate"
+            <FinanceFormModal
+                v-model:visible="isFormOpen"
+                :finance="editingFinance"
+                @on-done="closeForm"
+                @on-cancel="closeForm"
             />
         </div>
     </AdminLayout>

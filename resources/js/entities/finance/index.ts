@@ -1,5 +1,5 @@
 export { default as FinanceCard } from './ui/FinanceCard.vue';
-export { useCreateFinance } from './model/useCreateFinance';
+export { useFinanceForm } from './model/useFinanceForm';
 export { calcAmountUah, formatMoney } from './lib/money';
 export { financeRoutes } from './api/financeRoutes';
 export {
@@ -13,12 +13,15 @@ export {
     TYPE_OPTIONS,
     CURRENCY_OPTIONS,
     emptyFinanceDraft,
+    financeToDraft,
 } from './model/types';
 export type {
     FinanceID,
     Finance,
     FinanceIncludes,
     FinanceDraft,
+    FinanceWithTasks,
+    FinancePermissions,
     FinanceType,
     FinanceCurrency,
     FinanceStatus,

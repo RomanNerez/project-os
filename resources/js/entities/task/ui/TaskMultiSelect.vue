@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, watch } from 'vue';
 import { useTaskOptions } from '../model/useTaskOptions';
-import type { TaskOption } from '../model/types';
+import type { TaskSelectOption } from '../model/types';
 
 const props = withDefaults(defineProps<{
     label?: string;
@@ -16,13 +16,13 @@ const props = withDefaults(defineProps<{
 });
 
 /** Whole options, so callers also get each task's project without a second lookup. */
-const model = defineModel<TaskOption[]>({ default: () => [] });
+const model = defineModel<TaskSelectOption[]>({ default: () => [] });
 
 const { tasks, loading, load, search } = useTaskOptions({ projectIds: () => props.projectIds, limit: 50 });
 
 // Selected tasks stay listed (and keep their labels) even when a new search no longer returns them.
 const groups = computed(() => {
-    const byProject = new Map<string, TaskOption[]>();
+    const byProject = new Map<string, TaskSelectOption[]>();
     const options = [...model.value, ...tasks.value.filter((t) => !model.value.some((s) => s.id === t.id))];
 
     for (const task of options) {

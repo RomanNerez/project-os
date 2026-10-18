@@ -93,6 +93,9 @@ const props = withDefaults(defineProps<{
             <span v-if="props.originalAmount" class="text-xs text-muted-color">
                 {{ props.originalAmount }}
             </span>
+            <div v-if="$slots.actions" class="mt-1 flex gap-1">
+                <slot name="actions" />
+            </div>
         </div>
     </article>
 </template>

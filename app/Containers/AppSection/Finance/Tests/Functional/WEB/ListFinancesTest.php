@@ -15,7 +15,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 #[CoversClass(ListFinancesController::class)]
 final class ListFinancesTest extends WebTestCase
 {
-    public function testShowsOnlyRecordsForVisibleTasksWithTheirProjects(): void
+    public function testShowsOnlyRecordsOfVisibleProjects(): void
     {
         $user = User::factory()->createOne();
         $stranger = User::factory()->createOne();
@@ -23,13 +23,12 @@ final class ListFinancesTest extends WebTestCase
 
         $sharedProject = $this->createProject($stranger, 'Спільний');
         $sharedProject->members()->attach($user->id, ['role' => ProjectRole::VIEWER->value]);
-        $ownProject = $this->createProject($user, 'Свій');
 
-        $this->createFinance($stranger, 'Видимий', [
+        $this->createFinance($stranger, $sharedProject, 'Видимий', [
             $this->createTask($sharedProject)->id,
-            $this->createTask($ownProject)->id,
+            $this->createTask($sharedProject)->id,
         ]);
-        $this->createFinance($stranger, 'Чужий', [$this->createTask($this->createProject($stranger, 'Чужий'))->id]);
+        $this->createFinance($stranger, $this->createProject($stranger, 'Чужий'), 'Чужий');
 
         $this->get(action(ListFinancesController::class))
             ->assertOk()
@@ -38,19 +37,33 @@ final class ListFinancesTest extends WebTestCase
                     ->has('finances.data', 1)
                     ->where('finances.data.0.title', 'Видимий')
                     ->where('finances.data.0.amount_uah', '4150.00')
-                    ->has('finances.data.0.projects', 2)
+                    ->where('finances.data.0.project.title', 'Спільний')
+                    ->where('finances.data.0.permissions.update', false)
                     ->has('finances.data.0.tasks.data', 2)
                     ->has('finances.data.0.media.data', 0),
             );
     }
 
+    public function testAuthorCanUpdateOwnRecord(): void
+    {
+        $user = User::factory()->createOne();
+        $this->actingAs($user, 'web');
+
+        $this->createFinance($user, $this->createProject($user, 'Свій'), 'Свій');
+
+        $this->get(action(ListFinancesController::class))
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page->where('finances.data.0.permissions.update', true));
+    }
+
     /**
      * @param array<int, int> $taskIds
      */
-    private function createFinance(User $author, string $title, array $taskIds): void
+    private function createFinance(User $author, Project $project, string $title, array $taskIds = []): void
     {
         Finance::create([
             'user_id' => $author->id,
+            'project_id' => $project->id,
             'title' => $title,
             'type' => 'expense',
             'currency' => 'usd',

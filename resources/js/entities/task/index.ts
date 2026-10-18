@@ -22,4 +22,5 @@ export type {
     TaskIncludes,
     TaskWithAssignee,
     TaskOption,
+    TaskSelectOption,
 } from './model/types';

@@ -14,13 +14,14 @@ final class FinanceRepository extends ParentRepository
 {
     protected $fieldSearchable = [
         'title' => 'ilike',
+        'project_id' => '=',
         'type' => 'in',
         'status' => 'in',
         'currency' => 'in',
     ];
 
     /**
-     * Records the user created or that cover at least one task visible to them.
+     * Records the user created or that belong to a project they participate in.
      *
      * @param int $userId
      * @return self
@@ -29,7 +30,7 @@ final class FinanceRepository extends ParentRepository
     {
         $this->scopeQuery(fn ($query) => $query->where(function ($q) use ($userId) {
             $q->where('user_id', $userId)
-                ->orWhereHas('tasks', fn ($taskQuery) => $taskQuery->visibleTo($userId));
+                ->orWhereHas('project', fn ($projectQuery) => $projectQuery->visibleTo($userId));
         }));
 
         return $this;

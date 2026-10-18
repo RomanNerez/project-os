@@ -30,8 +30,12 @@ final class FinanceTransformer extends ParentTransformer
      */
     public function transform(Finance $item): array
     {
+        $user = auth()->user();
+
         return [
             'id' => $item->id,
+            'project_id' => $item->project_id,
+            'project' => ['id' => $item->project->id, 'title' => $item->project->title],
             'title' => $item->title,
             'description' => $item->description,
             'type' => $item->type,
@@ -43,13 +47,9 @@ final class FinanceTransformer extends ParentTransformer
             'due_date' => $item->due_date?->toDateString(),
             'paid_at' => $item->paid_at?->toDateString(),
             'created_at' => $item->created_at?->toIso8601String(),
-            'projects' => $item->tasks
-                ->map(static fn (Task $task) => $task->project)
-                ->filter()
-                ->unique('id')
-                ->map(static fn ($project) => ['id' => $project->id, 'title' => $project->title])
-                ->values()
-                ->all(),
+            'permissions' => [
+                'update' => $user?->can('update', $item) ?? false,
+            ],
         ];
     }
 

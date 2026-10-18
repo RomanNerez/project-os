@@ -77,7 +77,13 @@ export interface Finance {
     due_date: string | null;
     paid_at: string | null;
     created_at: string | null;
-    projects: FinanceProject[];
+    project_id: number;
+    project: FinanceProject;
+    permissions: FinancePermissions;
+}
+
+export interface FinancePermissions {
+    update: boolean;
 }
 
 export interface FinanceIncludes<TTasks = null, TMedia = null> extends Finance {
@@ -93,21 +99,30 @@ export interface FinanceCardFile {
     isPdf: boolean;
 }
 
+/** A record with its tasks included, as the edit form needs it. */
+export type FinanceWithTasks = Finance & { tasks: IncludedData<FinanceTask[]> };
+
+/** Dates are `YYYY-MM-DD` strings, the format the server sends and expects. */
 export interface FinanceDraft {
+    project_id: number | null;
     title: string;
     type: FinanceType;
     currency: FinanceCurrency;
     amount: number | null;
     exchange_rate: number | null;
     status: FinanceStatus;
-    due_date: Date | null;
-    paid_at: Date | null;
+    due_date: string | null;
+    paid_at: string | null;
     description: string;
     task_ids: number[];
+    /** New files to upload. */
     receipts: File[];
+    /** Ids of already stored receipts to delete on save. */
+    removed_receipt_ids: number[];
 }
 
 export const emptyFinanceDraft = (): FinanceDraft => ({
+    project_id: null,
     title: '',
     type: FINANCE_TYPE.EXPENSE,
     currency: FINANCE_CURRENCY.UAH,
@@ -119,4 +134,21 @@ export const emptyFinanceDraft = (): FinanceDraft => ({
     description: '',
     task_ids: [],
     receipts: [],
+    removed_receipt_ids: [],
+});
+
+export const financeToDraft = (finance: FinanceWithTasks): FinanceDraft => ({
+    project_id: finance.project_id,
+    title: finance.title,
+    type: finance.type,
+    currency: finance.currency,
+    amount: Number(finance.amount),
+    exchange_rate: finance.exchange_rate === null ? null : Number(finance.exchange_rate),
+    status: finance.status,
+    due_date: finance.due_date,
+    paid_at: finance.paid_at,
+    description: finance.description ?? '',
+    task_ids: finance.tasks.data.map((task) => task.id),
+    receipts: [],
+    removed_receipt_ids: [],
 });

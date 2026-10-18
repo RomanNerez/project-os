@@ -38,6 +38,17 @@ const value = computed({
   get: () => props.modelValue,
   set: (val) => emit('update:modelValue', val!)
 })
+
+const pickerProps = computed(() => ({
+  id: props.labelFor || props.name,
+  name: props.name,
+  placeholder: props.placeholder,
+  fluid: props.fluid,
+  disabled: props.disabled,
+  invalid: props.invalid || !!props.message,
+  size: props.size,
+  ...props.inputProps,
+}))
 </script>
 
 <template>
@@ -49,18 +60,9 @@ const value = computed({
             {{ label }}
         </Label>
 
-        <DatePicker
-            :id="labelFor || name"
-            v-model="value"
-            :name="name"
-            :placeholder="placeholder"
-            :fluid="fluid"
-            :disabled="disabled"
-            :invalid="invalid || !!message"
-            :size="size"
-            v-bind="inputProps"
-            v-mask="mask"
-        />
+        <!-- PrimeVue's v-mask with an empty mask clears the input on blur and nulls the model, so it is only applied when a mask is given. -->
+        <DatePicker v-if="mask" v-model="value" v-bind="pickerProps" v-mask="mask" />
+        <DatePicker v-else v-model="value" v-bind="pickerProps" />
 
         <Message 
             v-if="message" 

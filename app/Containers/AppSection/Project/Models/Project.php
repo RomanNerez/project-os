@@ -6,6 +6,7 @@ use App\Containers\AppSection\Project\Enums\ProjectRole;
 use App\Containers\AppSection\Task\Models\Task;
 use App\Containers\AppSection\User\Models\User;
 use App\Ship\Parents\Models\Model as ParentModel;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -58,6 +59,23 @@ final class Project extends ParentModel
             ->using(ProjectUser::class)
             ->withPivot(['role'])
             ->withTimestamps();
+    }
+
+    /**
+     * Projects the user owns or is a member of.
+     *
+     * @param Builder<Project> $query
+     * @param int $userId
+     * @return void
+     */
+    public function scopeVisibleTo(Builder $query, int $userId): void
+    {
+        $query->where(function (Builder $q) use ($userId) {
+            $q->where('user_id', $userId)
+                ->orWhereHas('members', function ($memberQuery) use ($userId) {
+                    $memberQuery->where('users.id', $userId);
+                });
+        });
     }
 
     /**

@@ -32,9 +32,12 @@ final class CreateFinanceTest extends WebTestCase
 
     public function testCreatesUahRecordForOneTask(): void
     {
-        $task = $this->createTask($this->createProject($this->user));
+        $project = $this->createProject($this->user);
+        $task = $this->createTask($project);
 
-        $this->store(['task_ids' => [$task->id], 'exchange_rate' => 41.5])->assertRedirect()->assertSessionHasNoErrors();
+        $this->store(['project_id' => $project->id, 'task_ids' => [$task->id], 'exchange_rate' => 41.5])
+            ->assertRedirect()
+            ->assertSessionHasNoErrors();
 
         $finance = Finance::sole();
 
@@ -42,62 +45,79 @@ final class CreateFinanceTest extends WebTestCase
         self::assertSame('1500.00', $finance->amount_uah);
         self::assertNull($finance->exchange_rate);
         self::assertSame($this->user->id, $finance->user_id);
+        self::assertSame($project->id, $finance->project_id);
         self::assertSame([$task->id], $finance->tasks->pluck('id')->all());
     }
 
-    public function testCreatesUsdRecordForTasksFromDifferentProjects(): void
+    public function testCreatesUsdRecordInSharedProject(): void
     {
-        $own = $this->createTask($this->createProject($this->user));
-        $foreignProject = $this->createProject(User::factory()->createOne());
-        $foreignProject->members()->attach($this->user->id, ['role' => ProjectRole::MEMBER->value]);
-        $shared = $this->createTask($foreignProject);
+        $project = $this->createProject(User::factory()->createOne());
+        $project->members()->attach($this->user->id, ['role' => ProjectRole::MEMBER->value]);
+        $tasks = [$this->createTask($project)->id, $this->createTask($project)->id];
 
         $this->store([
+            'project_id' => $project->id,
             'currency' => 'usd',
             'amount' => '100.50',
             'exchange_rate' => '41.2345',
-            'task_ids' => [$own->id, $shared->id],
+            'task_ids' => $tasks,
         ])->assertRedirect()->assertSessionHasNoErrors();
 
         $finance = Finance::sole();
 
         self::assertSame('41.2345', $finance->exchange_rate);
         self::assertSame('4144.07', $finance->amount_uah);
-        self::assertEqualsCanonicalizing([$own->id, $shared->id], $finance->tasks->pluck('id')->all());
+        self::assertEqualsCanonicalizing($tasks, $finance->tasks->pluck('id')->all());
+    }
+
+    public function testCreatesRecordWithoutTasks(): void
+    {
+        $project = $this->createProject($this->user);
+
+        $this->store(['project_id' => $project->id])->assertRedirect()->assertSessionHasNoErrors();
+
+        self::assertSame(0, Finance::sole()->tasks()->count());
     }
 
     public function testUsdRequiresExchangeRate(): void
     {
-        $task = $this->createTask($this->createProject($this->user));
+        $project = $this->createProject($this->user);
 
-        $this->store(['currency' => 'usd', 'task_ids' => [$task->id]])->assertSessionHasErrors('exchange_rate');
-
-        self::assertSame(0, Finance::count());
-    }
-
-    public function testRequiresAtLeastOneTask(): void
-    {
-        $this->store(['task_ids' => []])->assertSessionHasErrors('task_ids');
+        $this->store(['project_id' => $project->id, 'currency' => 'usd'])->assertSessionHasErrors('exchange_rate');
 
         self::assertSame(0, Finance::count());
     }
 
-    public function testRejectsTaskFromProjectTheUserDoesNotParticipateIn(): void
+    public function testRequiresProject(): void
     {
-        $own = $this->createTask($this->createProject($this->user));
-        $foreign = $this->createTask($this->createProject(User::factory()->createOne()));
+        $this->store([])->assertSessionHasErrors('project_id');
 
-        $this->store(['task_ids' => [$own->id, $foreign->id]])->assertSessionHasErrors('task_ids');
+        self::assertSame(0, Finance::count());
+    }
+
+    public function testRejectsProjectTheUserDoesNotParticipateIn(): void
+    {
+        $foreign = $this->createProject(User::factory()->createOne());
+
+        $this->store(['project_id' => $foreign->id])->assertSessionHasErrors('project_id');
+
+        self::assertSame(0, Finance::count());
+    }
+
+    public function testRejectsTaskFromAnotherProject(): void
+    {
+        $project = $this->createProject($this->user);
+        $other = $this->createTask($this->createProject($this->user));
+
+        $this->store(['project_id' => $project->id, 'task_ids' => [$other->id]])->assertSessionHasErrors('task_ids');
 
         self::assertSame(0, Finance::count());
     }
 
     public function testStoresReceiptsInReceiptsCollection(): void
     {
-        $task = $this->createTask($this->createProject($this->user));
-
         $this->store([
-            'task_ids' => [$task->id],
+            'project_id' => $this->createProject($this->user)->id,
             'receipts' => [
                 UploadedFile::fake()->createWithContent('invoice.pdf', "%PDF-1.4\n%%EOF\n"),
                 UploadedFile::fake()->image('check.png'),
@@ -109,10 +129,8 @@ final class CreateFinanceTest extends WebTestCase
 
     public function testRejectsReceiptsOfOtherTypes(): void
     {
-        $task = $this->createTask($this->createProject($this->user));
-
         $this->store([
-            'task_ids' => [$task->id],
+            'project_id' => $this->createProject($this->user)->id,
             'receipts' => [UploadedFile::fake()->create('setup.exe', 10, 'application/octet-stream')],
         ])->assertSessionHasErrors('receipts.0');
 

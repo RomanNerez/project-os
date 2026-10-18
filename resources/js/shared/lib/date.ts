@@ -22,8 +22,10 @@ const DIVISORS: { amount: number; name: Intl.RelativeTimeFormatUnit }[] = [
  */
 export function parseDateValue(value: string | null): Date | null {
     if (!value) return null;
-    
-    return new Date(value);
+
+    const [year, month, day] = value.slice(0, 10).split('-').map(Number);
+
+    return new Date(year, month - 1, day);
 }
 
 export function toDateValue(date: Date | null): string | null {

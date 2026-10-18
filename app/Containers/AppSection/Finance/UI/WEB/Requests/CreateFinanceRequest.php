@@ -9,15 +9,17 @@ use App\Ship\Parents\Requests\Request as ParentRequest;
 use Illuminate\Validation\Rule;
 
 /**
- * Access is checked in CreateFinanceAction: every task must be visible to the user.
+ * Access is checked in PrepareFinanceDataTask: the project must be visible to the user
+ * and every task must belong to it.
  */
-final class CreateFinanceRequest extends ParentRequest
+class CreateFinanceRequest extends ParentRequest
 {
     protected array $decode = [];
 
     public function rules(): array
     {
         return [
+            'project_id' => ['required', 'integer', 'exists:projects,id'],
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:5000'],
             'type' => ['required', Rule::enum(FinanceType::class)],
@@ -27,7 +29,7 @@ final class CreateFinanceRequest extends ParentRequest
             'status' => ['required', Rule::enum(FinanceStatus::class)],
             'due_date' => ['nullable', 'date'],
             'paid_at' => ['nullable', 'date'],
-            'task_ids' => ['required', 'array', 'min:1'],
+            'task_ids' => ['nullable', 'array'],
             'task_ids.*' => ['integer', 'distinct', 'exists:tasks,id'],
             'receipts' => ['nullable', 'array', 'max:10'],
             'receipts.*' => ['file', 'mimes:pdf,jpg,jpeg,png,webp', 'max:10240'],
@@ -37,6 +39,7 @@ final class CreateFinanceRequest extends ParentRequest
     public function attributes(): array
     {
         return [
+            'project_id' => 'проєкт',
             'title' => 'назва',
             'amount' => 'сума',
             'exchange_rate' => 'курс',

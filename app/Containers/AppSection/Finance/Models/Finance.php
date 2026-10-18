@@ -2,6 +2,7 @@
 
 namespace App\Containers\AppSection\Finance\Models;
 
+use App\Containers\AppSection\Project\Models\Project;
 use App\Containers\AppSection\Task\Models\Task;
 use App\Containers\AppSection\User\Models\User;
 use App\Ship\Parents\Models\Model as ParentModel;
@@ -23,6 +24,7 @@ final class Finance extends ParentModel implements HasMedia
      */
     protected $fillable = [
         'user_id',
+        'project_id',
         'title',
         'description',
         'type',
@@ -52,7 +54,17 @@ final class Finance extends ParentModel implements HasMedia
     }
 
     /**
-     * The tasks this payment is for; its projects are the projects of these tasks.
+     * Every payment belongs to exactly one project; a payment for two projects is two records.
+     *
+     * @return BelongsTo<Project, $this>
+     */
+    public function project(): BelongsTo
+    {
+        return $this->belongsTo(Project::class);
+    }
+
+    /**
+     * Optional tasks of the payment's project that it is for.
      *
      * @return BelongsToMany<Task, $this>
      */

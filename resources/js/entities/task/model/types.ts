@@ -83,3 +83,8 @@ export const emptyTaskCreateDraft = (): TaskCreateDraft => ({
 export type TaskOption = Task & {
     project: IncludedData<TaskProject> | null;
 };
+
+/** What `TaskMultiSelect` needs of a selected task, so callers can pre-select tasks they only know by id and title. */
+export type TaskSelectOption = Pick<Task, 'id' | 'title'> & {
+    project: IncludedData<TaskProject> | null;
+};
