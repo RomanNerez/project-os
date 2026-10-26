@@ -16,7 +16,7 @@ final class RegisterUserRequest extends ParentRequest
         return [
             'first_name' => 'required|string|min:2|max:50',
             'last_name' => 'required|string|min:2|max:50',
-            'email' => 'required|email|unique:users,email',
+            'token' => 'required|string',
             'password' => [
                 'required',
                 'confirmed',

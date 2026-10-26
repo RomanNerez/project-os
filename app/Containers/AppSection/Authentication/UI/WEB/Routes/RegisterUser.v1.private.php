@@ -5,4 +5,4 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest:web')
         ->post('register', RegisterUserController::class)
-        ->name('login');
+        ->name('register');

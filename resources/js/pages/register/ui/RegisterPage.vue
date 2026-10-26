@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { Head, usePage } from '@inertiajs/vue3';
-import { RegisterForm } from '@/features/auth';
+import { Head, Link } from '@inertiajs/vue3';
+import { RegisterForm, type RegisterInvitation } from '@/features/auth';
 
-const page = usePage();
+defineProps<{
+    invitation: RegisterInvitation | null;
+}>();
 </script>
 
 <template>
@@ -13,11 +15,19 @@ const page = usePage();
             <div class="mb-8 text-center">
                 <h1 class="mb-2 text-3xl font-light tracking-widest text-[#4457C2]">Project OS</h1>
                 <p class="text-sm text-gray-500">
-                    Створіть новий аккаунт
+                    {{ invitation ? 'Створіть новий аккаунт' : 'Реєстрація лише за запрошенням' }}
                 </p>
             </div>
 
-            <RegisterForm />
+            <RegisterForm v-if="invitation" :invitation="invitation" />
+
+            <div v-else class="space-y-6">
+                <Message severity="warn">
+                    Запрошення недійсне, прострочене або вже використане. Попросіть адміністратора надіслати нове.
+                </Message>
+
+                <Button :as="Link" variant="link" fluid href="/" label="Увійти" />
+            </div>
         </div>
     </div>
 </template>

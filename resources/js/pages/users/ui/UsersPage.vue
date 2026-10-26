@@ -5,6 +5,7 @@ import type { DataTablePageEvent } from 'primevue/datatable';
 import { WorkspaceLayout } from '@/widgets/workspace-layout';
 import { userRoutes, type UserListItem } from '@/entities/user';
 import { UserCreateFormModal } from '@/features/user-create-form';
+import { UserInviteFormModal } from '@/features/user-invite-form';
 import { formatDateLong } from '@/shared/lib';
 import type { PaginatedServerData } from '@/shared/types';
 import { UserAvatar } from '@/shared/ui';
@@ -14,6 +15,7 @@ const props = defineProps<{
 }>();
 
 const isFormOpen = ref(false);
+const isInviteOpen = ref(false);
 const isLoading = ref(false);
 
 const pagination = computed(() => props.users.meta.pagination);
@@ -45,6 +47,10 @@ function onPage(event: DataTablePageEvent): void {
 function closeForm(): void {
     isFormOpen.value = false;
 }
+
+function closeInvite(): void {
+    isInviteOpen.value = false;
+}
 </script>
 
 <template>
@@ -55,6 +61,7 @@ function closeForm(): void {
         description="Користувачі робочого простору та їхні ролі"
     >
         <template #actions>
+            <Button label="Запросити" icon="pi pi-envelope" outlined @click="isInviteOpen = true" />
             <Button label="Новий користувач" icon="pi pi-plus" @click="isFormOpen = true" />
         </template>
 
@@ -100,6 +107,12 @@ function closeForm(): void {
             v-model:visible="isFormOpen"
             @on-done="closeForm"
             @on-cancel="closeForm"
+        />
+
+        <UserInviteFormModal
+            v-model:visible="isInviteOpen"
+            @on-done="closeInvite"
+            @on-cancel="closeInvite"
         />
     </WorkspaceLayout>
 </template>

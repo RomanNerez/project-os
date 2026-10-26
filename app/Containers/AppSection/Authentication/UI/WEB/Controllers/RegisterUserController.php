@@ -6,21 +6,22 @@ use App\Containers\AppSection\Authentication\Actions\RegisterUserAction;
 use App\Containers\AppSection\Authentication\UI\WEB\Requests\RegisterUserRequest;
 use App\Ship\Parents\Controllers\WebController;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
 
 final class RegisterUserController extends WebController
 {
     public function __construct(
-        private readonly RegisterUserAction $action
-    ) {}
+        private readonly RegisterUserAction $action,
+    ) {
+    }
 
-    /**
-     * @param RegisterUserRequest $request
-     * @return RedirectResponse
-     */
     public function __invoke(RegisterUserRequest $request): RedirectResponse
     {
-        $this->action->run($request);
+        $user = $this->action->run($request);
 
-        return redirect('/');
+        Auth::guard('web')->login($user);
+        $request->session()->regenerate();
+
+        return redirect()->route('projects.index');
     }
 }

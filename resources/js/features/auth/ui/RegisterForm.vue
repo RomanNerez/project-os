@@ -1,21 +1,28 @@
 <script setup lang="ts">
 import { FormDate, FormPassword, FormRadioGroup, FormText } from '@/shared/ui';
-import { Link, router, useForm } from '@inertiajs/vue3';
+import { computed } from 'vue';
+import { Link, useForm } from '@inertiajs/vue3';
+import type { RegisterInvitation } from '../model/types';
+
+const props = defineProps<{
+    invitation: RegisterInvitation;
+}>();
 
 const form = useForm({
+    token: props.invitation.token,
     first_name: '',
     last_name: '',
-    email: '',
     password: '',
     password_confirmation: '',
     gender: '',
     birth: null,
 });
 
+// Not a form field (the email comes from the invitation), but the server can still reject it.
+const emailError = computed(() => (form.errors as Partial<Record<string, string>>).email);
+
 function submit(): void {
-    form.post('/register', {
-       
-    });
+    form.post('/register');
 }
 </script>
 
@@ -37,11 +44,16 @@ function submit(): void {
             />
         </div>
 
+        <Message v-if="form.errors.token" severity="error">
+            {{ form.errors.token }}
+        </Message>
+
         <FormText
-            v-model="form.email"
+            :model-value="invitation.email"
             label="Email"
-            placeholder="you@example.com"
-            :message="form.errors.email"
+            name="email"
+            disabled
+            :message="emailError"
         />
 
         <FormPassword
