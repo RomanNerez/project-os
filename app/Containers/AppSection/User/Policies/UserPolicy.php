@@ -39,6 +39,11 @@ final class UserPolicy extends ParentPolicy
         return false;
     }
 
+    public function create(): bool
+    {
+        return false;
+    }
+
     public function update(User $user, int $userId): bool
     {
         $entity = $this->userRepository->findById($userId);

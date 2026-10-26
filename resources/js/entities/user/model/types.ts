@@ -1,3 +1,5 @@
+import type { IncludedData } from '@/shared/types';
+
 type UserID = number;
 
 export interface User {
@@ -5,6 +7,10 @@ export interface User {
     name: string;
     email: string;
     avatar_url: string | null;
+    /** Only on the shared `auth.user` (HandleInertiaRequests). */
+    permissions?: {
+        manage_users: boolean;
+    };
 }
 
 /** The current user as the profile page receives it (UserTransformer). */
@@ -14,4 +20,35 @@ export interface UserProfile extends User {
     email_verified_at: string | null;
     gender: string | null;
     birth: string | null;
+}
+
+/** RoleTransformer. */
+export interface UserRole {
+    id: string;
+    name: string;
+    display_name: string | null;
+}
+
+/** A row of the users list (UserAdminTransformer with roles). */
+export interface UserListItem extends UserProfile {
+    created_at: string;
+    roles: IncludedData<UserRole[]>;
+}
+
+export interface UserDraft {
+    first_name: string;
+    last_name: string;
+    email: string;
+    password: string;
+    password_confirmation: string;
+}
+
+export function emptyUserDraft(): UserDraft {
+    return {
+        first_name: '',
+        last_name: '',
+        email: '',
+        password: '',
+        password_confirmation: '',
+    };
 }

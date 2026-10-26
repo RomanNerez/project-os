@@ -29,6 +29,7 @@ final class ShowProfileTest extends WebTestCase
                 ->where('user.data.last_name', 'Shevchenko')
                 ->where('user.data.name', 'Taras Shevchenko')
                 ->where('user.data.avatar_url', null)
-                ->where('auth.user.name', 'Taras Shevchenko'));
+                ->where('auth.user.name', 'Taras Shevchenko')
+                ->where('auth.user.permissions.manage_users', false));
     }
 }

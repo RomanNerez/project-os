@@ -16,6 +16,11 @@ final class ListUsersAction extends ParentAction
 
     public function run(): LengthAwarePaginator|UserCollection
     {
-        return $this->repository->addRequestCriteria()->paginate();
+        return $this->repository
+            ->with('roles')
+            ->orderBy('first_name')
+            ->orderBy('last_name')
+            ->addRequestCriteria()
+            ->paginate();
     }
 }

@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { router } from '@inertiajs/vue3';
+import { computed } from 'vue';
+import { router, usePage } from '@inertiajs/vue3';
 import { UserMenu } from '@/entities/user';
 import { AppHeader, AppLogo, PageHeader } from '@/shared/ui';
 import { WORKSPACE_TABS, type WorkspaceTabKey } from '../model/tabs';
@@ -11,6 +12,15 @@ withDefaults(defineProps<{
 }>(), {
     title: 'Робочий простір UNIC',
 });
+
+const page = usePage();
+
+// A tab the user has no permission for stays visible but disabled.
+const tabs = computed(() => WORKSPACE_TABS.map((tab) => {
+    const allowed = !tab.permission || !!page.props.auth.user?.permissions?.[tab.permission];
+
+    return { ...tab, href: allowed ? tab.href : undefined, soon: !tab.href };
+}));
 </script>
 
 <template>
@@ -36,7 +46,7 @@ withDefaults(defineProps<{
                     tabList: { class: '!bg-transparent !border-0 ' }
                 }">
                     <Tab
-                        v-for="tab in WORKSPACE_TABS"
+                        v-for="tab in tabs"
                         :key="tab.key"
                         :value="tab.key"
                         :disabled="!tab.href"
@@ -45,7 +55,7 @@ withDefaults(defineProps<{
                     >
                         <i :class="tab.icon" />
                         <span>{{ tab.label }}</span>
-                        <Tag v-if="!tab.href" value="Скоро" severity="secondary" class="!px-1.5 !py-0 !text-[10px]" />
+                        <Tag v-if="tab.soon" value="Скоро" severity="secondary" class="!px-1.5 !py-0 !text-[10px]" />
                     </Tab>
                 </TabList>
             </Tabs>
