@@ -1,7 +1,10 @@
 import defaultTheme from 'tailwindcss/defaultTheme';
+import PrimeUI from 'tailwindcss-primeui';
 
 /** @type {import('tailwindcss').Config} */
 export default {
+    // Match PrimeVue's darkModeSelector so `dark:` utilities follow the same theme switch.
+    darkMode: ['selector', '.dark'],
     content: [
         './vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',
         './storage/framework/views/*.php',
@@ -16,5 +19,5 @@ export default {
             },
         },
     },
-    plugins: [],
+    plugins: [PrimeUI],
 };

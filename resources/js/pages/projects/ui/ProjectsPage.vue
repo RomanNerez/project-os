@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { Head, InfiniteScroll } from '@inertiajs/vue3';
-import { AdminLayout } from '@/widgets/admin-layout';
 import { ProjectCard, type ProjectID, type ProjectIncludes, type ProjectMember, type TaskStatusCounts } from '@/entities/project';
 import { ProjectFormModal } from '@/features/project-form';
 import { ProjectDeleteModal } from '@/features/project-delete';
@@ -10,6 +9,7 @@ import { EmptyList } from '@/shared/ui';
 import type { PaginatedServerData } from '@/shared/types';
 import type { User } from '@/entities/user';
 import { ProjectMembersModal } from '@/widgets/project-members';
+import { WorkspaceLayout } from '@/widgets/workspace-layout';
 
 type ProjectItem = ProjectIncludes<User, ProjectMember[], TaskStatusCounts>;
 
@@ -59,8 +59,8 @@ function openManagerMembers(projectId: ProjectID): void {
 <template>
     <Head title="Проєкти" />
 
-    <AdminLayout
-        title="Проєкти"
+    <WorkspaceLayout
+        active="projects"
         description="Керуйте проєктами робочого простору"
     >
         <template #actions>
@@ -70,9 +70,9 @@ function openManagerMembers(projectId: ProjectID): void {
         <div class="flex h-full flex-col gap-4">
             <ProjectFiltersPanel />
 
-            <div class="overflow-y-auto">
+            <div class="-m-2 overflow-y-auto p-2">
                 <InfiniteScroll
-                    class="grid gap-4 md:grid-cols-2 xl:grid-cols-3 pb-1"
+                    class="grid gap-4 md:grid-cols-2 xl:grid-cols-3"
                     data="projects"
                 >
                     <ProjectCard
@@ -133,5 +133,5 @@ function openManagerMembers(projectId: ProjectID): void {
             :members="selectedProject?.members.data"
             :can-manage="selectedProject?.permissions.manage_members ?? false"
         />
-    </AdminLayout>
+    </WorkspaceLayout>
 </template>

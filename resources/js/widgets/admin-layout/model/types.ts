@@ -1,5 +1,1 @@
-export interface BreadcrumbItem {
-    label: string;
-    href?: string;
-    icon?: string;
-}
+export type { BreadcrumbItem } from '@/shared/types';
