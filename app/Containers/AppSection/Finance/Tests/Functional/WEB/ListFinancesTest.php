@@ -15,7 +15,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 #[CoversClass(ListFinancesController::class)]
 final class ListFinancesTest extends WebTestCase
 {
-    public function testShowsOnlyRecordsOfVisibleProjects(): void
+    public function testShowsOnlyRecordsOfTheProject(): void
     {
         $user = User::factory()->createOne();
         $stranger = User::factory()->createOne();
@@ -28,9 +28,11 @@ final class ListFinancesTest extends WebTestCase
             $this->createTask($sharedProject)->id,
             $this->createTask($sharedProject)->id,
         ]);
-        $this->createFinance($stranger, $this->createProject($stranger, 'Чужий'), 'Чужий');
+        $otherProject = $this->createProject($stranger, 'Інший');
+        $otherProject->members()->attach($user->id, ['role' => ProjectRole::VIEWER->value]);
+        $this->createFinance($stranger, $otherProject, 'Іншого проєкту');
 
-        $this->get(action(ListFinancesController::class))
+        $this->get(action(ListFinancesController::class, ['id' => $sharedProject->id]))
             ->assertOk()
             ->assertInertia(
                 fn ($page) => $page->component('finances')
@@ -40,8 +42,17 @@ final class ListFinancesTest extends WebTestCase
                     ->where('finances.data.0.project.title', 'Спільний')
                     ->where('finances.data.0.permissions.update', false)
                     ->has('finances.data.0.tasks.data', 2)
-                    ->has('finances.data.0.media.data', 0),
+                    ->has('finances.data.0.media.data', 0)
+                    ->where('project.data.id', $sharedProject->id),
             );
+    }
+
+    public function testCannotOpenFinancesOfAForeignProject(): void
+    {
+        $this->actingAs(User::factory()->createOne(), 'web');
+        $project = $this->createProject(User::factory()->createOne(), 'Чужий');
+
+        $this->get(action(ListFinancesController::class, ['id' => $project->id]))->assertForbidden();
     }
 
     public function testAuthorCanUpdateOwnRecord(): void
@@ -49,9 +60,10 @@ final class ListFinancesTest extends WebTestCase
         $user = User::factory()->createOne();
         $this->actingAs($user, 'web');
 
-        $this->createFinance($user, $this->createProject($user, 'Свій'), 'Свій');
+        $project = $this->createProject($user, 'Свій');
+        $this->createFinance($user, $project, 'Свій');
 
-        $this->get(action(ListFinancesController::class))
+        $this->get(action(ListFinancesController::class, ['id' => $project->id]))
             ->assertOk()
             ->assertInertia(fn ($page) => $page->where('finances.data.0.permissions.update', true));
     }

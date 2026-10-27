@@ -78,38 +78,55 @@ final class TimeTrackerTest extends WebTestCase
         self::assertSame(0, TimeEntry::count());
     }
 
-    public function testListsOnlyOwnFinishedEntries(): void
+    public function testListsOnlyOwnFinishedEntriesOfTheProject(): void
     {
         $user = User::factory()->createOne();
         $this->actingAs($user, 'web');
+        $project = $this->createProject($user);
 
         Carbon::setTestNow('2026-08-13 10:00:00');
-        $this->post(action(StartTimeEntryController::class), ['description' => 'Своя задача']);
+        $this->post(action(StartTimeEntryController::class), ['description' => 'Своя задача', 'project_id' => $project->id]);
         Carbon::setTestNow('2026-08-13 10:10:00');
+        $this->post(action(StopTimeEntryController::class));
+
+        Carbon::setTestNow('2026-08-13 11:00:00');
+        $this->post(action(StartTimeEntryController::class), ['description' => 'Інший проєкт', 'project_id' => $this->createProject($user)->id]);
+        Carbon::setTestNow('2026-08-13 11:10:00');
         $this->post(action(StopTimeEntryController::class));
 
         TimeEntry::create([
             'user_id' => User::factory()->createOne()->id,
+            'project_id' => $project->id,
             'description' => 'Чужа задача',
             'started_at' => Carbon::parse('2026-08-13 09:00:00'),
             'stopped_at' => Carbon::parse('2026-08-13 09:30:00'),
         ]);
 
-        $this->get(action(ListTimeEntriesController::class))
+        $this->get(action(ListTimeEntriesController::class, ['id' => $project->id]))
             ->assertOk()
             ->assertInertia(
                 fn ($page) => $page->component('time-tracker')
                     ->has('entries.data', 1)
                     ->where('entries.data.0.description', 'Своя задача')
                     ->where('entries.data.0.duration', 600)
-                    ->where('running', null),
+                    ->where('running', null)
+                    ->where('project.data.id', $project->id),
             );
+    }
+
+    public function testCannotOpenTheTrackerOfAForeignProject(): void
+    {
+        $this->actingAs(User::factory()->createOne(), 'web');
+        $project = $this->createProject(User::factory()->createOne());
+
+        $this->get(action(ListTimeEntriesController::class, ['id' => $project->id]))->assertForbidden();
     }
 
     public function testExposesTheRunningTimerToThePage(): void
     {
-        $this->actingAs(User::factory()->createOne(), 'web');
-        $project = $this->createProject();
+        $user = User::factory()->createOne();
+        $this->actingAs($user, 'web');
+        $project = $this->createProject($user);
 
         Carbon::setTestNow('2026-08-13 10:00:00');
         $this->post(action(StartTimeEntryController::class), [
@@ -117,7 +134,7 @@ final class TimeTrackerTest extends WebTestCase
             'project_id' => $project->id,
         ]);
 
-        $this->get(action(ListTimeEntriesController::class))
+        $this->get(action(ListTimeEntriesController::class, ['id' => $project->id]))
             ->assertOk()
             ->assertInertia(
                 fn ($page) => $page->component('time-tracker')
@@ -198,7 +215,7 @@ final class TimeTrackerTest extends WebTestCase
 
         $this->post(action(StartTimeEntryController::class), ['task_id' => $task->id]);
 
-        $this->get(action(ListTimeEntriesController::class))
+        $this->get(action(ListTimeEntriesController::class, ['id' => $task->project_id]))
             ->assertOk()
             ->assertInertia(
                 fn ($page) => $page->component('time-tracker')

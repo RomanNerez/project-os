@@ -22,7 +22,7 @@ export function useTaskFilters() {
             ...excludeQueryParams(readQuery(page.url), ['search', 'searchJoin', 'page']),
         });
 
-        router.get(route('tasks.index'), query, {
+        router.get(page.url.split('?')[0], query, {
             preserveState: true,
             preserveScroll: true,
             replace: true,

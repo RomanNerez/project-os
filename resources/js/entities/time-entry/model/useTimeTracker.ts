@@ -14,8 +14,9 @@ import {
  * time at all — the client only says *what* is being tracked. Only the fields of the
  * current `mode` are sent: a task brings its own project and title.
  */
-export function useTimeTracker() {
-    const form = useForm<TimeEntryDraft>(emptyTimeEntryDraft());
+/** `projectId` preselects the project of a free-form entry. */
+export function useTimeTracker(projectId: number | null = null) {
+    const form = useForm<TimeEntryDraft>({ ...emptyTimeEntryDraft(), project_id: projectId });
     const mode = ref<TimeTrackerMode>(TIME_TRACKER_MODE.TASK);
     const options = { preserveScroll: true };
 

@@ -14,9 +14,10 @@ import { TaskSelect, type TaskOption } from '@/entities/task';
 const props = defineProps<{
     running: TimeEntry | null;
     serverTime: string;
+    projectId?: number | null;
 }>();
 
-const { form, mode, start, stop } = useTimeTracker();
+const { form, mode, start, stop } = useTimeTracker(props.projectId ?? null);
 
 const isRunning = computed(() => props.running !== null);
 

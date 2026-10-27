@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { Head, InfiniteScroll } from '@inertiajs/vue3';
-import { AdminLayout } from '@/widgets/admin-layout';
+import { ProjectLayout, type BreadcrumbItem } from '@/widgets/project-layout';
+import { projectRoutes, type Project } from '@/entities/project';
 import {
     FINANCE_CURRENCY,
     FINANCE_TYPE,
@@ -17,8 +18,19 @@ import { EmptyList } from '@/shared/ui';
 import type { FinanceProp } from '../model/types';
 
 const props = defineProps<{
+    project: {
+        data: Project;
+    };
     finances: PaginatedServerData<FinanceProp[]>;
 }>();
+
+const project = computed(() => props.project.data);
+
+const breadcrumbs = computed<BreadcrumbItem[]>(() => [
+    { label: 'Проєкти', href: projectRoutes.index() },
+    { label: project.value.title, href: projectRoutes.show(project.value.id) },
+    { label: 'Фінанси' },
+]);
 
 const isFormOpen = ref(false);
 const editingFinance = ref<FinanceProp | null>(null);
@@ -72,9 +84,10 @@ function closeForm(): void {
 <template>
     <Head title="Фінанси" />
 
-    <AdminLayout
+    <ProjectLayout
         title="Фінанси"
-        description="Доходи та витрати за задачами проєктів"
+        :description="`Доходи та витрати проєкту «${project.title}»`"
+        :breadcrumbs="breadcrumbs"
     >
         <template #actions>
             <Button label="Новий запис" icon="pi pi-plus" @click="openCreate" />
@@ -128,9 +141,10 @@ function closeForm(): void {
             <FinanceFormModal
                 v-model:visible="isFormOpen"
                 :finance="editingFinance"
+                :project-id="project.id"
                 @on-done="closeForm"
                 @on-cancel="closeForm"
             />
         </div>
-    </AdminLayout>
+    </ProjectLayout>
 </template>

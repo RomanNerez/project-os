@@ -16,10 +16,11 @@ final class ListFinancesAction extends ParentAction
 
     /**
      * @param int $userId
+     * @param int $projectId
      * @return LengthAwarePaginator<int, Finance>
      */
-    public function run(int $userId): LengthAwarePaginator
+    public function run(int $userId, int $projectId): LengthAwarePaginator
     {
-        return $this->listFinancesTask->run($userId);
+        return $this->listFinancesTask->run($userId, $projectId);
     }
 }

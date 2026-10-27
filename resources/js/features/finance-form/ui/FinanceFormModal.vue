@@ -28,6 +28,8 @@ const DATE_INPUT_PROPS = { dateFormat: 'dd.mm.yy', showIcon: true, showButtonBar
 const props = defineProps<{
     /** The record to edit; null creates a new one. */
     finance: (FinanceWithTasks & { media: IncludedData<Media[]> }) | null;
+    /** Project a new record starts in. */
+    projectId?: number | null;
 }>();
 
 const emit = defineEmits(['onDone', 'onCancel']);
@@ -39,7 +41,7 @@ const isEdit = computed(() => props.finance !== null);
 const { form, submit, reset } = useFinanceForm(toRef(props, 'finance'), () => {
     emit('onDone');
     clear();
-});
+}, props.projectId ?? null);
 
 const selectedTasks = ref<TaskSelectOption[]>([]);
 const fileInput = ref<HTMLInputElement | null>(null);

@@ -2,7 +2,8 @@
 import { computed, ref, watch } from 'vue';
 import { Head } from '@inertiajs/vue3';
 import { InfiniteScroll } from "@inertiajs/vue3";
-import { AdminLayout } from '@/widgets/admin-layout';
+import { ProjectLayout, type BreadcrumbItem } from '@/widgets/project-layout';
+import { projectRoutes, type Project } from '@/entities/project';
 import { STATUS_META, TaskCard, type TaskAssignee } from '@/entities/task';
 import { TaskCreateFormModal } from '@/features/task-create-form';
 import { TaskDeleteModal } from '@/features/task-delete';
@@ -13,11 +14,23 @@ import { TaskEditFormModal } from '@/widgets/task-edit-form-modal';
 import { TaskFiltersPanel, useActiveTaskFilters } from '@/features/task-filters';
 
 interface Props {
+    project: {
+        data: Project;
+    };
     tasks: PaginatedServerData<TaskProp[]>;
-    canCreateTasks: boolean;
 }
 
 const props = defineProps<Props>();
+
+const project = computed(() => props.project.data);
+
+const canCreateTasks = computed(() => project.value.permissions.create_task);
+
+const breadcrumbs = computed<BreadcrumbItem[]>(() => [
+    { label: 'Проєкти', href: projectRoutes.index() },
+    { label: project.value.title, href: projectRoutes.show(project.value.id) },
+    { label: 'Задачі' },
+]);
 
 const isCreateModalOpen = ref(false);
 const isEditModalOpen = ref(false);
@@ -83,13 +96,14 @@ function openDelete(task: TaskProp): void {
 <template>
     <Head title="Задачі" />
 
-    <AdminLayout
+    <ProjectLayout
         title="Задачі"
-        description="Керуйте задачами робочого простору"
+        :description="`Задачі проєкту «${project.title}»`"
+        :breadcrumbs="breadcrumbs"
     >
         <template #actions>
             <Button
-                v-if="props.canCreateTasks"
+                v-if="canCreateTasks"
                 label="Нова задача"
                 icon="pi pi-plus"
                 @click="openCreate"
@@ -132,12 +146,13 @@ function openDelete(task: TaskProp): void {
                 icon-class="pi-check-square"
                 decription="Задач поки немає"
                 button-label="Створити першу задачу"
-                :show-action="props.canCreateTasks"
+                :show-action="canCreateTasks"
                 @on-handler="openCreate"
             />
 
             <TaskCreateFormModal
                 v-model:visible="isCreateModalOpen"
+                :project-id="project.id"
                 @on-done="() => {
                     selectedTaskId = null;
                     isCreateModalOpen = false;
@@ -174,5 +189,5 @@ function openDelete(task: TaskProp): void {
                 }"
             />
         </div>
-    </AdminLayout>
+    </ProjectLayout>
 </template>

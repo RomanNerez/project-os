@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { Head } from '@inertiajs/vue3';
-import { AdminLayout, type BreadcrumbItem } from '@/widgets/admin-layout';
+import { ProjectLayout, type BreadcrumbItem } from '@/widgets/project-layout';
 import { STATUS_META, projectRoutes, type Project } from '@/entities/project';
 import { type TaskAssignee, type TaskWithAssignee } from '@/entities/task';
 import { ProjectKanban } from '@/widgets/project-kanban';
@@ -46,7 +46,7 @@ function openEdit(task: TaskWithAssignee): void {
 <template>
     <Head :title="project.title" />
 
-    <AdminLayout
+    <ProjectLayout
         :title="project.title"
         :description="project.description"
         :breadcrumbs="breadcrumbs"
@@ -74,5 +74,5 @@ function openEdit(task: TaskWithAssignee): void {
             :can-edit="project.permissions.update_task"
             @on-close="isEditModalOpen = false"
         />
-    </AdminLayout>
+    </ProjectLayout>
 </template>

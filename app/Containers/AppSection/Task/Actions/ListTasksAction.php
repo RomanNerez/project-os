@@ -16,9 +16,10 @@ final class ListTasksAction extends ParentAction
 
     /**
      * @param ListTasksRequest $request
+     * @param int|null $projectId
      * @return LengthAwarePaginator<int, Task>
      */
-    public function run(ListTasksRequest $request): LengthAwarePaginator
+    public function run(ListTasksRequest $request, ?int $projectId = null): LengthAwarePaginator
     {
         $user = $request->user();
 
@@ -27,6 +28,6 @@ final class ListTasksAction extends ParentAction
             'project.members',
             'assignee',
             'comments' => fn($query) => $query->with('user')->orderBy('created_at', 'desc')
-        ]);
+        ], projectId: $projectId);
     }
 }

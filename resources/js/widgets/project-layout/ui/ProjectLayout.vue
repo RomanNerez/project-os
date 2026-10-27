@@ -2,14 +2,17 @@
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
 import ChevronDown from '@primeicons/vue/chevron-down';
-import Folder from '@primeicons/vue/folder';
 import ListCheck from '@primeicons/vue/list-check';
+import ObjectsColumn from '@primeicons/vue/objects-column';
 import Plus from '@primeicons/vue/plus';
 import SidebarIcon from '@primeicons/vue/sidebar';
 import Stopwatch from '@primeicons/vue/stopwatch';
 import Wallet from '@primeicons/vue/wallet';
 import type { BreadcrumbItem } from '../model/types';
-import { projectRoutes } from '@/entities/project';
+import { financeRoutes } from '@/entities/finance';
+import { projectRoutes, type Project } from '@/entities/project';
+import { taskRoutes } from '@/entities/task';
+import { timeEntryRoutes } from '@/entities/time-entry';
 import { UserMenu } from '@/entities/user';
 import { AppHeader, AppLogo, PageHeader } from '@/shared/ui';
 import AiAgentChat from './AiAgentChat.vue';
@@ -21,6 +24,9 @@ defineProps<{
 }>();
 
 const page = usePage();
+
+// Every page under this layout belongs to a project and passes it as the `project` prop.
+const projectId = computed(() => (page.props.project as { data?: Project } | undefined)?.data?.id ?? null);
 
 const isMobile = ref(false);
 const open = ref(true);
@@ -57,18 +63,27 @@ interface NavGroup {
     items: NavItem[];
 }
 
-const navGroups = computed<NavGroup[]>(() => [
-    {
-        label: '',
-        action: false,
-        items: [
-            { icon: Folder, label: 'Проєкти', href: '/projects', badge: false, isActive: page.url.startsWith('/projects') },
-            { icon: ListCheck, label: 'Задачі', href: '/tasks', badge: false, isActive: page.url.startsWith('/tasks') },
-            { icon: Stopwatch, label: 'Трекер часу', href: '/time-tracker', badge: false, isActive: page.url.startsWith('/time-tracker') },
-            { icon: Wallet, label: 'Фінанси', href: '/finances', badge: false, isActive: page.url.startsWith('/finances') },
-        ]
-    },
-]);
+const navGroups = computed<NavGroup[]>(() => {
+    const id = projectId.value;
+
+    if (id === null) return [];
+
+    const path = page.url.split('?')[0];
+    const item = (icon: any, label: string, href: string): NavItem => ({ icon, label, href, badge: false, isActive: path === href });
+
+    return [
+        {
+            label: '',
+            action: false,
+            items: [
+                item(ObjectsColumn, 'Дошка', projectRoutes.show(id)),
+                item(ListCheck, 'Задачі', taskRoutes.projectIndex(id)),
+                item(Stopwatch, 'Трекер часу', timeEntryRoutes.index(id)),
+                item(Wallet, 'Фінанси', financeRoutes.index(id)),
+            ]
+        },
+    ];
+});
 </script>
 
 <template>

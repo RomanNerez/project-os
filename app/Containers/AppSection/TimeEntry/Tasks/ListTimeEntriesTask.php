@@ -18,12 +18,13 @@ final class ListTimeEntriesTask extends ParentTask
     /**
      * @return Collection<int, TimeEntry>
      */
-    public function run(int $userId, int $limit = 100): Collection
+    public function run(int $userId, int $projectId, int $limit = 100): Collection
     {
         return $this->repository
             ->with(['project', 'task'])
             ->scopeQuery(static fn (Builder $query): Builder => $query
                 ->where('user_id', $userId)
+                ->where('project_id', $projectId)
                 ->whereNotNull('stopped_at')
                 ->orderByDesc('started_at')
                 ->limit($limit))

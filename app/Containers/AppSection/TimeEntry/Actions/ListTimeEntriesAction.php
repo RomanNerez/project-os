@@ -17,8 +17,8 @@ final class ListTimeEntriesAction extends ParentAction
     /**
      * @return Collection<int, TimeEntry>
      */
-    public function run(int $userId): Collection
+    public function run(int $userId, int $projectId): Collection
     {
-        return $this->listTimeEntriesTask->run($userId);
+        return $this->listTimeEntriesTask->run($userId, $projectId);
     }
 }
