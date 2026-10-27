@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
-import { AdminLayout } from '@/widgets/admin-layout';
 import type { UserProfile } from '@/entities/user';
 import { ProfileInfoForm } from '@/features/profile-info-form';
 import { ProfilePasswordForm } from '@/features/profile-password-form';
+import { WorkspaceLayout } from '@/widgets/workspace-layout';
 
 defineProps<{
     user: { data: UserProfile };
@@ -12,7 +12,7 @@ defineProps<{
 
 <template>
     <Head title="Профіль" />
-    <AdminLayout title="Профіль" description="Особисті дані та безпека облікового запису">
+    <WorkspaceLayout title="Профіль" description="Особисті дані та безпека облікового запису">
         <div class="rounded-lg border border-[var(--p-content-border-color)] bg-[var(--p-content-background)] shadow-sm">
             <Tabs value="info">
                 <TabList>
@@ -35,5 +35,5 @@ defineProps<{
                 </TabPanels>
             </Tabs>
         </div>
-    </AdminLayout>
+    </WorkspaceLayout>
 </template>

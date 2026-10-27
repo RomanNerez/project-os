@@ -6,21 +6,19 @@ import { AppHeader, AppLogo, PageHeader } from '@/shared/ui';
 import { WORKSPACE_TABS, type WorkspaceTabKey } from '../model/tabs';
 
 withDefaults(defineProps<{
-    active: WorkspaceTabKey;
+    active?: WorkspaceTabKey | '';
     title?: string;
     description?: string;
 }>(), {
+    active: '',
     title: 'Робочий простір UNIC',
 });
 
 const page = usePage();
 
-// A tab the user has no permission for stays visible but disabled.
-const tabs = computed(() => WORKSPACE_TABS.map((tab) => {
-    const allowed = !tab.permission || !!page.props.auth.user?.permissions?.[tab.permission];
-
-    return { ...tab, href: allowed ? tab.href : undefined, soon: !tab.href };
-}));
+const tabs = computed(() => WORKSPACE_TABS.filter((tab) => {
+    return !tab.permission || !!page.props.auth.user?.permissions?.[tab.permission];
+}).map((tab) => ({ ...tab, href: tab.href })));
 </script>
 
 <template>
@@ -55,7 +53,6 @@ const tabs = computed(() => WORKSPACE_TABS.map((tab) => {
                     >
                         <i :class="tab.icon" />
                         <span>{{ tab.label }}</span>
-                        <Tag v-if="tab.soon" value="Скоро" severity="secondary" class="!px-1.5 !py-0 !text-[10px]" />
                     </Tab>
                 </TabList>
             </Tabs>
