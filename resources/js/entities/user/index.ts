@@ -1,6 +1,7 @@
-export type { User, UserProfile, UserRole, UserListItem, UserDraft } from './model/types';
+export type { User, UserProfile, UserRole, UserListItem, UserInvitation, UserDraft } from './model/types';
 export { emptyUserDraft } from './model/types';
 export { useCreateUserForm } from './model/useCreateUserForm';
 export { useInviteUserForm } from './model/useInviteUserForm';
+export { useResendInvitation } from './model/useResendInvitation';
 export { userRoutes } from './api/userRoutes';
 export { default as UserMenu } from './ui/UserMenu.vue';

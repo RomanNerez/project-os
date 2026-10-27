@@ -2,6 +2,7 @@
 
 namespace App\Containers\AppSection\User\Tests\Functional\WEB;
 
+use App\Containers\AppSection\Invitation\Tasks\CreateInvitationTask;
 use App\Containers\AppSection\User\Models\User;
 use App\Containers\AppSection\User\Tests\Functional\WebTestCase;
 use App\Containers\AppSection\User\UI\WEB\Controllers\ListUsersController;
@@ -41,5 +42,26 @@ final class ListUsersTest extends WebTestCase
                 ->where('users.data.1.name', 'Bohdan User')
                 ->has('users.data.1.roles.data', 0)
                 ->where('auth.user.permissions.manage_users', true));
+    }
+
+    public function testAdminSeesOnlyPendingInvitations(): void
+    {
+        $admin = User::factory()->superAdmin()->createOne(['first_name' => 'Anna', 'last_name' => 'Admin']);
+        $createInvitation = app(CreateInvitationTask::class);
+
+        $createInvitation->run('expired@example.com', $admin->id)[0]->update(['expires_at' => now()->subMinute()]);
+        $createInvitation->run('accepted@example.com', $admin->id)[0]->update(['accepted_at' => now()]);
+        $createInvitation->run('registered@example.com', $admin->id);
+        User::factory()->createOne(['email' => 'registered@example.com']);
+        $createInvitation->run('pending@example.com', $admin->id);
+
+        $this->actingAs($admin, 'web')
+            ->get('/users')
+            ->assertOk()
+            ->assertInertia(static fn (AssertableInertia $page) => $page
+                ->component('users')
+                ->has('invitations.data', 1)
+                ->where('invitations.data.0.email', 'pending@example.com')
+                ->where('invitations.data.0.invited_by_name', 'Anna Admin'));
     }
 }

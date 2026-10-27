@@ -35,6 +35,15 @@ export interface UserListItem extends UserProfile {
     roles: IncludedData<UserRole[]>;
 }
 
+/** A pending invitation on the users page (InvitationTransformer). */
+export interface UserInvitation {
+    id: number;
+    email: string;
+    invited_by_name: string | null;
+    expires_at: string;
+    created_at: string;
+}
+
 export interface UserDraft {
     first_name: string;
     last_name: string;

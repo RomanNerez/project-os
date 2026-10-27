@@ -2,6 +2,8 @@
 
 namespace App\Containers\AppSection\User\UI\WEB\Controllers;
 
+use App\Containers\AppSection\Invitation\Actions\ListPendingInvitationsAction;
+use App\Containers\AppSection\Invitation\UI\API\Transformers\InvitationTransformer;
 use App\Containers\AppSection\User\Actions\ListUsersAction;
 use App\Containers\AppSection\User\UI\API\Transformers\UserAdminTransformer;
 use App\Containers\AppSection\User\UI\WEB\Requests\ListUsersRequest;
@@ -13,6 +15,7 @@ final class ListUsersController extends WebController
 {
     public function __construct(
         private readonly ListUsersAction $action,
+        private readonly ListPendingInvitationsAction $listPendingInvitationsAction,
     ) {
     }
 
@@ -24,6 +27,7 @@ final class ListUsersController extends WebController
 
         return Inertia::render('users', [
             'users' => $users,
+            'invitations' => fn (): array => fractal($this->listPendingInvitationsAction->run(), new InvitationTransformer())->toArray(),
         ]);
     }
 }
