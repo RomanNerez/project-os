@@ -7,6 +7,7 @@ use App\Containers\AppSection\Authentication\UI\WEB\Controllers\LoginController;
 use App\Containers\AppSection\Project\UI\WEB\Controllers\ListProjectsController;
 use App\Ship\Middleware\HandleInertiaRequests;
 use App\Ship\Middleware\ValidateAppId;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -43,5 +44,8 @@ return Application::configure(basePath: $basePath)
         });
     })
     ->withCommands($apiato->commands())
+    ->withSchedule(static function (Schedule $schedule) {
+        $schedule->command('events:send-reminders')->everyMinute()->withoutOverlapping();
+    })
     ->withExceptions(static function (Exceptions $exceptions) {})
     ->create();

@@ -24,6 +24,12 @@
         "vue-tsc": "^3.3.9"
     },
     "dependencies": {
+        "@fullcalendar/core": "^6.1.22",
+        "@fullcalendar/daygrid": "^6.1.22",
+        "@fullcalendar/interaction": "^6.1.22",
+        "@fullcalendar/list": "^6.1.22",
+        "@fullcalendar/timegrid": "^6.1.22",
+        "@fullcalendar/vue3": "^6.1.22",
         "@inertiajs/vue3": "^3.6.1",
         "@primeuix/themes": "^3.0.0",
         "@tiptap/extension-link": "^3.30.3",

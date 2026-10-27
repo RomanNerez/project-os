@@ -1,3 +1,4 @@
+import { eventRoutes } from '@/entities/event';
 import { projectRoutes } from '@/entities/project';
 import { userRoutes, type User } from '@/entities/user';
 
@@ -17,7 +18,7 @@ export interface WorkspaceTab {
 export const WORKSPACE_TABS: WorkspaceTab[] = [
     // { key: 'overview', label: 'Огляд', icon: 'pi pi-home' },
     { key: 'projects', label: 'Проєкти', icon: 'pi pi-folder', href: projectRoutes.index() },
-    // { key: 'calendar', label: 'Календар', icon: 'pi pi-calendar' },
+    { key: 'calendar', label: 'Календар', icon: 'pi pi-calendar', href: eventRoutes.index() },
     { key: 'team', label: 'Команда', icon: 'pi pi-users', href: userRoutes.index(), permission: 'manage_users' },
     // { key: 'analytics', label: 'Аналітика', icon: 'pi pi-chart-bar' },
     // { key: 'settings', label: 'Налаштування', icon: 'pi pi-cog' },

@@ -17,6 +17,7 @@ declare module 'vue' {
     Button: typeof import('primevue/button')['default']
     Card: typeof import('primevue/card')['default']
     Checkbox: typeof import('primevue/checkbox')['default']
+    ColorPicker: typeof import('primevue/colorpicker')['default']
     Column: typeof import('primevue/column')['default']
     DataTable: typeof import('primevue/datatable')['default']
     DatePicker: typeof import('primevue/datepicker')['default']
@@ -64,6 +65,7 @@ declare module 'vue' {
     Tabs: typeof import('primevue/tabs')['default']
     Tag: typeof import('primevue/tag')['default']
     Textarea: typeof import('primevue/textarea')['default']
+    ToggleSwitch: typeof import('primevue/toggleswitch')['default']
   }
   export interface GlobalDirectives {
     Mask: typeof import('primevue/mask')['default']
