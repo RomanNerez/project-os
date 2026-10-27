@@ -35,7 +35,6 @@ const props = withDefaults(defineProps<{
 defineEmits<{
     edit: [];
     delete: [];
-    manageMembers: []
 }>();
 
 const initials = computed(() =>
@@ -121,7 +120,6 @@ const hiddenMembersCount = computed(() => Math.max(0, (props.members?.length ?? 
                         <span class="font-semibold">{{ budgetLabel }}</span>
                     </div>
                     <div class="flex gap-1">
-                        <Button icon="pi pi-user" severity="secondary" text size="small" aria-label="Учасники" @click="$emit('manageMembers')" />
                         <Button v-if="canEdit" icon="pi pi-pencil" severity="secondary" text size="small" aria-label="Редагувати" @click="$emit('edit')" />
                         <Button v-if="canDelete" icon="pi pi-trash" severity="danger" text size="small" aria-label="Видалити" @click="$emit('delete')" />
                     </div>

@@ -1,1 +1,1 @@
-export { default as ProjectMembersModal } from './ui/ProjectMembersModal.vue';
+export { default as ProjectMembersTable } from './ui/ProjectMembersTable.vue';

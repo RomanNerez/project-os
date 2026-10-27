@@ -1,5 +1,4 @@
 export { default as ProjectCard } from './ui/ProjectCard.vue';
-export { default as MemberItem } from './ui/MemberItem.vue';
 export { default as ProjectSelect } from './ui/ProjectSelect.vue';
 export { projectRoutes } from './api/projectRoutes';
 export { useProjectForm } from './model/useProjectForm';

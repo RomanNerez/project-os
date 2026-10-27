@@ -8,7 +8,6 @@ import { ProjectFiltersPanel, useActiveProjectFilters } from '@/features/project
 import { EmptyList } from '@/shared/ui';
 import type { PaginatedServerData } from '@/shared/types';
 import type { User } from '@/entities/user';
-import { ProjectMembersModal } from '@/widgets/project-members';
 import { WorkspaceLayout } from '@/widgets/workspace-layout';
 
 type ProjectItem = ProjectIncludes<User, ProjectMember[], TaskStatusCounts>;
@@ -22,7 +21,6 @@ const props = defineProps<Props>();
 const hasActiveFilters = useActiveProjectFilters();
 const isEditModalOpen = ref(false);
 const isDeleteModalOpen = ref(false);
-const isShowMembersModal = ref(false);
 const selectedProjectId = ref<ProjectID | null>(null);
 const selectedProject = computed<ProjectItem | null>(
     () => props.projects.data.find(p => p.id === selectedProjectId.value) ?? null
@@ -47,11 +45,6 @@ function openEdit(projectId: ProjectID): void {
 function openDelete(projectId: ProjectID): void {
     selectedProjectId.value = projectId;
     isDeleteModalOpen.value = true;
-}
-
-function openManagerMembers(projectId: ProjectID): void {
-    selectedProjectId.value = projectId;
-    isShowMembersModal.value = true;
 }
 
 </script>
@@ -91,7 +84,6 @@ function openManagerMembers(projectId: ProjectID): void {
                         :can-delete="p.permissions.delete"
                         @edit="openEdit(p.id)"
                         @delete="openDelete(p.id)"
-                        @manage-members="openManagerMembers(p.id)"
                     />
                 </InfiniteScroll>
             </div>
@@ -124,14 +116,6 @@ function openManagerMembers(projectId: ProjectID): void {
             :project="selectedProject"
             @done="selectedProjectId = null"
             @cancel="selectedProjectId = null"
-        />
-
-        <ProjectMembersModal
-            v-model:visible="isShowMembersModal"
-            :project-id="selectedProject?.id ?? 0"
-            :owner="selectedProject?.user.data"
-            :members="selectedProject?.members.data"
-            :can-manage="selectedProject?.permissions.manage_members ?? false"
         />
     </WorkspaceLayout>
 </template>

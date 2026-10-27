@@ -7,6 +7,7 @@ import ObjectsColumn from '@primeicons/vue/objects-column';
 import Plus from '@primeicons/vue/plus';
 import SidebarIcon from '@primeicons/vue/sidebar';
 import Stopwatch from '@primeicons/vue/stopwatch';
+import Users from '@primeicons/vue/users';
 import Wallet from '@primeicons/vue/wallet';
 import type { BreadcrumbItem } from '../model/types';
 import { financeRoutes } from '@/entities/finance';
@@ -80,6 +81,7 @@ const navGroups = computed<NavGroup[]>(() => {
                 item(ListCheck, 'Задачі', taskRoutes.projectIndex(id)),
                 item(Stopwatch, 'Трекер часу', timeEntryRoutes.index(id)),
                 item(Wallet, 'Фінанси', financeRoutes.index(id)),
+                item(Users, 'Учасники', projectRoutes.members(id)),
             ]
         },
     ];
