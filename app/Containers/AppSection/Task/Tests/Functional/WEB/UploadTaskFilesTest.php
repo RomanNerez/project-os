@@ -40,6 +40,19 @@ final class UploadTaskFilesTest extends WebTestCase
         self::assertCount(1, $task->getMedia());
     }
 
+    public function testStoresFilesInProjectTaskFolder(): void
+    {
+        $task = $this->createTask($this->createProject($this->user));
+
+        $this->upload($task)->assertRedirect();
+
+        $media = $task->getFirstMedia();
+        self::assertNotNull($media);
+        Storage::disk('public')->assertExists(
+            'projects/' . $task->project_id . '/tasks/' . $task->id . '/' . $media->id . '/notes.pdf',
+        );
+    }
+
     /**
      * @return array<string, array{ProjectRole}>
      */

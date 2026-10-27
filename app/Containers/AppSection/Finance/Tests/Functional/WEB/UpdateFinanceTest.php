@@ -115,6 +115,28 @@ final class UpdateFinanceTest extends WebTestCase
         self::assertCount(1, $foreign->refresh()->getMedia(Finance::RECEIPTS_COLLECTION));
     }
 
+    public function testMovesReceiptsToNewProjectFolder(): void
+    {
+        $finance = $this->createFinance($this->user, $this->project);
+        $kept = $finance->addMedia(UploadedFile::fake()->image('kept.png'))->toMediaCollection(Finance::RECEIPTS_COLLECTION);
+        $removed = $finance->addMedia(UploadedFile::fake()->image('removed.png'))->toMediaCollection(Finance::RECEIPTS_COLLECTION);
+        $other = $this->createProject($this->user);
+        $oldDirectory = 'projects/' . $this->project->id . '/finance/' . $finance->id;
+        $newDirectory = 'projects/' . $other->id . '/finance/' . $finance->id;
+
+        Storage::disk('public')->assertExists([$oldDirectory . '/' . $kept->id . '/kept.png', $oldDirectory . '/' . $removed->id . '/removed.png']);
+
+        $this->update($finance, ['project_id' => $other->id, 'removed_receipt_ids' => [$removed->id]])
+            ->assertRedirect()
+            ->assertSessionHasNoErrors();
+
+        Storage::disk('public')->assertExists([
+            $newDirectory . '/' . $kept->id . '/kept.png',
+            $newDirectory . '/' . $kept->id . '/conversions/kept-preview.jpg',
+        ]);
+        Storage::disk('public')->assertMissing([$oldDirectory . '/' . $kept->id, $oldDirectory . '/' . $removed->id]);
+    }
+
     /**
      * Sent as a spoofed PUT, the way the multipart form does it.
      *
