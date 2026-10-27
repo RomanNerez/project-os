@@ -19,6 +19,7 @@ final class HandleInertiaRequests extends Middleware
                 'user' => null !== $user ? [
                     ...$user->only(['id', 'name', 'email']),
                     'avatar_url' => $user->getAvatarUrl(),
+                    'unread_notifications_count' => $user->unreadNotifications()->count(),
                     'permissions' => [
                         'manage_users' => $user->can('index', [$user::class]),
                     ],

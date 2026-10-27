@@ -22,7 +22,7 @@ final class EventReminderNotification extends ParentNotification implements Shou
      */
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['mail', 'database'];
     }
 
     public function toMail(object $notifiable): MailMessage
@@ -38,5 +38,18 @@ final class EventReminderNotification extends ParentNotification implements Shou
         }
 
         return $message->action('Відкрити календар', route('calendar.index'));
+    }
+
+    /**
+     * @return array{type: string, title: string, message: string, url: string}
+     */
+    public function toArray(object $notifiable): array
+    {
+        return [
+            'type' => 'event_reminder',
+            'title' => 'Нагадування: ' . $this->event->title,
+            'message' => 'Коли: ' . EventMailFormatter::period($this->event),
+            'url' => route('calendar.index'),
+        ];
     }
 }

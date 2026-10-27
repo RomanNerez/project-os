@@ -23,7 +23,7 @@ final class EventInvitationNotification extends ParentNotification implements Sh
      */
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['mail', 'database'];
     }
 
     public function toMail(object $notifiable): MailMessage
@@ -41,5 +41,18 @@ final class EventInvitationNotification extends ParentNotification implements Sh
         return $message
             ->action('Відкрити календар', route('calendar.index'))
             ->line('Прийняти або відхилити запрошення можна в календарі.');
+    }
+
+    /**
+     * @return array{type: string, title: string, message: string, url: string}
+     */
+    public function toArray(object $notifiable): array
+    {
+        return [
+            'type' => 'event_invitation',
+            'title' => 'Запрошення: ' . $this->event->title,
+            'message' => $this->inviterName . ' запрошує вас на подію. Коли: ' . EventMailFormatter::period($this->event),
+            'url' => route('calendar.index'),
+        ];
     }
 }

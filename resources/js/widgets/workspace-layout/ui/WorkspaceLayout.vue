@@ -2,6 +2,7 @@
 import { computed } from 'vue';
 import { router, usePage } from '@inertiajs/vue3';
 import { UserMenu } from '@/entities/user';
+import { NotificationsBell } from '@/features/notifications-panel';
 import { AppHeader, AppLogo, PageHeader } from '@/shared/ui';
 import { WORKSPACE_TABS, type WorkspaceTabKey } from '../model/tabs';
 
@@ -28,6 +29,7 @@ const tabs = computed(() => WORKSPACE_TABS.filter((tab) => {
                 <AppLogo size="normal" />
                 <span class="text-sm font-semibold">Project OS</span>
             </template>
+            <NotificationsBell />
             <UserMenu />
         </AppHeader>
 

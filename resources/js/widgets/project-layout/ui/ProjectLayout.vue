@@ -15,6 +15,7 @@ import { projectRoutes, type Project } from '@/entities/project';
 import { taskRoutes } from '@/entities/task';
 import { timeEntryRoutes } from '@/entities/time-entry';
 import { UserMenu } from '@/entities/user';
+import { NotificationsBell } from '@/features/notifications-panel';
 import { AppHeader, AppLogo, PageHeader } from '@/shared/ui';
 import AiAgentChat from './AiAgentChat.vue';
 
@@ -156,6 +157,7 @@ const navGroups = computed<NavGroup[]>(() => {
                         text
                     />
                 </template>
+                <NotificationsBell />
                 <UserMenu />
             </AppHeader>
             <div class="min-h-0 flex-1 p-4 flex flex-col gap-4">

@@ -11,6 +11,8 @@ export interface User {
     permissions?: {
         manage_users: boolean;
     };
+    /** Only on the shared `auth.user` (HandleInertiaRequests). */
+    unread_notifications_count?: number;
 }
 
 /** The current user as the profile page receives it (UserTransformer). */
