@@ -39,6 +39,8 @@ final class TaskTransformer extends ParentTransformer
             'title' => $item->title,
             'description' => $item->description,
             'status' => $item->status,
+            'priority' => $item->priority,
+            'estimate' => $item->estimate,
             'project_id' => $item->project_id,
             'assignee_id' => $item->assignee_id,
             'permissions' => [

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { type Task, type TaskAssignee } from '@/entities/task';
-import { TaskAssigneeField, TaskStatusField } from '@/features/task-inline-edit';
+import { TaskAssigneeField, TaskEstimateField, TaskPriorityField, TaskStatusField } from '@/features/task-inline-edit';
 
 interface Props {
     task: Task;
@@ -16,4 +16,8 @@ defineProps<Props>()
     <TaskAssigneeField :task="task" :options="assignees" :disabled="disabled" />
 
     <TaskStatusField :task="task" :disabled="disabled" />
+
+    <TaskPriorityField :task="task" :disabled="disabled" />
+
+    <TaskEstimateField :task="task" :disabled="disabled" />
 </template>

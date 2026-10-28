@@ -7,6 +7,7 @@ use App\Containers\AppSection\Project\Enums\ProjectStatus;
 use App\Containers\AppSection\Project\Models\Project;
 use App\Containers\AppSection\Project\Tests\Functional\WebTestCase;
 use App\Containers\AppSection\Project\UI\WEB\Controllers\CreateProjectTaskController;
+use App\Containers\AppSection\Task\Enums\TaskPriority;
 use App\Containers\AppSection\Task\Enums\TaskStatus;
 use App\Containers\AppSection\Task\Models\Task;
 use App\Containers\AppSection\User\Models\User;
@@ -36,6 +37,23 @@ final class CreateProjectTaskTest extends WebTestCase
         self::assertSame($project->id, $task->project_id);
         self::assertSame($this->user->id, $task->user_id);
         self::assertSame(TaskStatus::TODO->value, $task->status);
+        self::assertSame(TaskPriority::MEDIUM->value, $task->priority);
+        self::assertNull($task->estimate);
+    }
+
+    public function testCreatesTaskWithPriorityAndEstimate(): void
+    {
+        $project = $this->createProject($this->user);
+
+        $this->post(action(CreateProjectTaskController::class, $project), [
+            'title' => 'Оцінена задача',
+            'priority' => TaskPriority::HIGH->value,
+            'estimate' => 120,
+        ])->assertRedirect();
+
+        $task = Task::query()->where('title', 'Оцінена задача')->firstOrFail();
+        self::assertSame(TaskPriority::HIGH->value, $task->priority);
+        self::assertSame(120, $task->estimate);
     }
 
     public function testOwnerCreatesTaskInProjectColumn(): void
@@ -110,6 +128,16 @@ final class CreateProjectTaskTest extends WebTestCase
             'title' => 'Задача',
             'status' => 'archived',
         ])->assertSessionHasErrors('status');
+    }
+
+    public function testRejectsUnknownPriority(): void
+    {
+        $project = $this->createProject($this->user);
+
+        $this->post(action(CreateProjectTaskController::class, $project), [
+            'title' => 'Задача',
+            'priority' => 'critical',
+        ])->assertSessionHasErrors('priority');
     }
 
     private function createProject(User $owner): Project

@@ -21,6 +21,14 @@ export function formatDuration(seconds: number): string {
         .join(':');
 }
 
+/** Formats a number of minutes as `1 год 30 хв`, `2 год` or `45 хв`. */
+export function formatEstimate(minutes: number): string {
+    const hours = Math.floor(minutes / 60);
+    const rest = minutes % 60;
+
+    return [hours && `${hours} год`, (rest || !hours) && `${rest} хв`].filter(Boolean).join(' ');
+}
+
 export function formatTimeOfDay(isoDateTime: string): string {
     return timeOfDayFormatter.format(new Date(isoDateTime));
 }

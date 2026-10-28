@@ -10,6 +10,15 @@ export const TASK_STATUS = {
 
 export type TaskStatus = typeof TASK_STATUS[keyof typeof TASK_STATUS];
 
+export const TASK_PRIORITY = {
+    LOW: 'low',
+    MEDIUM: 'medium',
+    HIGH: 'high',
+    URGENT: 'urgent',
+} as const
+
+export type TaskPriority = typeof TASK_PRIORITY[keyof typeof TASK_PRIORITY];
+
 export type TaskID = number;
 
 export interface TaskProject {
@@ -33,12 +42,15 @@ export interface Task {
     title: string;
     description: string | null;
     status: TaskStatus | null;
+    priority: TaskPriority;
+    /** Total estimate for everyone working on the task, in minutes. */
+    estimate: number | null;
     project_id: number;
     assignee_id: number | null;
     permissions: TaskPermissions;
 }
 
-export type TaskEditableField = 'title' | 'description' | 'status' | 'assignee_id';
+export type TaskEditableField = 'title' | 'description' | 'status' | 'priority' | 'estimate' | 'assignee_id';
 
 export type TaskWithAssignee = Task & {
     assignee?: IncludedData<TaskAssignee> | null;
@@ -71,6 +83,18 @@ export const STATUS_META: Record<TaskStatus, { label: string; severity: Severity
 export const STATUS_OPTIONS = (Object.keys(STATUS_META) as TaskStatus[]).map((value) => ({
     value,
     label: STATUS_META[value].label,
+}));
+
+export const PRIORITY_META: Record<TaskPriority, { label: string; severity: Severity; icon: string }> = {
+    low: { label: 'Низький', severity: 'secondary', icon: 'pi pi-angle-down' },
+    medium: { label: 'Середній', severity: 'info', icon: 'pi pi-equals' },
+    high: { label: 'Високий', severity: 'warn', icon: 'pi pi-angle-up' },
+    urgent: { label: 'Терміновий', severity: 'danger', icon: 'pi pi-angle-double-up' },
+};
+
+export const PRIORITY_OPTIONS = (Object.keys(PRIORITY_META) as TaskPriority[]).map((value) => ({
+    value,
+    label: PRIORITY_META[value].label,
 }));
 
 export const emptyTaskCreateDraft = (): TaskCreateDraft => ({

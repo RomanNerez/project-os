@@ -10,13 +10,22 @@ export { updateTaskStatus } from './model/updateTaskStatus';
 export { updateTaskFiles } from './model/updateTaskFiles';
 export { useTaskCommentForm } from './model/useTaskCommentForm';
 export { taskRoutes } from './api/taskRoutes';
-export { TASK_STATUS, STATUS_META, STATUS_OPTIONS, emptyTaskCreateDraft } from './model/types';
+export {
+    TASK_STATUS,
+    STATUS_META,
+    STATUS_OPTIONS,
+    TASK_PRIORITY,
+    PRIORITY_META,
+    PRIORITY_OPTIONS,
+    emptyTaskCreateDraft,
+} from './model/types';
 export type {
     TaskID,
     Task,
     TaskEditableField,
     TaskCreateDraft,
     TaskStatus,
+    TaskPriority,
     TaskProject,
     TaskAssignee,
     TaskIncludes,

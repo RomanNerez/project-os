@@ -3,6 +3,7 @@
 namespace App\Containers\AppSection\Task\Data\Factories;
 
 use App\Containers\AppSection\Project\Models\Project;
+use App\Containers\AppSection\Task\Enums\TaskPriority;
 use App\Containers\AppSection\Task\Enums\TaskStatus;
 use App\Containers\AppSection\Task\Models\Task;
 use App\Containers\AppSection\User\Models\User;
@@ -31,6 +32,8 @@ final class TaskFactory extends ParentFactory
                     ->implode('')
                 : null,
             'status' => fake()->randomElement(TaskStatus::cases())->value,
+            'priority' => fake()->randomElement(TaskPriority::cases())->value,
+            'estimate' => fake()->optional(0.6)->randomElement([30, 60, 90, 120, 240, 480]),
         ];
     }
 

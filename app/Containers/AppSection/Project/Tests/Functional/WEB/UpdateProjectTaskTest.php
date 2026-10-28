@@ -7,6 +7,7 @@ use App\Containers\AppSection\Project\Enums\ProjectStatus;
 use App\Containers\AppSection\Project\Models\Project;
 use App\Containers\AppSection\Project\Tests\Functional\WebTestCase;
 use App\Containers\AppSection\Project\UI\WEB\Controllers\UpdateProjectTaskController;
+use App\Containers\AppSection\Task\Enums\TaskPriority;
 use App\Containers\AppSection\Task\Enums\TaskStatus;
 use App\Containers\AppSection\Task\Models\Task;
 use App\Containers\AppSection\User\Models\User;
@@ -72,6 +73,40 @@ final class UpdateProjectTaskTest extends WebTestCase
         $task->refresh();
         self::assertSame(TaskStatus::DONE->value, $task->status);
         self::assertSame('Задача', $task->title);
+    }
+
+    public function testUpdatesOnlyPriority(): void
+    {
+        $project = $this->createProject($this->user);
+        $task = $this->createTask($project, ['estimate' => 90]);
+
+        $this->patchTask($project, $task, ['priority' => TaskPriority::URGENT->value])->assertRedirect();
+
+        $task->refresh();
+        self::assertSame(TaskPriority::URGENT->value, $task->priority);
+        self::assertSame(90, $task->estimate);
+    }
+
+    public function testUpdatesEstimate(): void
+    {
+        $project = $this->createProject($this->user);
+        $task = $this->createTask($project);
+
+        $this->patchTask($project, $task, ['estimate' => 150])->assertRedirect();
+
+        $task->refresh();
+        self::assertSame(150, $task->estimate);
+        self::assertSame(TaskPriority::MEDIUM->value, $task->priority);
+    }
+
+    public function testClearsEstimate(): void
+    {
+        $project = $this->createProject($this->user);
+        $task = $this->createTask($project, ['estimate' => 60]);
+
+        $this->patchTask($project, $task, ['estimate' => null])->assertRedirect();
+
+        self::assertNull($task->refresh()->estimate);
     }
 
     public function testAssignsProjectMember(): void
@@ -191,6 +226,39 @@ final class UpdateProjectTaskTest extends WebTestCase
         $task = $this->createTask($project);
 
         $this->patchTask($project, $task, ['status' => 'archived'])->assertSessionHasErrors('status');
+    }
+
+    public function testRejectsUnknownPriority(): void
+    {
+        $project = $this->createProject($this->user);
+        $task = $this->createTask($project);
+
+        $this->patchTask($project, $task, ['priority' => 'critical'])->assertSessionHasErrors('priority');
+    }
+
+    /**
+     * @return array<string, array{mixed}>
+     */
+    public static function invalidEstimates(): array
+    {
+        return [
+            'negative' => [-5],
+            'zero' => [0],
+            'fractional' => [1.5],
+            'not a number' => ['abc'],
+            'too large' => [60001],
+        ];
+    }
+
+    #[DataProvider('invalidEstimates')]
+    public function testRejectsInvalidEstimate(mixed $estimate): void
+    {
+        $project = $this->createProject($this->user);
+        $task = $this->createTask($project, ['estimate' => 60]);
+
+        $this->patchTask($project, $task, ['estimate' => $estimate])->assertSessionHasErrors('estimate');
+
+        self::assertSame(60, $task->refresh()->estimate);
     }
 
     /**

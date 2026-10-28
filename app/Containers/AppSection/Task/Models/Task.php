@@ -32,6 +32,8 @@ final class Task extends ParentModel implements HasMedia
         'title',
         'description',
         'status',
+        'priority',
+        'estimate',
     ];
 
     /**

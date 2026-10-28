@@ -3,6 +3,7 @@
 namespace App\Containers\AppSection\Project\UI\WEB\Requests;
 
 use App\Containers\AppSection\Project\Models\Project;
+use App\Containers\AppSection\Task\Enums\TaskPriority;
 use App\Containers\AppSection\Task\Enums\TaskStatus;
 use App\Ship\Parents\Requests\Request as ParentRequest;
 use Illuminate\Validation\Rule;
@@ -43,6 +44,8 @@ final class UpdateProjectTaskRequest extends ParentRequest
             'title' => ['sometimes', 'required', 'string', 'max:255'],
             'description' => ['sometimes', 'nullable', 'string'],
             'status' => ['sometimes', 'required', new Enum(TaskStatus::class)],
+            'priority' => ['sometimes', 'required', new Enum(TaskPriority::class)],
+            'estimate' => ['sometimes', 'nullable', 'integer', 'min:1', 'max:60000'],
             'assignee_id' => ['sometimes', 'nullable', 'integer', Rule::in($project->participantIds()->all())],
         ];
     }
