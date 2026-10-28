@@ -58,11 +58,12 @@ export type TaskWithAssignee = Task & {
     assignee?: IncludedData<TaskAssignee> | null;
 };
 
-export interface TaskIncludes<TMedia = null, TProject = null, TAssignee = null, TComments = null> extends Task {
+export interface TaskIncludes<TMedia = null, TProject = null, TAssignee = null, TComments = null, TTimeEntries = null> extends Task {
     media: IncludedData<TMedia>;
     project: TProject extends null ? null : IncludedData<TProject>;
     assignee: TAssignee extends null ? null : IncludedData<TAssignee>;
     comments: TComments extends null ? null : IncludedData<TComments>
+    time_entries: TTimeEntries extends null ? null : IncludedData<TTimeEntries>
 }
 
 /** Creating a task only needs a title and the project it belongs to. */

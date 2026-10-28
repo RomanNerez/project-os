@@ -7,6 +7,8 @@ use App\Containers\AppSection\Project\Enums\ProjectStatus;
 use App\Containers\AppSection\Project\Models\Project;
 use App\Containers\AppSection\Project\Tests\Functional\WebTestCase;
 use App\Containers\AppSection\Project\UI\WEB\Controllers\ShowProjectController;
+use App\Containers\AppSection\Task\Models\Task;
+use App\Containers\AppSection\TimeEntry\Models\TimeEntry;
 use App\Containers\AppSection\User\Models\User;
 use Illuminate\Testing\TestResponse;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -51,6 +53,30 @@ final class ShowProjectTest extends WebTestCase
         $project->members()->attach($this->user->id, ['role' => $role->value]);
 
         $this->showProject($project->id)->assertOk();
+    }
+
+    public function testTasksIncludeFinishedTimeEntries(): void
+    {
+        $project = $this->createProject($this->user);
+        $task = Task::create(['user_id' => $this->user->id, 'project_id' => $project->id, 'title' => 'Задача']);
+        foreach ([['2026-10-28 10:00:00', '2026-10-28 10:45:00'], ['2026-10-28 11:00:00', null]] as [$startedAt, $stoppedAt]) {
+            TimeEntry::create([
+                'user_id' => $this->user->id,
+                'project_id' => $project->id,
+                'task_id' => $task->id,
+                'description' => $task->title,
+                'started_at' => $startedAt,
+                'stopped_at' => $stoppedAt,
+            ]);
+        }
+
+        $this->showProject($project->id)
+            ->assertOk()
+            ->assertInertia(
+                fn ($page) => $page->has('tasks.data.0.time_entries.data', 1)
+                    ->where('tasks.data.0.time_entries.data.0.duration', 2700)
+                    ->where('tasks.data.0.time_entries.data.0.user.data.name', $this->user->name),
+            );
     }
 
     public function testOutsiderCannotSeeProject(): void

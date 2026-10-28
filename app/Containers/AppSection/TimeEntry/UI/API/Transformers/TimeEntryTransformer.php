@@ -3,10 +3,18 @@
 namespace App\Containers\AppSection\TimeEntry\UI\API\Transformers;
 
 use App\Containers\AppSection\TimeEntry\Models\TimeEntry;
+use App\Containers\AppSection\User\UI\API\Transformers\UserTransformer;
 use App\Ship\Parents\Transformers\Transformer as ParentTransformer;
 
 final class TimeEntryTransformer extends ParentTransformer
 {
+    /**
+     * @var array<int, string>
+     */
+    protected array $availableIncludes = [
+        'user',
+    ];
+
     /**
      * @param TimeEntry $timeEntry
      * @return array
@@ -28,5 +36,14 @@ final class TimeEntryTransformer extends ParentTransformer
                 'title' => $timeEntry->task->title,
             ] : null,
         ];
+    }
+
+    /**
+     * @param TimeEntry $timeEntry
+     * @return array
+     */
+    public function includeUser(TimeEntry $timeEntry)
+    {
+        return $this->item($timeEntry->user, new UserTransformer());
     }
 }

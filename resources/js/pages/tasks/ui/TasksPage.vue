@@ -170,6 +170,7 @@ function openDelete(task: TaskProp): void {
                 :task="selectedTask"
                 :media="selectedTask?.media.data ?? []"
                 :comments="selectedTask?.comments.data ?? []"
+                :time-entries="selectedTask?.time_entries.data ?? []"
                 :assignees="selectedTaskAssignees"
                 :can-edit="selectedTask?.project?.data.permissions.update_task ?? false"
                 @on-close="closeEdit"

@@ -1,5 +1,5 @@
 export { parseDateValue, toDateValue, formatDateLong, formatDateHuman } from './date';
-export { formatDuration, formatEstimate, formatTimeOfDay, formatDayLabel, toDayKey } from './duration';
+export { formatDuration, formatDurationHuman, formatEstimate, formatTimeOfDay, formatDayLabel, formatDateTimeRange, toDayKey } from './duration';
 export { formatSize } from './file-helpers';
 export { getInitials, isBlankHtml } from  './string';
 export { debounce } from './debounce';

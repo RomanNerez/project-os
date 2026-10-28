@@ -5,11 +5,13 @@ namespace App\Containers\AppSection\Task\Models;
 use App\Containers\AppSection\Comment\Models\Comment;
 use App\Containers\AppSection\Finance\Models\Finance;
 use App\Containers\AppSection\Project\Models\Project;
+use App\Containers\AppSection\TimeEntry\Models\TimeEntry;
 use App\Containers\AppSection\User\Models\User;
 use App\Ship\Parents\Models\Model as ParentModel;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
@@ -58,6 +60,14 @@ final class Task extends ParentModel implements HasMedia
     public function comments(): MorphMany
     {
         return $this->morphMany(Comment::class, 'model');
+    }
+
+    /**
+     * @return HasMany<TimeEntry, $this>
+     */
+    public function timeEntries(): HasMany
+    {
+        return $this->hasMany(TimeEntry::class);
     }
 
     /**

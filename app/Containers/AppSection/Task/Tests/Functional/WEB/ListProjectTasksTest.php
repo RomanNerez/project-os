@@ -8,6 +8,7 @@ use App\Containers\AppSection\Project\Models\Project;
 use App\Containers\AppSection\Task\Models\Task;
 use App\Containers\AppSection\Task\Tests\Functional\WebTestCase;
 use App\Containers\AppSection\Task\UI\WEB\Controllers\ListProjectTasksController;
+use App\Containers\AppSection\TimeEntry\Models\TimeEntry;
 use App\Containers\AppSection\User\Models\User;
 use PHPUnit\Framework\Attributes\CoversClass;
 
@@ -38,6 +39,22 @@ final class ListProjectTasksTest extends WebTestCase
                     ->where('tasks.data.0.title', 'Зверстати хедер')
                     ->where('project.data.id', $project->id)
                     ->where('project.data.permissions.create_task', true),
+            );
+    }
+
+    public function testIncludesFinishedTimeEntriesOfTheTask(): void
+    {
+        $project = $this->createProject('Власний', $this->user);
+        $task = $this->createTask($project, 'Зверстати хедер');
+        $this->createTimeEntry($task, '2026-10-28 10:00:00', '2026-10-28 11:30:00');
+        $this->createTimeEntry($task, '2026-10-28 12:00:00', null);
+
+        $this->get(action(ListProjectTasksController::class, ['id' => $project->id]))
+            ->assertOk()
+            ->assertInertia(
+                fn ($page) => $page->has('tasks.data.0.time_entries.data', 1)
+                    ->where('tasks.data.0.time_entries.data.0.duration', 5400)
+                    ->where('tasks.data.0.time_entries.data.0.user.data.name', $this->user->name),
             );
     }
 
@@ -86,6 +103,18 @@ final class ListProjectTasksTest extends WebTestCase
             'user_id' => $project->user_id,
             'project_id' => $project->id,
             'title' => $title,
+        ]);
+    }
+
+    private function createTimeEntry(Task $task, string $startedAt, ?string $stoppedAt): TimeEntry
+    {
+        return TimeEntry::create([
+            'user_id' => $this->user->id,
+            'project_id' => $task->project_id,
+            'task_id' => $task->id,
+            'description' => $task->title,
+            'started_at' => $startedAt,
+            'stopped_at' => $stoppedAt,
         ]);
     }
 }

@@ -70,6 +70,7 @@ function openEdit(task: TaskWithAssignee): void {
             :task="selectedTask"
             :media="selectedTask?.media.data ?? []"
             :comments="selectedTask?.comments.data ?? []"
+            :time-entries="selectedTask?.time_entries.data ?? []"
             :assignees="props.assignees"
             :can-edit="project.permissions.update_task"
             @on-close="isEditModalOpen = false"

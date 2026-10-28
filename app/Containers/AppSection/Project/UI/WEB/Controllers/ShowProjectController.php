@@ -34,7 +34,7 @@ final class ShowProjectController extends WebController
         return Inertia::render('project', [
             'project' => fractal($project, new ProjectTransformer())->toArray(),
             'tasks' => fractal($tasks, new TaskTransformer())
-                ->parseIncludes(['assignee', 'media', 'comments.user'])
+                ->parseIncludes(['assignee', 'media', 'comments.user', 'time_entries.user'])
                 ->toArray(),
             'assignees' => collect([$project->user])
                 ->merge($project->members)

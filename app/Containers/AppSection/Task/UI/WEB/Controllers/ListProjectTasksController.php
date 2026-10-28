@@ -29,7 +29,7 @@ final class ListProjectTasksController extends WebController
         $paginator = $this->action->run($request, $project->id);
 
         $tasks = fractal($paginator, new TaskTransformer())
-            ->parseIncludes(['project.user', 'project.members', 'assignee', 'media', 'comments.user'])
+            ->parseIncludes(['project.user', 'project.members', 'assignee', 'media', 'comments.user', 'time_entries.user'])
             ->toArray();
 
         return Inertia::render('tasks', [

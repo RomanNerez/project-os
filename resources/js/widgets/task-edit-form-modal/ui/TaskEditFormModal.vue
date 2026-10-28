@@ -12,12 +12,15 @@ import type { CommentID, CommentIncludes } from '@/entities/comment';
 import type { User } from '@/entities/user';
 import { CommentDeleteModal } from '@/features/comment-delete';
 import { CommentEditForm } from '@/features/comment-edit';
+import { TaskTimeEntryRow, type TimeEntryIncludes } from '@/entities/time-entry';
+import { formatDurationHuman } from '@/shared/lib';
 import TaskSidebarForm from './TaskSidebarForm.vue';
 
-defineProps<{
+const props = defineProps<{
     task: Task | null;
     media: Media[];
     comments: CommentIncludes<User>[];
+    timeEntries: TimeEntryIncludes<User>[];
     assignees: TaskAssignee[];
     canEdit: boolean;
 }>();
@@ -28,6 +31,10 @@ const isMediaModalVisible = computed(() => !!selectedMedia.value);
 const selectedEditCommentId = ref<CommentID | null>(null);
 const selectedDeleteCommentId = ref<CommentID | null>(null);
 const isDeleteCommentModalVisible = computed(() => !!selectedDeleteCommentId.value);
+
+const totalTracked = computed(() => formatDurationHuman(
+    props.timeEntries.reduce((sum, entry) => sum + (entry.duration ?? 0), 0),
+));
 
 const visible = defineModel<boolean>('visible', { required: true });
 
@@ -89,6 +96,10 @@ defineEmits(['onClose']);
                             <Code />
                             Коментарі
                         </Tab>
+                        <Tab value="time" class="flex items-center gap-2!">
+                            <i class="pi pi-stopwatch" />
+                            Час
+                        </Tab>
                     </TabList>
                     <TabPanels
                         :pt="{ root: { class: '!px-0' } }"
@@ -124,6 +135,22 @@ defineEmits(['onClose']);
                                 @on-done="selectedDeleteCommentId = null"
                                 @on-cancel="selectedDeleteCommentId = null"
                             />
+                        </TabPanel>
+                        <TabPanel value="time">
+                            <div v-if="timeEntries.length" class="flex flex-col gap-2">
+                                <div class="flex items-baseline justify-between px-1">
+                                    <span class="text-sm text-muted-color">Всього</span>
+                                    <span class="text-sm font-semibold tabular-nums">{{ totalTracked }}</span>
+                                </div>
+                                <TaskTimeEntryRow
+                                    v-for="entry in timeEntries"
+                                    :key="entry.id"
+                                    :user-name="entry.user.data.name"
+                                    :user-avatar="entry.user.data.avatar_url"
+                                    :entry="entry"
+                                />
+                            </div>
+                            <p v-else class="py-8 text-center text-sm text-gray-500">Час ще не трекали</p>
                         </TabPanel>
                     </TabPanels>
                 </Tabs>

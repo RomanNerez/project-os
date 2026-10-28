@@ -29,8 +29,39 @@ export function formatEstimate(minutes: number): string {
     return [hours && `${hours} год`, (rest || !hours) && `${rest} хв`].filter(Boolean).join(' ');
 }
 
+/** Formats a number of seconds as `1 год 30 хв 15 с`, skipping empty parts. */
+export function formatDurationHuman(seconds: number): string {
+    const total = Math.max(0, Math.floor(seconds));
+    const hours = Math.floor(total / 3600);
+    const minutes = Math.floor((total % 3600) / 60);
+    const rest = total % 60;
+
+    return [hours && `${hours} год`, minutes && `${minutes} хв`, (rest || total === 0) && `${rest} с`]
+        .filter(Boolean)
+        .join(' ');
+}
+
 export function formatTimeOfDay(isoDateTime: string): string {
     return timeOfDayFormatter.format(new Date(isoDateTime));
+}
+
+const dateTimeFormatter = new Intl.DateTimeFormat('uk-UA', {
+    day: 'numeric',
+    month: 'long',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+});
+
+/** Formats a period as `28 жовтня о 10:00:00 — 12:30:15`, repeating the date only when it ends on another day. */
+export function formatDateTimeRange(startIso: string, stopIso: string): string {
+    const start = new Date(startIso);
+    const stop = new Date(stopIso);
+    const end = toDayKey(startIso) === toDayKey(stopIso)
+        ? timeOfDayFormatter.format(stop)
+        : dateTimeFormatter.format(stop);
+
+    return `${dateTimeFormatter.format(start)} — ${end}`;
 }
 
 /** Local `YYYY-MM-DD` key of an ISO datetime, used to group entries into days. */

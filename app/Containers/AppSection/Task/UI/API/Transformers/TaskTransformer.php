@@ -6,6 +6,7 @@ use App\Containers\AppSection\Comment\UI\API\Transformers\CommentTransformer;
 use App\Containers\AppSection\Media\UI\API\Transformers\MediaTransformer;
 use App\Containers\AppSection\Project\UI\API\Transformers\ProjectTransformer;
 use App\Containers\AppSection\Task\Models\Task;
+use App\Containers\AppSection\TimeEntry\UI\API\Transformers\TimeEntryTransformer;
 use App\Containers\AppSection\User\UI\API\Transformers\UserTransformer;
 use App\Ship\Parents\Transformers\Transformer as ParentTransformer;
 
@@ -24,6 +25,7 @@ final class TaskTransformer extends ParentTransformer
         'assignee',
         'comments',
         'media',
+        'time_entries',
     ];
 
     /**
@@ -88,5 +90,20 @@ final class TaskTransformer extends ParentTransformer
         $task->comments->each->setRelation('model', $task);
 
         return $this->collection($task->comments, new CommentTransformer());
+    }
+
+    /**
+     * @param Task $task
+     * @return array
+     */
+    public function includeTimeEntries(Task $task)
+    {
+        // The entry transformer reads the task and its project; reuse the loaded ones instead of querying per entry.
+        $task->timeEntries->each(static function ($entry) use ($task): void {
+            $entry->setRelation('task', $task);
+            $entry->setRelation('project', $task->project);
+        });
+
+        return $this->collection($task->timeEntries, new TimeEntryTransformer());
     }
 }

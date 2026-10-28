@@ -21,7 +21,13 @@ final class ListProjectTasksTask extends ParentTask
     public function run(int $projectId): Collection
     {
         return $this->repository
-            ->with(['project', 'assignee', 'media', 'comments.user'])
+            ->with([
+                'project',
+                'assignee',
+                'media',
+                'comments.user',
+                'timeEntries' => static fn ($query) => $query->whereNotNull('stopped_at')->with('user.media')->orderByDesc('started_at'),
+            ])
             ->orderBy('created_at')
             ->findWhere(['project_id' => $projectId]);
     }
