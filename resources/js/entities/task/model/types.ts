@@ -29,6 +29,8 @@ export interface TaskProject {
 export interface TaskAssignee {
     id: number;
     name: string;
+    /** Only when included through UserTransformer. */
+    avatar_url?: string | null;
 }
 
 export interface TaskPermissions {

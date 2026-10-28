@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import { computed } from 'vue';
+import { isBlankHtml } from '@/shared/lib';
 import { UserAvatar } from '@/shared/ui';
+import { PRIORITY_META, type TaskPriority } from '../model/types';
 
 const props = withDefaults(defineProps<{
     title: string;
@@ -8,12 +11,18 @@ const props = withDefaults(defineProps<{
     statusLabel?: string;
     statusColor?: string;
     assigneeName?: string;
-    projectTitle?: string;
+    assigneeAvatar?: string | null;
+    description?: string | null;
+    priority?: TaskPriority;
 }>(), {
     filesCount: 0,
     commentsCount: 0,
     statusColor: 'secondary',
 });
+
+const hasDescription = computed(() => !isBlankHtml(props.description));
+
+const priorityMeta = computed(() => props.priority ? PRIORITY_META[props.priority] : null);
 
 defineEmits<{
     edit: [];
@@ -27,22 +36,27 @@ defineEmits<{
             <p class="sm:truncate text-sm font-medium text-gray-900 dark:text-gray-100">
                 {{ title }}
             </p>
-            <div v-if="projectTitle || assigneeName || filesCount || commentsCount" class="flex gap-2 text-xs text-gray-500 dark:text-gray-400">
-                <div v-if="projectTitle || assigneeName" class="flex items-center justify-items-end justify-between gap-2 text-xs text-gray-500 dark:text-gray-400">
+            <div v-if="priorityMeta || assigneeName || hasDescription || filesCount || commentsCount" class="flex gap-2 text-xs text-gray-500 dark:text-gray-400">
+                <div v-if="priorityMeta || assigneeName" class="flex items-center justify-items-end justify-between gap-2 text-xs text-gray-500 dark:text-gray-400">
                     <Tag
-                        v-if="projectTitle"
-                        :value="projectTitle"
-                        severity="secondary"
-                        class="text-[10px]"
+                        v-if="priorityMeta"
+                        :value="priorityMeta.label"
+                        :icon="priorityMeta.icon"
+                        :severity="priorityMeta.severity"
+                        class="!px-1.5 !py-0.5 !text-xs"
                     />
 
                     <div v-if="assigneeName" class="flex items-center gap-1">
-                        <UserAvatar :name="assigneeName" />
+                        <UserAvatar :name="assigneeName" :image="assigneeAvatar" />
                         <span class="truncate max-w-[120px]">{{ assigneeName }}</span>
                     </div>
                 </div>
 
-                <div v-if="filesCount || commentsCount" class="flex gap-2">
+                <div v-if="hasDescription || filesCount || commentsCount" class="flex gap-2">
+                    <div v-if="hasDescription" v-tooltip.top="'Є опис'" class="flex items-center">
+                        <i class="pi pi-align-left text-[11px]" />
+                    </div>
+
                     <div v-if="filesCount" class="flex items-center gap-1">
                         <i class="pi pi-paperclip text-[11px]" />
                         <span>{{ filesCount }}</span>

@@ -10,8 +10,12 @@ import {
     type TaskWithAssignee,
 } from '@/entities/task';
 import { TaskCreateFormModal } from '@/features/task-create-form';
+import type { IncludedData } from '@/shared/types';
 
-type Task = TaskWithAssignee;
+type Task = TaskWithAssignee & {
+    comments?: IncludedData<unknown[]> | null;
+    media?: IncludedData<unknown[]> | null;
+};
 
 interface Props {
     projectId: number;
@@ -113,6 +117,8 @@ function openCreate(status: TaskStatus): void {
                 <template #item="{ element: task }: { element: Task }">
                     <TaskKanbanCard
                         :task="task"
+                        :comments-count="task.comments?.data.length ?? 0"
+                        :files-count="task.media?.data.length ?? 0"
                         :class="{ 'select-none': canEdit }"
                         @dblclick="onEdit(task)"
                     />

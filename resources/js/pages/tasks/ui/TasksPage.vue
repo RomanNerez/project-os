@@ -127,7 +127,9 @@ function openDelete(task: TaskProp): void {
                         :comments-count="task.comments.data.length"
                         :files-count="task.media.data.length"
                         :assignee-name="task.assignee?.data.name ?? ''"
-                        :project-title="task.project?.data.title ?? ''"
+                        :assignee-avatar="task.assignee?.data.avatar_url"
+                        :description="task.description"
+                        :priority="task.priority"
                         @edit="openEdit(task)"
                         @delete="openDelete(task)"
                     />

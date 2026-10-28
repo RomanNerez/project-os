@@ -1,33 +1,28 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { formatEstimate } from '@/shared/lib';
+import { formatEstimate, isBlankHtml } from '@/shared/lib';
+import { UserAvatar } from '@/shared/ui';
 import { PRIORITY_META, type TaskWithAssignee } from '../model/types';
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
     task: TaskWithAssignee;
-}>();
+    commentsCount?: number;
+    filesCount?: number;
+}>(), {
+    commentsCount: 0,
+    filesCount: 0,
+});
 
 const priority = computed(() => PRIORITY_META[props.task.priority]);
 
-const assigneeName = computed(() => props.task.assignee?.data?.name ?? null);
+const assignee = computed(() => props.task.assignee?.data ?? null);
 
-const assigneeInitials = computed(() =>
-    (assigneeName.value ?? '')
-        .split(' ')
-        .filter(Boolean)
-        .map((part) => part[0])
-        .slice(0, 2)
-        .join('')
-        .toUpperCase(),
-);
+const hasDescription = computed(() => !isBlankHtml(props.task.description));
 </script>
 
 <template>
     <div class="cursor-grab rounded-lg border border-gray-200 bg-white p-3 shadow-sm transition-shadow hover:shadow active:cursor-grabbing dark:border-gray-700 dark:bg-gray-800">
         <p class="text-sm font-medium">{{ task.title }}</p>
-        <p v-if="task.description" class="mt-1 line-clamp-2 text-xs text-gray-500 dark:text-gray-400">
-            {{ task.description }}
-        </p>
 
         <div class="mt-2 flex items-center gap-2">
             <Tag :value="priority.label" :icon="priority.icon" :severity="priority.severity" class="!px-1.5 !py-0.5 !text-xs" />
@@ -38,19 +33,25 @@ const assigneeInitials = computed(() =>
         </div>
 
         <div class="mt-3 flex items-center justify-between gap-2">
-            <div class="flex min-w-0 items-center gap-2">
-                <Avatar
-                    v-if="assigneeName"
-                    :label="assigneeInitials"
-                    shape="circle"
-                    class="size-6 shrink-0 text-xs"
-                />
-                <Avatar v-else icon="pi pi-user" shape="circle" class="size-6 shrink-0 text-xs" />
+            <div v-if="assignee" class="flex min-w-0 items-center gap-2">
+                <UserAvatar :name="assignee.name" :image="assignee.avatar_url" class="size-6 shrink-0 text-xs" />
                 <span class="truncate text-xs text-gray-500 dark:text-gray-400">
-                    {{ assigneeName ?? 'Не призначено' }}
+                    {{ assignee.name }}
                 </span>
             </div>
-            <span class="shrink-0 text-xs text-gray-400">#{{ task.id }}</span>
+
+            <div class="ml-auto flex shrink-0 items-center gap-2 text-xs text-gray-400">
+                <i v-if="hasDescription" v-tooltip.top="'Є опис'" class="pi pi-align-left text-xs" />
+                <span v-if="filesCount" class="flex items-center gap-1">
+                    <i class="pi pi-paperclip text-xs" />
+                    {{ filesCount }}
+                </span>
+                <span v-if="commentsCount" class="flex items-center gap-1">
+                    <i class="pi pi-comments text-xs" />
+                    {{ commentsCount }}
+                </span>
+                <span>#{{ task.id }}</span>
+            </div>
         </div>
     </div>
 </template>
