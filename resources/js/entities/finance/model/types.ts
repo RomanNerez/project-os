@@ -104,7 +104,6 @@ export type FinanceWithTasks = Finance & { tasks: IncludedData<FinanceTask[]> };
 
 /** Dates are `YYYY-MM-DD` strings, the format the server sends and expects. */
 export interface FinanceDraft {
-    project_id: number | null;
     title: string;
     type: FinanceType;
     currency: FinanceCurrency;
@@ -122,7 +121,6 @@ export interface FinanceDraft {
 }
 
 export const emptyFinanceDraft = (): FinanceDraft => ({
-    project_id: null,
     title: '',
     type: FINANCE_TYPE.EXPENSE,
     currency: FINANCE_CURRENCY.UAH,
@@ -138,7 +136,6 @@ export const emptyFinanceDraft = (): FinanceDraft => ({
 });
 
 export const financeToDraft = (finance: FinanceWithTasks): FinanceDraft => ({
-    project_id: finance.project_id,
     title: finance.title,
     type: finance.type,
     currency: finance.currency,

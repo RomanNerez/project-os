@@ -1,5 +1,5 @@
 export const financeRoutes = {
     index: (projectId: number) => `/projects/${projectId}/finances`,
-    store: () => '/finances',
-    update: (id: number) => `/finances/${id}`,
+    store: (projectId: number) => `/projects/${projectId}/finances`,
+    update: (projectId: number, id: number) => `/projects/${projectId}/finances/${id}`,
 };

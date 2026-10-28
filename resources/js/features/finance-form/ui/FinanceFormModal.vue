@@ -15,7 +15,6 @@ import {
     type FinanceWithTasks,
 } from '@/entities/finance';
 import type { Media } from '@/entities/media';
-import { ProjectSelect } from '@/entities/project';
 import { TaskMultiSelect, type TaskSelectOption } from '@/entities/task';
 import { formatSize, parseDateValue, toDateValue } from '@/shared/lib';
 import type { IncludedData } from '@/shared/types';
@@ -28,8 +27,8 @@ const DATE_INPUT_PROPS = { dateFormat: 'dd.mm.yy', showIcon: true, showButtonBar
 const props = defineProps<{
     /** The record to edit; null creates a new one. */
     finance: (FinanceWithTasks & { media: IncludedData<Media[]> }) | null;
-    /** Project a new record starts in. */
-    projectId?: number | null;
+    /** Project the record belongs to. */
+    projectId: number;
 }>();
 
 const emit = defineEmits(['onDone', 'onCancel']);
@@ -38,21 +37,16 @@ const visible = defineModel<boolean>('visible', { required: true });
 
 const isEdit = computed(() => props.finance !== null);
 
-const { form, submit, reset } = useFinanceForm(toRef(props, 'finance'), () => {
+const { form, submit, reset } = useFinanceForm(toRef(props, 'finance'), props.projectId, () => {
     emit('onDone');
     clear();
-}, props.projectId ?? null);
+});
 
 const selectedTasks = ref<TaskSelectOption[]>([]);
 const fileInput = ref<HTMLInputElement | null>(null);
 
 watch(selectedTasks, (tasks) => {
     form.task_ids = tasks.map((task) => task.id);
-});
-
-// Tasks must belong to the payment's project, so switching it drops the others.
-watch(() => form.project_id, (projectId) => {
-    selectedTasks.value = selectedTasks.value.filter((task) => task.project?.data.id === projectId);
 });
 
 const dueDate = computed({
@@ -141,19 +135,11 @@ function cancel(): void {
                 :message="form.errors.type"
             />
 
-            <ProjectSelect
-                v-model="form.project_id"
-                label="Проєкт"
-                :selected="props.finance?.project"
-                :message="form.errors.project_id"
-            />
-
             <TaskMultiSelect
                 v-model="selectedTasks"
                 label="Задачі"
-                :placeholder="form.project_id ? 'Необов’язково' : 'Спершу оберіть проєкт'"
-                :project-id="form.project_id"
-                :disabled="!form.project_id"
+                placeholder="Необов’язково"
+                :project-id="props.projectId"
                 :message="form.errors.task_ids"
             />
 

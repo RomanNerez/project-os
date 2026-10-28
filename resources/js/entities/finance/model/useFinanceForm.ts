@@ -3,12 +3,12 @@ import { useForm } from '@inertiajs/vue3';
 import { emptyFinanceDraft, FINANCE_CURRENCY, financeToDraft, type FinanceDraft, type FinanceWithTasks } from './types';
 import { financeRoutes } from '../api/financeRoutes';
 
-/** Creates a record when `finance` is null (in `projectId`, if given), otherwise edits it. */
-export function useFinanceForm(finance: Ref<FinanceWithTasks | null>, onDone: () => void, projectId: number | null = null) {
+/** Creates a record in `projectId` when `finance` is null, otherwise edits it. */
+export function useFinanceForm(finance: Ref<FinanceWithTasks | null>, projectId: number, onDone: () => void) {
     const form = useForm<FinanceDraft>(emptyFinanceDraft());
 
     function reset(): void {
-        form.defaults(finance.value ? financeToDraft(finance.value) : { ...emptyFinanceDraft(), project_id: projectId });
+        form.defaults(finance.value ? financeToDraft(finance.value) : emptyFinanceDraft());
         form.reset();
         form.clearErrors();
     }
@@ -16,11 +16,6 @@ export function useFinanceForm(finance: Ref<FinanceWithTasks | null>, onDone: ()
     watch(finance, reset, { immediate: true });
 
     function submit(): void {
-        if (!form.project_id) {
-            form.setError('project_id', 'Оберіть проєкт');
-            return;
-        }
-
         const current = finance.value;
 
         // Inertia sends the payload as FormData when `receipts` holds files, and PHP only
@@ -31,7 +26,7 @@ export function useFinanceForm(finance: Ref<FinanceWithTasks | null>, onDone: ()
                 exchange_rate: data.currency === FINANCE_CURRENCY.USD ? data.exchange_rate : null,
                 ...(current ? { _method: 'put' } : {}),
             }))
-            .post(current ? financeRoutes.update(current.id) : financeRoutes.store(), {
+            .post(current ? financeRoutes.update(projectId, current.id) : financeRoutes.store(projectId), {
                 onSuccess: onDone,
                 preserveScroll: true,
                 reset: ['finances'],

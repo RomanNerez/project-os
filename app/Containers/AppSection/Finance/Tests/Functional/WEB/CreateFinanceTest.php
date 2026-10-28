@@ -35,7 +35,7 @@ final class CreateFinanceTest extends WebTestCase
         $project = $this->createProject($this->user);
         $task = $this->createTask($project);
 
-        $this->store(['project_id' => $project->id, 'task_ids' => [$task->id], 'exchange_rate' => 41.5])
+        $this->store($project, ['task_ids' => [$task->id], 'exchange_rate' => 41.5])
             ->assertRedirect()
             ->assertSessionHasNoErrors();
 
@@ -55,8 +55,7 @@ final class CreateFinanceTest extends WebTestCase
         $project->members()->attach($this->user->id, ['role' => ProjectRole::MEMBER->value]);
         $tasks = [$this->createTask($project)->id, $this->createTask($project)->id];
 
-        $this->store([
-            'project_id' => $project->id,
+        $this->store($project, [
             'currency' => 'usd',
             'amount' => '100.50',
             'exchange_rate' => '41.2345',
@@ -74,7 +73,7 @@ final class CreateFinanceTest extends WebTestCase
     {
         $project = $this->createProject($this->user);
 
-        $this->store(['project_id' => $project->id])->assertRedirect()->assertSessionHasNoErrors();
+        $this->store($project)->assertRedirect()->assertSessionHasNoErrors();
 
         self::assertSame(0, Finance::sole()->tasks()->count());
     }
@@ -83,14 +82,7 @@ final class CreateFinanceTest extends WebTestCase
     {
         $project = $this->createProject($this->user);
 
-        $this->store(['project_id' => $project->id, 'currency' => 'usd'])->assertSessionHasErrors('exchange_rate');
-
-        self::assertSame(0, Finance::count());
-    }
-
-    public function testRequiresProject(): void
-    {
-        $this->store([])->assertSessionHasErrors('project_id');
+        $this->store($project, ['currency' => 'usd'])->assertSessionHasErrors('exchange_rate');
 
         self::assertSame(0, Finance::count());
     }
@@ -99,7 +91,7 @@ final class CreateFinanceTest extends WebTestCase
     {
         $foreign = $this->createProject(User::factory()->createOne());
 
-        $this->store(['project_id' => $foreign->id])->assertSessionHasErrors('project_id');
+        $this->store($foreign)->assertForbidden();
 
         self::assertSame(0, Finance::count());
     }
@@ -109,15 +101,14 @@ final class CreateFinanceTest extends WebTestCase
         $project = $this->createProject($this->user);
         $other = $this->createTask($this->createProject($this->user));
 
-        $this->store(['project_id' => $project->id, 'task_ids' => [$other->id]])->assertSessionHasErrors('task_ids');
+        $this->store($project, ['task_ids' => [$other->id]])->assertSessionHasErrors('task_ids');
 
         self::assertSame(0, Finance::count());
     }
 
     public function testStoresReceiptsInReceiptsCollection(): void
     {
-        $this->store([
-            'project_id' => $this->createProject($this->user)->id,
+        $this->store($this->createProject($this->user), [
             'receipts' => [
                 UploadedFile::fake()->createWithContent('invoice.pdf', "%PDF-1.4\n%%EOF\n"),
                 UploadedFile::fake()->image('check.png'),
@@ -129,8 +120,7 @@ final class CreateFinanceTest extends WebTestCase
 
     public function testRejectsReceiptsOfOtherTypes(): void
     {
-        $this->store([
-            'project_id' => $this->createProject($this->user)->id,
+        $this->store($this->createProject($this->user), [
             'receipts' => [UploadedFile::fake()->create('setup.exe', 10, 'application/octet-stream')],
         ])->assertSessionHasErrors('receipts.0');
 
@@ -140,9 +130,9 @@ final class CreateFinanceTest extends WebTestCase
     /**
      * @param array<string, mixed> $overrides
      */
-    private function store(array $overrides): TestResponse
+    private function store(Project $project, array $overrides = []): TestResponse
     {
-        return $this->post(action(CreateFinanceController::class), [
+        return $this->post(action(CreateFinanceController::class, ['project' => $project->id]), [
             'title' => 'Оплата верстки',
             'type' => 'expense',
             'currency' => 'uah',

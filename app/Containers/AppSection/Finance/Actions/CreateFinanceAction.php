@@ -23,9 +23,9 @@ final class CreateFinanceAction extends ParentAction
     /**
      * @throws ValidationException
      */
-    public function run(CreateFinanceRequest $request, int $userId): Finance
+    public function run(CreateFinanceRequest $request, int $projectId, int $userId): Finance
     {
-        [$attributes, $taskIds] = $this->prepareFinanceDataTask->run($request->validated(), $userId);
+        [$attributes, $taskIds] = $this->prepareFinanceDataTask->run($request->validated(), $projectId);
 
         return DB::transaction(function () use ($request, $attributes, $userId, $taskIds): Finance {
             $finance = $this->createFinanceTask->run(['user_id' => $userId, ...$attributes], $taskIds);

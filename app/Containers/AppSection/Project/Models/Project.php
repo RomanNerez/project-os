@@ -2,6 +2,7 @@
 
 namespace App\Containers\AppSection\Project\Models;
 
+use App\Containers\AppSection\Finance\Models\Finance;
 use App\Containers\AppSection\Project\Enums\ProjectRole;
 use App\Containers\AppSection\Task\Models\Task;
 use App\Containers\AppSection\User\Models\User;
@@ -47,6 +48,14 @@ final class Project extends ParentModel
     public function tasks(): HasMany
     {
         return $this->hasMany(Task::class);
+    }
+
+    /**
+     * @return HasMany<Finance, $this>
+     */
+    public function finances(): HasMany
+    {
+        return $this->hasMany(Finance::class);
     }
 
     /**

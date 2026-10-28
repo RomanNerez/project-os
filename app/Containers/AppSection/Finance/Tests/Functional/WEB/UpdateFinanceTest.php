@@ -56,22 +56,6 @@ final class UpdateFinanceTest extends WebTestCase
         self::assertSame('2026-10-20', $finance->paid_at?->toDateString());
     }
 
-    public function testMovesRecordToAnotherProjectWithItsTasks(): void
-    {
-        $finance = $this->createFinance($this->user, $this->project, [$this->createTask($this->project)->id]);
-        $other = $this->createProject($this->user);
-        $task = $this->createTask($other);
-
-        $this->update($finance, ['project_id' => $other->id, 'task_ids' => [$task->id]])
-            ->assertRedirect()
-            ->assertSessionHasNoErrors();
-
-        $finance->refresh();
-
-        self::assertSame($other->id, $finance->project_id);
-        self::assertSame([$task->id], $finance->tasks->pluck('id')->all());
-    }
-
     public function testRejectsTasksOfAnotherProject(): void
     {
         $finance = $this->createFinance($this->user, $this->project);
@@ -90,6 +74,16 @@ final class UpdateFinanceTest extends WebTestCase
         $finance = $this->createFinance($author, $project);
 
         $this->update($finance, ['title' => 'Зламано'])->assertForbidden();
+
+        self::assertSame('Оплата', $finance->refresh()->title);
+    }
+
+    public function testRejectsRecordAddressedThroughAnotherProject(): void
+    {
+        $finance = $this->createFinance($this->user, $this->project);
+        $other = $this->createProject($this->user);
+
+        $this->update($finance, ['title' => 'Зламано'], $other->id)->assertNotFound();
 
         self::assertSame('Оплата', $finance->refresh()->title);
     }
@@ -115,38 +109,15 @@ final class UpdateFinanceTest extends WebTestCase
         self::assertCount(1, $foreign->refresh()->getMedia(Finance::RECEIPTS_COLLECTION));
     }
 
-    public function testMovesReceiptsToNewProjectFolder(): void
-    {
-        $finance = $this->createFinance($this->user, $this->project);
-        $kept = $finance->addMedia(UploadedFile::fake()->image('kept.png'))->toMediaCollection(Finance::RECEIPTS_COLLECTION);
-        $removed = $finance->addMedia(UploadedFile::fake()->image('removed.png'))->toMediaCollection(Finance::RECEIPTS_COLLECTION);
-        $other = $this->createProject($this->user);
-        $oldDirectory = 'projects/' . $this->project->id . '/finance/' . $finance->id;
-        $newDirectory = 'projects/' . $other->id . '/finance/' . $finance->id;
-
-        Storage::disk('public')->assertExists([$oldDirectory . '/' . $kept->id . '/kept.png', $oldDirectory . '/' . $removed->id . '/removed.png']);
-
-        $this->update($finance, ['project_id' => $other->id, 'removed_receipt_ids' => [$removed->id]])
-            ->assertRedirect()
-            ->assertSessionHasNoErrors();
-
-        Storage::disk('public')->assertExists([
-            $newDirectory . '/' . $kept->id . '/kept.png',
-            $newDirectory . '/' . $kept->id . '/conversions/kept-preview.jpg',
-        ]);
-        Storage::disk('public')->assertMissing([$oldDirectory . '/' . $kept->id, $oldDirectory . '/' . $removed->id]);
-    }
-
     /**
      * Sent as a spoofed PUT, the way the multipart form does it.
      *
      * @param array<string, mixed> $overrides
      */
-    private function update(Finance $finance, array $overrides): TestResponse
+    private function update(Finance $finance, array $overrides, ?int $projectId = null): TestResponse
     {
-        return $this->post(action(UpdateFinanceController::class, ['finance' => $finance->id]), [
+        return $this->post(action(UpdateFinanceController::class, ['project' => $projectId ?? $finance->project_id, 'finance' => $finance->id]), [
             '_method' => 'put',
-            'project_id' => $finance->project_id,
             'title' => $finance->title,
             'type' => $finance->type,
             'currency' => $finance->currency,
