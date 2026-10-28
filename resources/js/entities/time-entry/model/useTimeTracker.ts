@@ -9,34 +9,28 @@ import {
     type TimeTrackerMode,
 } from './types';
 
-/**
- * Start and stop timestamps are assigned by the server, so both actions send no
- * time at all — the client only says *what* is being tracked. Only the fields of the
- * current `mode` are sent: a task brings its own project and title.
- */
-/** `projectId` preselects the project of a free-form entry. */
-export function useTimeTracker(projectId: number | null = null) {
-    const form = useForm<TimeEntryDraft>({ ...emptyTimeEntryDraft(), project_id: projectId });
+export function useTimeTracker() {
+    const form = useForm<TimeEntryDraft>(emptyTimeEntryDraft());
     const mode = ref<TimeTrackerMode>(TIME_TRACKER_MODE.TASK);
     const options = { preserveScroll: true };
 
-    function start(): void {
+    function start(projectId: number): void {
         form.transform((data) => mode.value === TIME_TRACKER_MODE.TASK
-            ? { ...data, description: null, project_id: null }
+            ? { ...data, description: null }
             : { ...data, task_id: null },
-        ).post(timeEntryRoutes.start(), {
+        ).post(timeEntryRoutes.start(projectId), {
             ...options,
             onSuccess: () => form.reset('description', 'task_id'),
         });
     }
 
-    function stop(): void {
-        router.post(timeEntryRoutes.stop(), {}, options);
+    function stop(projectId: number): void {
+        router.post(timeEntryRoutes.stop(projectId), {}, options);
     }
 
     return { form, mode, start, stop };
 }
 
-export function deleteTimeEntry(id: TimeEntryID): void {
-    router.delete(timeEntryRoutes.destroy(id), { preserveScroll: true });
+export function deleteTimeEntry(projectId: number, timeEntryId: TimeEntryID): void {
+    router.delete(timeEntryRoutes.destroy(projectId, timeEntryId), { preserveScroll: true });
 }

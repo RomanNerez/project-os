@@ -2,6 +2,7 @@
 
 namespace App\Containers\AppSection\TimeEntry\UI\WEB\Controllers;
 
+use App\Containers\AppSection\Project\Models\Project;
 use App\Containers\AppSection\TimeEntry\Actions\StartTimeEntryAction;
 use App\Containers\AppSection\TimeEntry\UI\WEB\Requests\StartTimeEntryRequest;
 use App\Ship\Parents\Controllers\WebController;
@@ -16,11 +17,12 @@ final class StartTimeEntryController extends WebController
 
     /**
      * @param StartTimeEntryRequest $request
+     * @param Project $project
      * @return RedirectResponse
      */
-    public function __invoke(StartTimeEntryRequest $request): RedirectResponse
+    public function __invoke(StartTimeEntryRequest $request, Project $project): RedirectResponse
     {
-        $this->action->run($request, $request->user('web')->id);
+        $this->action->run($request, $request->user('web')->id, $project->id);
 
         return back();
     }

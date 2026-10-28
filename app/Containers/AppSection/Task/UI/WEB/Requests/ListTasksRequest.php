@@ -10,14 +10,11 @@ final class ListTasksRequest extends ParentRequest
     protected array $decode = [];
 
     /**
-     * The project tasks page (`projects/{id}/tasks`) is open only to those who can view the project.
+     * Project tasks (`projects/{id}/tasks`, `projects/{id}/tasks/options`) are open only to those who can view the project.
      */
     public function authorize(): bool
     {
-        $projectId = $this->route('id');
-
-        return $projectId === null
-            || $this->user()->can('view', Project::query()->findOrFail((int) $projectId));
+        return $this->user()->can('view', Project::query()->findOrFail((int) $this->route('id')));
     }
 
     public function rules(): array

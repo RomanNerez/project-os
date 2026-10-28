@@ -8,11 +8,15 @@ final class StartTimeEntryRequest extends ParentRequest
 {
     protected array $decode = [];
 
+    public function authorize(): bool
+    {
+        return $this->user()->can('view', $this->route('project'));
+    }
+
     public function rules(): array
     {
         return [
             'description' => ['required_without:task_id', 'nullable', 'string', 'max:255'],
-            'project_id' => ['nullable', 'integer', 'exists:projects,id'],
             'task_id' => ['required_without:description', 'nullable', 'integer', 'exists:tasks,id'],
         ];
     }

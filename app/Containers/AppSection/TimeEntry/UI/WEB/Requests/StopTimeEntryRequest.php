@@ -8,6 +8,11 @@ final class StopTimeEntryRequest extends ParentRequest
 {
     protected array $decode = [];
 
+    public function authorize(): bool
+    {
+        return $this->user()->can('view', $this->route('project'));
+    }
+
     public function rules(): array
     {
         return [];

@@ -5,6 +5,7 @@ import type { TaskOption } from '../model/types';
 
 const props = withDefaults(defineProps<{
     placeholder?: string;
+    projectId?: number;
     invalid?: boolean;
     disabled?: boolean;
     showClear?: boolean;
@@ -12,12 +13,13 @@ const props = withDefaults(defineProps<{
     placeholder: 'Оберіть задачу',
 });
 
-/** The whole option, so callers also get the task's project without a second lookup. */
 const model = defineModel<TaskOption | null>({ default: null });
 
-const { tasks, loading, load, search } = useTaskOptions();
+const { tasks, loading, loadByProject, search } = useTaskOptions();
 
-onMounted(() => load());
+onMounted(() => {
+    if (props.projectId) loadByProject(props.projectId);
+});
 </script>
 
 <template>
@@ -33,7 +35,7 @@ onMounted(() => load());
         :disabled="props.disabled"
         :show-clear="props.showClear"
         fluid
-        @filter="search($event.value)"
+        @filter="props.projectId && search(props.projectId, $event.value)"
     >
         <template #option="{ option }">
             <div class="flex min-w-0 flex-col">

@@ -21,14 +21,13 @@ final class StartTimeEntryAction extends ParentAction
     }
 
     /**
-     * A tracked task dictates the entry's project and, unless a description is given,
-     * its description — whatever project the client sent is ignored.
+     * The entry belongs to the project from the URL; a tracked task must be of that project
+     * and, unless a description is given, dictates the entry's description.
      *
      * @throws ValidationException
      */
-    public function run(StartTimeEntryRequest $request, int $userId): TimeEntry
+    public function run(StartTimeEntryRequest $request, int $userId, int $projectId): TimeEntry
     {
-        $data = $request->validated();
         $now = now()->startOfSecond();
         $taskId = $request->integer('task_id');
         // Empty strings are not converted to null globally, so a blank description is "none".
@@ -36,16 +35,19 @@ final class StartTimeEntryAction extends ParentAction
         $task = null;
 
         if ($taskId > 0) {
-            $task = $this->findVisibleTaskTask->run($taskId, $userId)
-                ?? throw ValidationException::withMessages(['task_id' => 'Задачу не знайдено.']);
+            $task = $this->findVisibleTaskTask->run($taskId, $userId);
+
+            if (null === $task || (int) $task->project_id !== $projectId) {
+                throw ValidationException::withMessages(['task_id' => 'Задачу не знайдено.']);
+            }
         }
 
-        return DB::transaction(function () use ($data, $now, $userId, $task, $description): TimeEntry {
+        return DB::transaction(function () use ($now, $userId, $projectId, $task, $description): TimeEntry {
             $this->stopRunningTimeEntriesTask->run($userId, $now);
 
             return $this->createTimeEntryTask->run([
                 'user_id' => $userId,
-                'project_id' => null !== $task ? $task->project_id : ($data['project_id'] ?? null),
+                'project_id' => $projectId,
                 'task_id' => $task?->id,
                 'description' => $description ?? $task?->title,
                 'started_at' => $now,

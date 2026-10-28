@@ -12,8 +12,8 @@ final class DeleteTimeEntryAction extends ParentAction
     ) {
     }
 
-    public function run(int $id, int $userId): bool
+    public function run(int $id, int $userId, int $projectId): bool
     {
-        return $this->deleteTimeEntryTask->run($id, $userId);
+        return $this->deleteTimeEntryTask->run($id, $userId, $projectId);
     }
 }

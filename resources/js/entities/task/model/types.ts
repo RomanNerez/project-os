@@ -103,7 +103,7 @@ export const emptyTaskCreateDraft = (): TaskCreateDraft => ({
     status: TASK_STATUS.TODO,
 });
 
-/** A task as offered by `TaskSelect`: listed from `tasks.index` as JSON, with its project. */
+/** A task as offered by `TaskSelect`: listed from `projects.tasks.options` as JSON, with its project. */
 export type TaskOption = Task & {
     project: IncludedData<TaskProject> | null;
 };

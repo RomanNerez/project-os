@@ -24,12 +24,12 @@ final class TimeTrackerTest extends WebTestCase
 {
     public function testStartRecordsStartedAtToTheSecond(): void
     {
-        $this->actingAs(User::factory()->createOne(), 'web');
+        $user = User::factory()->createOne();
+        $this->actingAs($user, 'web');
         Carbon::setTestNow('2026-08-13 10:15:30.987654');
 
-        $this->post(action(StartTimeEntryController::class), [
+        $this->post($this->startUrl($this->createProject($user)), [
             'description' => 'Верстка лендінгу',
-            'project_id' => $this->createProject()->id,
         ])->assertRedirect();
 
         $entry = TimeEntry::sole();
@@ -40,13 +40,15 @@ final class TimeTrackerTest extends WebTestCase
 
     public function testStopRecordsStoppedAtAndExactDuration(): void
     {
-        $this->actingAs(User::factory()->createOne(), 'web');
+        $user = User::factory()->createOne();
+        $this->actingAs($user, 'web');
+        $project = $this->createProject($user);
 
         Carbon::setTestNow('2026-08-13 10:15:30');
-        $this->post(action(StartTimeEntryController::class), ['description' => 'Код-рев’ю']);
+        $this->post($this->startUrl($project), ['description' => 'Код-рев’ю']);
 
         Carbon::setTestNow('2026-08-13 11:00:05');
-        $this->post(action(StopTimeEntryController::class))->assertRedirect();
+        $this->post($this->stopUrl($project))->assertRedirect();
 
         $entry = TimeEntry::sole();
 
@@ -56,13 +58,15 @@ final class TimeTrackerTest extends WebTestCase
 
     public function testStartingAnotherTimerStopsThePreviousOne(): void
     {
-        $this->actingAs(User::factory()->createOne(), 'web');
+        $user = User::factory()->createOne();
+        $this->actingAs($user, 'web');
+        $project = $this->createProject($user);
 
         Carbon::setTestNow('2026-08-13 10:00:00');
-        $this->post(action(StartTimeEntryController::class), ['description' => 'Перша']);
+        $this->post($this->startUrl($project), ['description' => 'Перша']);
 
         Carbon::setTestNow('2026-08-13 10:30:00');
-        $this->post(action(StartTimeEntryController::class), ['description' => 'Друга']);
+        $this->post($this->startUrl($this->createProject($user)), ['description' => 'Друга']);
 
         self::assertSame(1, TimeEntry::whereNull('stopped_at')->count());
         self::assertSame(1800, TimeEntry::where('description', 'Перша')->sole()->durationInSeconds());
@@ -70,9 +74,10 @@ final class TimeTrackerTest extends WebTestCase
 
     public function testStartRequiresDescriptionOrTask(): void
     {
-        $this->actingAs(User::factory()->createOne(), 'web');
+        $user = User::factory()->createOne();
+        $this->actingAs($user, 'web');
 
-        $this->post(action(StartTimeEntryController::class), ['description' => '', 'task_id' => null])
+        $this->post($this->startUrl($this->createProject($user)), ['description' => '', 'task_id' => null])
             ->assertSessionHasErrors(['description', 'task_id']);
 
         self::assertSame(0, TimeEntry::count());
@@ -85,14 +90,15 @@ final class TimeTrackerTest extends WebTestCase
         $project = $this->createProject($user);
 
         Carbon::setTestNow('2026-08-13 10:00:00');
-        $this->post(action(StartTimeEntryController::class), ['description' => 'Своя задача', 'project_id' => $project->id]);
+        $this->post($this->startUrl($project), ['description' => 'Своя задача']);
         Carbon::setTestNow('2026-08-13 10:10:00');
-        $this->post(action(StopTimeEntryController::class));
+        $this->post($this->stopUrl($project));
 
+        $otherProject = $this->createProject($user);
         Carbon::setTestNow('2026-08-13 11:00:00');
-        $this->post(action(StartTimeEntryController::class), ['description' => 'Інший проєкт', 'project_id' => $this->createProject($user)->id]);
+        $this->post($this->startUrl($otherProject), ['description' => 'Інший проєкт']);
         Carbon::setTestNow('2026-08-13 11:10:00');
-        $this->post(action(StopTimeEntryController::class));
+        $this->post($this->stopUrl($otherProject));
 
         TimeEntry::create([
             'user_id' => User::factory()->createOne()->id,
@@ -129,10 +135,7 @@ final class TimeTrackerTest extends WebTestCase
         $project = $this->createProject($user);
 
         Carbon::setTestNow('2026-08-13 10:00:00');
-        $this->post(action(StartTimeEntryController::class), [
-            'description' => 'Верстка лендінгу',
-            'project_id' => $project->id,
-        ]);
+        $this->post($this->startUrl($project), ['description' => 'Верстка лендінгу']);
 
         $this->get(action(ListTimeEntriesController::class, ['id' => $project->id]))
             ->assertOk()
@@ -149,22 +152,22 @@ final class TimeTrackerTest extends WebTestCase
             );
     }
 
-    public function testStartWithTaskTakesProjectAndTitleFromTheTask(): void
+    public function testStartWithTaskTakesTitleFromTheTask(): void
     {
         $user = User::factory()->createOne();
         $this->actingAs($user, 'web');
-        $task = $this->createTask($this->createProject($user), 'Зверстати хедер');
+        $project = $this->createProject($user);
+        $task = $this->createTask($project, 'Зверстати хедер');
 
-        $this->post(action(StartTimeEntryController::class), [
+        $this->post($this->startUrl($project), [
             'task_id' => $task->id,
             'description' => '',
-            'project_id' => $this->createProject($user)->id,
         ])->assertSessionHasNoErrors();
 
         $entry = TimeEntry::sole();
 
         self::assertSame($task->id, $entry->task_id);
-        self::assertSame($task->project_id, $entry->project_id);
+        self::assertSame($project->id, $entry->project_id);
         self::assertSame('Зверстати хедер', $entry->description);
     }
 
@@ -172,9 +175,10 @@ final class TimeTrackerTest extends WebTestCase
     {
         $user = User::factory()->createOne();
         $this->actingAs($user, 'web');
-        $task = $this->createTask($this->createProject($user), 'Зверстати хедер');
+        $project = $this->createProject($user);
+        $task = $this->createTask($project, 'Зверстати хедер');
 
-        $this->post(action(StartTimeEntryController::class), [
+        $this->post($this->startUrl($project), [
             'task_id' => $task->id,
             'description' => 'Мобільна версія хедера',
         ])->assertSessionHasNoErrors();
@@ -189,7 +193,7 @@ final class TimeTrackerTest extends WebTestCase
         $project = $this->createProject(User::factory()->createOne());
         $project->members()->attach($user->id, ['role' => ProjectRole::MEMBER->value]);
 
-        $this->post(action(StartTimeEntryController::class), [
+        $this->post($this->startUrl($project), [
             'task_id' => $this->createTask($project, 'Спільна задача')->id,
         ])->assertSessionHasNoErrors();
 
@@ -198,11 +202,34 @@ final class TimeTrackerTest extends WebTestCase
 
     public function testCannotTrackATaskFromAForeignProject(): void
     {
-        $this->actingAs(User::factory()->createOne(), 'web');
+        $user = User::factory()->createOne();
+        $this->actingAs($user, 'web');
         $task = $this->createTask($this->createProject(User::factory()->createOne()), 'Чужа задача');
 
-        $this->post(action(StartTimeEntryController::class), ['task_id' => $task->id])
+        $this->post($this->startUrl($this->createProject($user)), ['task_id' => $task->id])
             ->assertSessionHasErrors('task_id');
+
+        self::assertSame(0, TimeEntry::count());
+    }
+
+    public function testCannotTrackATaskOfAnotherOwnProject(): void
+    {
+        $user = User::factory()->createOne();
+        $this->actingAs($user, 'web');
+        $task = $this->createTask($this->createProject($user), 'Задача іншого проєкту');
+
+        $this->post($this->startUrl($this->createProject($user)), ['task_id' => $task->id])
+            ->assertSessionHasErrors('task_id');
+
+        self::assertSame(0, TimeEntry::count());
+    }
+
+    public function testCannotStartTimerInAForeignProject(): void
+    {
+        $this->actingAs(User::factory()->createOne(), 'web');
+
+        $this->post($this->startUrl($this->createProject(User::factory()->createOne())), ['description' => 'Чужий проєкт'])
+            ->assertForbidden();
 
         self::assertSame(0, TimeEntry::count());
     }
@@ -211,9 +238,10 @@ final class TimeTrackerTest extends WebTestCase
     {
         $user = User::factory()->createOne();
         $this->actingAs($user, 'web');
-        $task = $this->createTask($this->createProject($user), 'Зверстати хедер');
+        $project = $this->createProject($user);
+        $task = $this->createTask($project, 'Зверстати хедер');
 
-        $this->post(action(StartTimeEntryController::class), ['task_id' => $task->id]);
+        $this->post($this->startUrl($project), ['task_id' => $task->id]);
 
         $this->get(action(ListTimeEntriesController::class, ['id' => $task->project_id]))
             ->assertOk()
@@ -226,21 +254,67 @@ final class TimeTrackerTest extends WebTestCase
 
     public function testCannotDeleteAnotherUsersEntry(): void
     {
-        $this->actingAs(User::factory()->createOne(), 'web');
+        $user = User::factory()->createOne();
+        $this->actingAs($user, 'web');
+        $project = $this->createProject($user);
 
-        $foreign = TimeEntry::create([
-            'user_id' => User::factory()->createOne()->id,
-            'description' => 'Чужа задача',
-            'started_at' => Carbon::parse('2026-08-13 09:00:00'),
-            'stopped_at' => Carbon::parse('2026-08-13 09:30:00'),
-        ]);
+        $foreign = $this->createEntry(User::factory()->createOne(), $project);
 
-        $this->delete(action(DeleteTimeEntryController::class, ['id' => $foreign->id]))->assertRedirect();
+        $this->delete($this->destroyUrl($project, $foreign))->assertRedirect();
 
         self::assertSame(1, TimeEntry::count());
     }
 
-    private function createProject(?User $owner = null): Project
+    public function testDeletesOwnEntry(): void
+    {
+        $user = User::factory()->createOne();
+        $this->actingAs($user, 'web');
+        $project = $this->createProject($user);
+
+        $this->delete($this->destroyUrl($project, $this->createEntry($user, $project)))->assertRedirect();
+
+        self::assertSame(0, TimeEntry::count());
+    }
+
+    public function testCannotDeleteAnEntryOfAnotherProjectThroughThisOne(): void
+    {
+        $user = User::factory()->createOne();
+        $this->actingAs($user, 'web');
+        $project = $this->createProject($user);
+        $entry = $this->createEntry($user, $this->createProject($user));
+
+        $this->delete($this->destroyUrl($project, $entry))->assertRedirect();
+
+        self::assertSame(1, TimeEntry::count());
+    }
+
+    private function startUrl(Project $project): string
+    {
+        return action(StartTimeEntryController::class, ['project' => $project->id]);
+    }
+
+    private function stopUrl(Project $project): string
+    {
+        return action(StopTimeEntryController::class, ['project' => $project->id]);
+    }
+
+    private function destroyUrl(Project $project, TimeEntry $entry): string
+    {
+        return action(DeleteTimeEntryController::class, ['project' => $project->id, 'id' => $entry->id]);
+    }
+
+    private function createEntry(User $user, Project $project): TimeEntry
+    {
+        return TimeEntry::create([
+            'user_id' => $user->id,
+            'project_id' => $project->id,
+            'description' => 'Запис',
+            'started_at' => Carbon::parse('2026-08-13 09:00:00'),
+            'stopped_at' => Carbon::parse('2026-08-13 09:30:00'),
+        ]);
+    }
+
+    private function createProject(User|null $owner = null): Project
     {
         return Project::create([
             'user_id' => $owner?->id,

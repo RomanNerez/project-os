@@ -7,18 +7,18 @@ const props = withDefaults(defineProps<{
     label?: string;
     message?: string;
     placeholder?: string;
-    /** Only offer tasks of these projects; empty means all visible projects. */
-    projectIds?: number[];
+    /** Only tasks of this project are offered; nothing is loaded without it. */
+    projectId?: number | null;
     disabled?: boolean;
 }>(), {
     placeholder: 'Оберіть задачі',
-    projectIds: () => [],
+    projectId: null,
 });
 
 /** Whole options, so callers also get each task's project without a second lookup. */
 const model = defineModel<TaskSelectOption[]>({ default: () => [] });
 
-const { tasks, loading, load, search } = useTaskOptions({ projectIds: () => props.projectIds, limit: 50 });
+const { tasks, loading, loadByProject, search } = useTaskOptions({ limit: 50 });
 
 // Selected tasks stay listed (and keep their labels) even when a new search no longer returns them.
 const groups = computed(() => {
@@ -33,9 +33,17 @@ const groups = computed(() => {
     return [...byProject].map(([label, items]) => ({ label, items }));
 });
 
-onMounted(() => load());
+function load(): void {
+    if (props.projectId) {
+        loadByProject(props.projectId);
+    } else {
+        tasks.value = [];
+    }
+}
 
-watch(() => props.projectIds.join(','), () => load());
+onMounted(load);
+
+watch(() => props.projectId, load);
 </script>
 
 <template>
@@ -57,7 +65,7 @@ watch(() => props.projectIds.join(','), () => load());
             :disabled="props.disabled"
             :show-toggle-all="false"
             fluid
-            @filter="search($event.value)"
+            @filter="props.projectId && search(props.projectId, $event.value)"
         />
 
         <Message v-if="props.message" severity="error" size="small" variant="simple">

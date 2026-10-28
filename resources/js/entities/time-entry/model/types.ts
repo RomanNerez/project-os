@@ -38,13 +38,10 @@ export interface TimeEntry {
 
 export interface TimeEntryDraft {
     description: string;
-    project_id: number | null;
-    /** When set, the server takes the project (and, if empty, the description) from the task. */
     task_id: number | null;
 }
 
 export const emptyTimeEntryDraft = (): TimeEntryDraft => ({
     description: '',
-    project_id: null,
     task_id: null,
 });

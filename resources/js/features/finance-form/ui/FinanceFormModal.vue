@@ -46,8 +46,6 @@ const { form, submit, reset } = useFinanceForm(toRef(props, 'finance'), () => {
 const selectedTasks = ref<TaskSelectOption[]>([]);
 const fileInput = ref<HTMLInputElement | null>(null);
 
-const taskProjectIds = computed(() => (form.project_id ? [form.project_id] : []));
-
 watch(selectedTasks, (tasks) => {
     form.task_ids = tasks.map((task) => task.id);
 });
@@ -154,7 +152,7 @@ function cancel(): void {
                 v-model="selectedTasks"
                 label="Задачі"
                 :placeholder="form.project_id ? 'Необов’язково' : 'Спершу оберіть проєкт'"
-                :project-ids="taskProjectIds"
+                :project-id="form.project_id"
                 :disabled="!form.project_id"
                 :message="form.errors.task_ids"
             />

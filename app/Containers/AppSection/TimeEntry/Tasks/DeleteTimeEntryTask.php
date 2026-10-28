@@ -7,11 +7,12 @@ use App\Ship\Parents\Tasks\Task as ParentTask;
 
 final class DeleteTimeEntryTask extends ParentTask
 {
-    public function run(int $id, int $userId): bool
+    public function run(int $id, int $userId, int $projectId): bool
     {
         return (bool) TimeEntry::query()
             ->where('id', $id)
             ->where('user_id', $userId)
+            ->where('project_id', $projectId)
             ->delete();
     }
 }

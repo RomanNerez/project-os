@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Containers\AppSection\Project\UI\WEB\Requests;
+namespace App\Containers\AppSection\Task\UI\WEB\Requests;
 
 use App\Containers\AppSection\Project\Models\Project;
 use App\Containers\AppSection\Task\Enums\TaskPriority;

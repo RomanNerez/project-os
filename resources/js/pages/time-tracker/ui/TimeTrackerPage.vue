@@ -1,22 +1,17 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { Head } from '@inertiajs/vue3';
+import { Head, usePage } from '@inertiajs/vue3';
 import { ProjectLayout, type BreadcrumbItem } from '@/widgets/project-layout';
 import { projectRoutes, type Project } from '@/entities/project';
 import { TimeTracker } from '@/widgets/time-tracker';
 import { TimeEntryList } from '@/widgets/time-entry-list';
 import type { TimeEntry } from '@/entities/time-entry';
+import type { ServerData } from '@/shared/types';
 
 interface Props {
-    project: {
-        data: Project;
-    };
-    entries: {
-        data: TimeEntry[];
-    };
-    running: {
-        data: TimeEntry;
-    } | null;
+    project: ServerData<Project>;
+    entries:  ServerData<TimeEntry[]>;
+    running: ServerData<TimeEntry> | null;
     serverTime: string;
 }
 

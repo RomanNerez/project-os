@@ -8,20 +8,18 @@ import {
     useTimeTracker,
     type TimeEntry,
 } from '@/entities/time-entry';
-import { ProjectSelect } from '@/entities/project';
 import { TaskSelect, type TaskOption } from '@/entities/task';
 
 const props = defineProps<{
     running: TimeEntry | null;
     serverTime: string;
-    projectId?: number | null;
+    projectId: number;
 }>();
 
-const { form, mode, start, stop } = useTimeTracker(props.projectId ?? null);
+const { form, mode, start, stop } = useTimeTracker();
 
 const isRunning = computed(() => props.running !== null);
 
-/** While a timer runs, the switch just shows what that timer is tracked against. */
 const displayedMode = computed(() => {
     if (props.running === null) {
         return mode.value;
@@ -32,7 +30,6 @@ const displayedMode = computed(() => {
 
 const isTaskMode = computed(() => displayedMode.value === TIME_TRACKER_MODE.TASK);
 
-/** A picked task decides the project on the server, so the project field just shows it. */
 const selectedTask = ref<TaskOption | null>(null);
 
 watch(selectedTask, (task) => {
@@ -53,7 +50,7 @@ const elapsed = useElapsedSeconds(
 );
 
 function submit(): void {
-    isRunning.value ? stop() : start();
+    isRunning.value ? stop(props.projectId) : start(props.projectId);
 }
 </script>
 
@@ -86,6 +83,7 @@ function submit(): void {
                     <TaskSelect
                         v-model="selectedTask"
                         :invalid="Boolean(form.errors.task_id)"
+                        :project-id="projectId"
                         show-clear
                     />
                     <small v-if="form.errors.task_id" class="text-red-500">{{ form.errors.task_id }}</small>
@@ -99,30 +97,6 @@ function submit(): void {
                         fluid
                     />
                     <small v-if="form.errors.description" class="text-red-500">{{ form.errors.description }}</small>
-                </template>
-            </div>
-
-            <div class="w-full lg:w-56">
-                <ProjectSelect
-                    v-if="isRunning"
-                    :model-value="running!.project?.id ?? null"
-                    placeholder="Без проєкту"
-                    disabled
-                />
-                <InputText
-                    v-else-if="isTaskMode"
-                    :model-value="selectedTask?.project?.data.title ?? ''"
-                    placeholder="Проєкт задачі"
-                    readonly
-                    fluid
-                />
-                <template v-else>
-                    <ProjectSelect
-                        v-model="form.project_id"
-                        placeholder="Без проєкту"
-                        show-clear
-                    />
-                    <small v-if="form.errors.project_id" class="text-red-500">{{ form.errors.project_id }}</small>
                 </template>
             </div>
 

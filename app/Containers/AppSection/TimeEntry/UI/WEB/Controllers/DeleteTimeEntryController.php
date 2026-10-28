@@ -2,6 +2,7 @@
 
 namespace App\Containers\AppSection\TimeEntry\UI\WEB\Controllers;
 
+use App\Containers\AppSection\Project\Models\Project;
 use App\Containers\AppSection\TimeEntry\Actions\DeleteTimeEntryAction;
 use App\Containers\AppSection\TimeEntry\UI\WEB\Requests\DeleteTimeEntryRequest;
 use App\Ship\Parents\Controllers\WebController;
@@ -16,12 +17,13 @@ final class DeleteTimeEntryController extends WebController
 
     /**
      * @param DeleteTimeEntryRequest $request
+     * @param Project $project
      * @param int $id
      * @return RedirectResponse
      */
-    public function __invoke(DeleteTimeEntryRequest $request, int $id): RedirectResponse
+    public function __invoke(DeleteTimeEntryRequest $request, Project $project, int $id): RedirectResponse
     {
-        $this->action->run($id, $request->user('web')->id);
+        $this->action->run($id, $request->user('web')->id, $project->id);
 
         return back();
     }
