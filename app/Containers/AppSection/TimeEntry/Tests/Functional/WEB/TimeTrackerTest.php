@@ -12,6 +12,7 @@ use App\Containers\AppSection\TimeEntry\UI\WEB\Controllers\DeleteTimeEntryContro
 use App\Containers\AppSection\TimeEntry\UI\WEB\Controllers\ListTimeEntriesController;
 use App\Containers\AppSection\TimeEntry\UI\WEB\Controllers\StartTimeEntryController;
 use App\Containers\AppSection\TimeEntry\UI\WEB\Controllers\StopTimeEntryController;
+use App\Containers\AppSection\TimeEntry\UI\WEB\Controllers\UpdateTimeEntryController;
 use App\Containers\AppSection\User\Models\User;
 use Illuminate\Support\Carbon;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -20,6 +21,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 #[CoversClass(StopTimeEntryController::class)]
 #[CoversClass(ListTimeEntriesController::class)]
 #[CoversClass(DeleteTimeEntryController::class)]
+#[CoversClass(UpdateTimeEntryController::class)]
 final class TimeTrackerTest extends WebTestCase
 {
     public function testStartRecordsStartedAtToTheSecond(): void
@@ -286,6 +288,130 @@ final class TimeTrackerTest extends WebTestCase
         $this->delete($this->destroyUrl($project, $entry))->assertRedirect();
 
         self::assertSame(1, TimeEntry::count());
+    }
+
+    public function testUpdatesTheTimeOfOwnEntry(): void
+    {
+        $user = User::factory()->createOne();
+        $this->actingAs($user, 'web');
+        $project = $this->createProject($user);
+        $entry = $this->createEntry($user, $project);
+
+        $this->patch($this->updateUrl($project, $entry), [
+            'started_at' => '2026-08-12T14:00:00Z',
+            'stopped_at' => '2026-08-12T15:45:00Z',
+        ])->assertSessionHasNoErrors()->assertRedirect();
+
+        $entry->refresh();
+
+        self::assertSame('2026-08-12 14:00:00', $entry->started_at->toDateTimeString());
+        self::assertSame('2026-08-12 15:45:00', $entry->stopped_at->toDateTimeString());
+        self::assertSame(6300, $entry->durationInSeconds());
+    }
+
+    public function testRenamesAFreeFormEntry(): void
+    {
+        $user = User::factory()->createOne();
+        $this->actingAs($user, 'web');
+        $project = $this->createProject($user);
+        $entry = $this->createEntry($user, $project);
+
+        $this->patch($this->updateUrl($project, $entry), [
+            'description' => 'Нова назва',
+            'started_at' => '2026-08-13T09:00:00Z',
+            'stopped_at' => '2026-08-13T09:30:00Z',
+        ])->assertSessionHasNoErrors();
+
+        self::assertSame('Нова назва', $entry->refresh()->description);
+    }
+
+    public function testKeepsTheTaskTitleOfATaskEntry(): void
+    {
+        $user = User::factory()->createOne();
+        $this->actingAs($user, 'web');
+        $project = $this->createProject($user);
+        $task = $this->createTask($project, 'Зверстати хедер');
+        $entry = $this->createEntry($user, $project);
+        $entry->update(['task_id' => $task->id, 'description' => $task->title]);
+
+        $this->patch($this->updateUrl($project, $entry), [
+            'description' => 'Інша назва',
+            'started_at' => '2026-08-13T09:00:00Z',
+            'stopped_at' => '2026-08-13T10:00:00Z',
+        ])->assertSessionHasNoErrors();
+
+        $entry->refresh();
+
+        self::assertSame('Зверстати хедер', $entry->description);
+        self::assertSame(3600, $entry->durationInSeconds());
+    }
+
+    public function testUpdateRequiresStopAfterStart(): void
+    {
+        $user = User::factory()->createOne();
+        $this->actingAs($user, 'web');
+        $project = $this->createProject($user);
+        $entry = $this->createEntry($user, $project);
+
+        $this->patch($this->updateUrl($project, $entry), [
+            'started_at' => '2026-08-13T10:00:00Z',
+            'stopped_at' => '2026-08-13T09:00:00Z',
+        ])->assertSessionHasErrors('stopped_at');
+
+        self::assertSame(1800, $entry->refresh()->durationInSeconds());
+    }
+
+    public function testCannotUpdateAnotherUsersEntry(): void
+    {
+        $user = User::factory()->createOne();
+        $this->actingAs($user, 'web');
+        $project = $this->createProject($user);
+        $foreign = $this->createEntry(User::factory()->createOne(), $project);
+
+        $this->patch($this->updateUrl($project, $foreign), $this->updatePayload())->assertNotFound();
+
+        self::assertSame(1800, $foreign->refresh()->durationInSeconds());
+    }
+
+    public function testCannotUpdateAnEntryOfAnotherProjectThroughThisOne(): void
+    {
+        $user = User::factory()->createOne();
+        $this->actingAs($user, 'web');
+        $project = $this->createProject($user);
+        $entry = $this->createEntry($user, $this->createProject($user));
+
+        $this->patch($this->updateUrl($project, $entry), $this->updatePayload())->assertNotFound();
+
+        self::assertSame(1800, $entry->refresh()->durationInSeconds());
+    }
+
+    public function testCannotUpdateARunningEntry(): void
+    {
+        $user = User::factory()->createOne();
+        $this->actingAs($user, 'web');
+        $project = $this->createProject($user);
+        $entry = $this->createEntry($user, $project);
+        $entry->update(['stopped_at' => null]);
+
+        $this->patch($this->updateUrl($project, $entry), $this->updatePayload())->assertNotFound();
+
+        self::assertNull($entry->refresh()->stopped_at);
+    }
+
+    private function updateUrl(Project $project, TimeEntry $entry): string
+    {
+        return action(UpdateTimeEntryController::class, ['project' => $project->id, 'id' => $entry->id]);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function updatePayload(): array
+    {
+        return [
+            'started_at' => '2026-08-13T08:00:00Z',
+            'stopped_at' => '2026-08-13T12:00:00Z',
+        ];
     }
 
     private function startUrl(Project $project): string

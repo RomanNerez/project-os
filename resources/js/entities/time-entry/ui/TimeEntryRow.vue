@@ -8,6 +8,7 @@ const props = defineProps<{
 }>();
 
 defineEmits<{
+    edit: [];
     delete: [];
 }>();
 
@@ -44,6 +45,16 @@ const range = computed(() => {
         <span class="shrink-0 font-mono text-sm tabular-nums">
             {{ entry.duration === null ? '—' : formatDuration(entry.duration) }}
         </span>
+
+        <Button
+            v-if="entry.stopped_at"
+            icon="pi pi-pencil"
+            severity="secondary"
+            text
+            size="small"
+            aria-label="Редагувати запис"
+            @click="$emit('edit')"
+        />
 
         <Button
             icon="pi pi-trash"

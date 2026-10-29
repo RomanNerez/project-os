@@ -1,11 +1,21 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { formatDayLabel, formatDuration, toDayKey } from '@/shared/lib';
 import { TimeEntryRow, deleteTimeEntry, type TimeEntry } from '@/entities/time-entry';
+import { TimeEntryEditModal } from '@/features/time-entry-edit';
 
 const props = defineProps<{
+    projectId: number;
     entries: TimeEntry[];
 }>();
+
+const editing = ref<TimeEntry | null>(null);
+const isEditOpen = ref(false);
+
+function edit(entry: TimeEntry): void {
+    editing.value = entry;
+    isEditOpen.value = true;
+}
 
 interface DayGroup {
     key: string;
@@ -47,9 +57,16 @@ const groups = computed<DayGroup[]>(() => {
                 v-for="entry in group.entries"
                 :key="entry.id"
                 :entry="entry"
-                @delete="deleteTimeEntry(entry.id)"
+                @edit="edit(entry)"
+                @delete="deleteTimeEntry(projectId, entry.id)"
             />
         </section>
+
+        <TimeEntryEditModal
+            v-model:visible="isEditOpen"
+            :project-id="projectId"
+            :entry="editing"
+        />
     </div>
 
     <div

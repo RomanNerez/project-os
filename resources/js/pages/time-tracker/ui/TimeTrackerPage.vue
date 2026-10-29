@@ -43,7 +43,7 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
                 :project-id="project.id"
             />
 
-            <TimeEntryList :entries="props.entries.data" />
+            <TimeEntryList :project-id="project.id" :entries="props.entries.data" />
         </div>
     </ProjectLayout>
 </template>

@@ -5,4 +5,5 @@ export const timeEntryRoutes = {
     start: (projectId: number) => `/projects/${projectId}/time-tracker/start`,
     stop: (projectId: number) => `/projects/${projectId}/time-tracker/stop`,
     destroy: (projectId: number, id: TimeEntryID) => `/projects/${projectId}/time-tracker/entries/${id}`,
+    update: (projectId: number, id: TimeEntryID) => `/projects/${projectId}/time-tracker/entries/${id}`,
 };
