@@ -26,6 +26,7 @@ final class TaskTransformer extends ParentTransformer
         'comments',
         'media',
         'time_entries',
+        'activities',
     ];
 
     /**
@@ -105,5 +106,14 @@ final class TaskTransformer extends ParentTransformer
         });
 
         return $this->collection($task->timeEntries, new TimeEntryTransformer());
+    }
+
+    /**
+     * @param Task $task
+     * @return array
+     */
+    public function includeActivities(Task $task)
+    {
+        return $this->collection($task->activitiesAsSubject, new TaskActivityTransformer());
     }
 }

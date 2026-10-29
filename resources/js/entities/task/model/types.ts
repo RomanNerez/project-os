@@ -58,13 +58,44 @@ export type TaskWithAssignee = Task & {
     assignee?: IncludedData<TaskAssignee> | null;
 };
 
-export interface TaskIncludes<TMedia = null, TProject = null, TAssignee = null, TComments = null, TTimeEntries = null> extends Task {
+export interface TaskIncludes<TMedia = null, TProject = null, TAssignee = null, TComments = null, TTimeEntries = null, TActivities = null> extends Task {
     media: IncludedData<TMedia>;
     project: TProject extends null ? null : IncludedData<TProject>;
     assignee: TAssignee extends null ? null : IncludedData<TAssignee>;
     comments: TComments extends null ? null : IncludedData<TComments>
     time_entries: TTimeEntries extends null ? null : IncludedData<TTimeEntries>
+    activities: TActivities extends null ? null : IncludedData<TActivities>
 }
+
+/** A field tracked in the task history; `assignee` holds the assignee's name. */
+export type TaskActivityField = 'title' | 'description' | 'status' | 'priority' | 'estimate' | 'assignee';
+
+export interface TaskActivityChange {
+    field: TaskActivityField;
+    old: string | number | null;
+    new: string | number | null;
+}
+
+/** Creation of a task, or one edit of it: every field changed by a single save. */
+export interface TaskActivity {
+    id: number;
+    event: 'created' | 'updated';
+    created_at: string;
+    changes: TaskActivityChange[];
+}
+
+export type TaskActivityIncludes<TCauser = null> = TaskActivity & {
+    causer: TCauser extends null ? null : IncludedData<TCauser> | null;
+};
+
+export const ACTIVITY_FIELD_LABEL: Record<TaskActivityField, string> = {
+    title: 'Назва',
+    description: 'Опис',
+    status: 'Статус',
+    priority: 'Пріоритет',
+    estimate: 'Оцінка',
+    assignee: 'Виконавець',
+};
 
 /** Creating a task only needs a title and the project it belongs to. */
 export interface TaskCreateDraft {

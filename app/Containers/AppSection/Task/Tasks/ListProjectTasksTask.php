@@ -27,6 +27,7 @@ final class ListProjectTasksTask extends ParentTask
                 'media',
                 'comments.user',
                 'timeEntries' => static fn ($query) => $query->whereNotNull('stopped_at')->with('user.media')->orderByDesc('started_at'),
+                'activitiesAsSubject' => static fn ($query) => $query->with('causer.media')->latest('id'),
             ])
             ->orderBy('created_at')
             ->findWhere(['project_id' => $projectId]);

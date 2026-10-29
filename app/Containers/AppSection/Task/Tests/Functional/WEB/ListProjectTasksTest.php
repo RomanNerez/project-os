@@ -58,6 +58,27 @@ final class ListProjectTasksTest extends WebTestCase
             );
     }
 
+    public function testIncludesHistoryOfTheTask(): void
+    {
+        $project = $this->createProject('Власний', $this->user);
+        $task = $this->createTask($project, 'Зверстати хедер');
+        $task->refresh()->update(['title' => 'Зверстати футер']);
+
+        $this->get(action(ListProjectTasksController::class, ['id' => $project->id]))
+            ->assertOk()
+            ->assertInertia(
+                fn ($page) => $page->has('tasks.data.0.activities.data', 2)
+                    ->where('tasks.data.0.activities.data.1.event', 'created')
+                    ->where('tasks.data.0.activities.data.1.changes', [])
+                    ->where('tasks.data.0.activities.data.1.causer.data.name', $this->user->name)
+                    ->where('tasks.data.0.activities.data.0.event', 'updated')
+                    ->where('tasks.data.0.activities.data.0.changes', [
+                        ['field' => 'title', 'old' => 'Зверстати хедер', 'new' => 'Зверстати футер'],
+                    ])
+                    ->where('tasks.data.0.activities.data.0.causer.data.name', $this->user->name),
+            );
+    }
+
     public function testFiltersByTitleWithinTheProject(): void
     {
         $project = $this->createProject('Власний', $this->user);

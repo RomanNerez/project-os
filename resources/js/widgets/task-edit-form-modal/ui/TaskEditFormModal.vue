@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Code from '@primeicons/vue/code';
-import { type Task, type TaskAssignee } from '@/entities/task';
+import { TaskActivityRow, type Task, type TaskActivityIncludes, type TaskAssignee } from '@/entities/task';
 import { MediaPreview, type Media } from '@/entities/media';
 import { TaskUploadFiles } from '@/features/task-upload-files';
 import { TaskDescriptionField, TaskTitleField } from '@/features/task-inline-edit';
@@ -21,6 +21,7 @@ const props = defineProps<{
     media: Media[];
     comments: CommentIncludes<User>[];
     timeEntries: TimeEntryIncludes<User>[];
+    activities: TaskActivityIncludes<User>[];
     assignees: TaskAssignee[];
     canEdit: boolean;
 }>();
@@ -49,7 +50,8 @@ defineEmits(['onClose']);
         class="overflow-hidden"
         :pt="{
             root: {
-                class: '!max-h-full sm:w-[90%] sm:!max-h-[90%] !rounded-none sm:!rounded-xl',
+                // Fixed height so switching tabs or adding comments doesn't resize the dialog.
+                class: '!max-h-full h-full sm:w-[90%] sm:!max-h-[90%] sm:h-[90%] !rounded-none sm:!rounded-xl',
             },
             content: {
                 class: 'overflow-hidden flex-1 flex flex-col !px-4'
@@ -101,6 +103,10 @@ defineEmits(['onClose']);
                         <Tab value="time" class="flex items-center gap-2!">
                             <i class="pi pi-stopwatch" />
                             Час
+                        </Tab>
+                        <Tab value="history" class="flex items-center gap-2!">
+                            <i class="pi pi-history" />
+                            Історія
                         </Tab>
                     </TabList>
                     <TabPanels
@@ -157,6 +163,18 @@ defineEmits(['onClose']);
                                 />
                             </div>
                             <p v-else class="py-8 text-center text-sm text-gray-500">Час ще не трекали</p>
+                        </TabPanel>
+                        <TabPanel value="history">
+                            <div v-if="activities.length" class="flex flex-col gap-2">
+                                <TaskActivityRow
+                                    v-for="activity in activities"
+                                    :key="activity.id"
+                                    :user-name="activity.causer?.data.name ?? 'Система'"
+                                    :user-avatar="activity.causer?.data.avatar_url ?? null"
+                                    :activity="activity"
+                                />
+                            </div>
+                            <p v-else class="py-8 text-center text-sm text-gray-500">Змін ще не було</p>
                         </TabPanel>
                     </TabPanels>
                 </Tabs>

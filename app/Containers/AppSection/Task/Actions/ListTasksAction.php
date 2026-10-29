@@ -29,6 +29,7 @@ final class ListTasksAction extends ParentAction
             'assignee',
             'comments' => fn($query) => $query->with('user')->orderBy('created_at', 'desc'),
             'timeEntries' => fn($query) => $query->whereNotNull('stopped_at')->with('user.media')->orderByDesc('started_at'),
+            'activitiesAsSubject' => fn($query) => $query->with('causer.media')->latest('id'),
         ], projectId: $projectId);
     }
 }

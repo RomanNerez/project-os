@@ -152,6 +152,40 @@ final class UpdateProjectTaskTest extends WebTestCase
         self::assertNull($task->refresh()->assignee_id);
     }
 
+    public function testLogsChangedFieldsWithTheirAuthor(): void
+    {
+        $project = $this->createProject($this->user);
+        $member = User::factory()->createOne();
+        $project->members()->attach($member->id, ['role' => ProjectRole::VIEWER->value]);
+        $task = $this->createTask($project);
+
+        $this->patchTask($project, $task, [
+            'status' => TaskStatus::DONE->value,
+            'assignee_id' => $member->id,
+        ])->assertRedirect();
+
+        $activity = $task->activitiesAsSubject()->where('event', 'updated')->sole();
+        self::assertSame($this->user->id, $activity->causer_id);
+        self::assertSame(
+            ['status' => TaskStatus::DONE->value, 'assignee.name' => $member->name],
+            $activity->attribute_changes?->get('attributes'),
+        );
+        self::assertSame(
+            ['status' => TaskStatus::TODO->value, 'assignee.name' => null],
+            $activity->attribute_changes?->get('old'),
+        );
+    }
+
+    public function testDoesNotLogUnchangedTask(): void
+    {
+        $project = $this->createProject($this->user);
+        $task = $this->createTask($project);
+
+        $this->patchTask($project, $task, ['title' => 'Задача'])->assertRedirect();
+
+        self::assertSame(0, $task->activitiesAsSubject()->where('event', 'updated')->count());
+    }
+
     public function testIgnoresProjectId(): void
     {
         $project = $this->createProject($this->user);

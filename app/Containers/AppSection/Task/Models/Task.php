@@ -13,6 +13,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Spatie\Activitylog\Models\Concerns\LogsActivity;
+use Spatie\Activitylog\Support\LogOptions;
 use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -21,6 +23,14 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 final class Task extends ParentModel implements HasMedia
 {
     use InteractsWithMedia;
+    use LogsActivity;
+
+    /**
+     * The task's history: who created it and every later edit.
+     *
+     * @var array<int, string>
+     */
+    protected static array $recordEvents = ['created', 'updated'];
 
     /**
      * The attributes that are mass assignable.
@@ -37,6 +47,18 @@ final class Task extends ParentModel implements HasMedia
         'priority',
         'estimate',
     ];
+
+    /**
+     * @return LogOptions
+     */
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->useLogName('task')
+            ->logOnly(['title', 'description', 'status', 'priority', 'estimate', 'assignee.name'])
+            ->logOnlyDirty()
+            ->dontLogEmptyChanges();
+    }
 
     /**
      * @return BelongsTo<Project, $this>
