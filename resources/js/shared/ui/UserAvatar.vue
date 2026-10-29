@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { getInitials } from '@/shared/lib';
 
 interface Props {
@@ -10,9 +10,18 @@ interface Props {
 const props = defineProps<Props>()
 
 const userInitials = computed(() => getInitials(props.name ?? ''));
+
+const imageFailed = ref(false);
+watch(() => props.image, () => { imageFailed.value = false; });
+
+const avatarImage = computed(() => (props.image && !imageFailed.value ? props.image : undefined));
 </script>
 
 <template>
-    <Avatar v-if="image" :image="image" shape="circle" />
-    <Avatar v-else :label="userInitials" shape="circle" />
+    <Avatar
+        :image="avatarImage"
+        :label="avatarImage ? undefined : userInitials"
+        shape="circle"
+        @error="imageFailed = true"
+    />
 </template>

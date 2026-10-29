@@ -18,7 +18,7 @@ final class ListProjectMembersController extends WebController
     public function __invoke(ListProjectMembersRequest $request, int $id): Response
     {
         $project = $this->action->run($id);
-        $project->loadMissing('members');
+        $project->loadMissing('members.media');
 
         return Inertia::render('project-members', [
             'project' => fractal($project, new ProjectTransformer())

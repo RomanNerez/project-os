@@ -36,6 +36,7 @@ export interface ProjectMember {
     id: ProjectMemberID;
     name: string;
     email: string;
+    avatar_url: string | null;
     role: MemberRole;
 }
 

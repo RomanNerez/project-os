@@ -17,6 +17,7 @@ final class ProjectMemberTransformer extends ParentTransformer
             'id' => $item->id,
             'name' => $item->name,
             'email' => $item->email,
+            'avatar_url' => $item->getAvatarUrl(),
             'role' => $item->pivot->role,
         ];
     }

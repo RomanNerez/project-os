@@ -78,6 +78,7 @@ function openDelete(projectId: ProjectID): void {
                         :proejct-status="p.status"
                         :budget="p.budget"
                         :user-name="p.user.data.name"
+                        :user-avatar="p.user.data.avatar_url"
                         :members="p.members.data"
                         :progress="calculateProgress(p.task_status_counts)"
                         :can-edit="p.permissions.update"

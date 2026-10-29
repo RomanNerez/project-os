@@ -25,7 +25,7 @@ const isOpenDeleteMemberModal = computed(() => !!selectedMember.value);
             <Column header="Користувач">
                 <template #body="{ data }">
                     <div class="flex items-center gap-3">
-                        <UserAvatar :name="data.name" />
+                        <UserAvatar :name="data.name" :image="data.avatar_url" />
                         <span class="font-medium">{{ data.name }}</span>
                     </div>
                 </template>

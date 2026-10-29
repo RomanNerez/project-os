@@ -25,7 +25,7 @@ final class ListProjectsAction extends ParentAction
 
         return $this->listProjectsTask->run(
             userId: $user->id,
-            with: ['user', 'members'],
+            with: ['user.media', 'members.media'],
             withCount: [
                 'tasks',
                 'tasks as done_tasks_count' => function ($query) {

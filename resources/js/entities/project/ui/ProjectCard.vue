@@ -9,7 +9,7 @@ import { UserAvatar } from '@/shared/ui';
 export interface ProjectUser {
   id: number;
   name: string;
-  avatar?: string | null;
+  avatar_url?: string | null;
 }
 
 const props = withDefaults(defineProps<{
@@ -20,6 +20,7 @@ const props = withDefaults(defineProps<{
     proejctStatus: ProjectStatus;
     budget: string | number;
     userName: string;
+    userAvatar?: string | null;
     members: ProjectUser[];
     progress?: number;
     maxDisplayedMembers?: number;
@@ -91,7 +92,7 @@ const hiddenMembersCount = computed(() => Math.max(0, (props.members?.length ?? 
 
                 <div class="flex items-center justify-between gap-2 pt-3">
                     <div class="flex items-center gap-2 min-w-0">
-                        <UserAvatar :name="userName"/>
+                        <UserAvatar :name="userName" :image="userAvatar" />
                         <div class="flex flex-col min-w-0">
                             <span class="text-[10px] uppercase font-bold text-muted-color tracking-wider leading-none">Власник</span>
                             <span class="text-xs font-medium truncate">{{ userName }}</span>
@@ -103,6 +104,7 @@ const hiddenMembersCount = computed(() => Math.max(0, (props.members?.length ?? 
                                 v-for="member in visibleMembers"
                                 :key="member.id"
                                 :name="member.name"
+                                :image="member.avatar_url"
                                 v-tooltip.top="member.name"
                             />
                             <UserAvatar
