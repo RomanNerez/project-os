@@ -3,6 +3,8 @@ import { useCommentDelete, type CommentID } from '@/entities/comment';
 import { ConfirmModal } from '@/shared/ui';
 
 const props = defineProps<{
+    projectId: number;
+    taskId: number;
     commentId: CommentID;
 }>();
 
@@ -12,7 +14,7 @@ const emit = defineEmits(['onDone', 'onCancel']);
 const { isDeleting, destroy } = useCommentDelete();
 
 function remove() {
-    destroy(props.commentId, {
+    destroy(props.projectId, props.taskId, props.commentId, {
         onSuccess: () => emit('onDone')
     });
 }

@@ -3,7 +3,7 @@
 namespace App\Containers\AppSection\Media\Tests\Functional\WEB;
 
 use App\Containers\AppSection\Media\Tests\Functional\WebTestCase;
-use App\Containers\AppSection\Media\UI\WEB\Controllers\DeleteMediaController;
+use App\Containers\AppSection\Media\UI\WEB\Controllers\DeleteProjectTaskMediaController;
 use App\Containers\AppSection\Project\Enums\ProjectRole;
 use App\Containers\AppSection\Project\Enums\ProjectStatus;
 use App\Containers\AppSection\Project\Models\Project;
@@ -17,8 +17,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-#[CoversClass(DeleteMediaController::class)]
-final class DeleteMediaTest extends WebTestCase
+#[CoversClass(DeleteProjectTaskMediaController::class)]
+final class DeleteProjectTaskMediaTest extends WebTestCase
 {
     private User $user;
 
@@ -89,9 +89,24 @@ final class DeleteMediaTest extends WebTestCase
         $this->assertDatabaseHas('media', ['id' => $media->id]);
     }
 
-    private function deleteMedia(Media $media): TestResponse
+    public function testFileFromAnotherTaskIsNotFound(): void
     {
-        return $this->delete(action(DeleteMediaController::class, ['id' => $media->id]));
+        $media = $this->createMedia(creator: $this->user);
+        $otherTask = $this->createMedia(creator: $this->user)->model;
+        self::assertInstanceOf(Task::class, $otherTask);
+
+        $this->deleteMedia($media, $otherTask)->assertNotFound();
+
+        $this->assertDatabaseHas('media', ['id' => $media->id]);
+    }
+
+    private function deleteMedia(Media $media, ?Task $task = null): TestResponse
+    {
+        return $this->delete(action(DeleteProjectTaskMediaController::class, [
+            'project' => $this->project->id,
+            'task' => $task->id ?? $media->model_id,
+            'media' => $media->id,
+        ]));
     }
 
     private function createMedia(?User $creator = null): Media

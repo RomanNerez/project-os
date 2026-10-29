@@ -9,6 +9,7 @@
   import type { FileUploadSelectEvent, FileUploadUploaderEvent } from 'primevue/fileupload';
 
   interface Props {
+    projectId: number;
     taskId: TaskID;
   }
 
@@ -33,7 +34,7 @@
   };
 
   const onUpload = (event: FileUploadUploaderEvent) => {
-    updateTaskFiles(props.taskId, pendingFiles.value, {
+    updateTaskFiles(props.projectId, props.taskId, pendingFiles.value, {
       onSuccess: () => {
         pendingFiles.value = [];
         fu.value.clear();

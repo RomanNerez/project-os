@@ -1,6 +1,6 @@
 import type { CommentID } from "../model/types";
 
 export const commentRoutes = {
-    update: (id: CommentID) => `/comment/${id}`,
-    destroy: (id: CommentID) => `/comment/${id}`,
+    update: (projectId: number, taskId: number, id: CommentID) => `/projects/${projectId}/tasks/${taskId}/comments/${id}`,
+    destroy: (projectId: number, taskId: number, id: CommentID) => `/projects/${projectId}/tasks/${taskId}/comments/${id}`,
 };

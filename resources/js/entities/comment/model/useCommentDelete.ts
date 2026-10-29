@@ -6,8 +6,8 @@ import { commentRoutes } from "../api/commentRoutes";
 export function useCommentDelete() {
     const isDeleting = ref(false);
 
-    const destroy = (id: CommentID, options?: Partial<VisitOptions>) => {
-        router.delete(commentRoutes.destroy(id), {
+    const destroy = (projectId: number, taskId: number, id: CommentID, options?: Partial<VisitOptions>) => {
+        router.delete(commentRoutes.destroy(projectId, taskId, id), {
             preserveScroll: true,
             preserveState: true,
             ...options,

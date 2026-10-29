@@ -8,7 +8,7 @@ use App\Containers\AppSection\Project\Models\Project;
 use App\Containers\AppSection\Task\Enums\TaskStatus;
 use App\Containers\AppSection\Task\Models\Task;
 use App\Containers\AppSection\Task\Tests\Functional\WebTestCase;
-use App\Containers\AppSection\Task\UI\WEB\Controllers\UploadTaskFilesController;
+use App\Containers\AppSection\Task\UI\WEB\Controllers\UploadProjectTaskFilesController;
 use App\Containers\AppSection\User\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -16,8 +16,8 @@ use Illuminate\Testing\TestResponse;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 
-#[CoversClass(UploadTaskFilesController::class)]
-final class UploadTaskFilesTest extends WebTestCase
+#[CoversClass(UploadProjectTaskFilesController::class)]
+final class UploadProjectTaskFilesTest extends WebTestCase
 {
     private User $user;
 
@@ -86,10 +86,20 @@ final class UploadTaskFilesTest extends WebTestCase
         self::assertCount(0, $task->getMedia());
     }
 
-    private function upload(Task $task): TestResponse
+    public function testTaskFromAnotherProjectIsNotFound(): void
+    {
+        $task = $this->createTask($this->createProject($this->user));
+        $otherProject = $this->createProject($this->user);
+
+        $this->upload($task, $otherProject)->assertNotFound();
+
+        self::assertCount(0, $task->getMedia());
+    }
+
+    private function upload(Task $task, ?Project $project = null): TestResponse
     {
         return $this->post(
-            action(UploadTaskFilesController::class, ['id' => $task->id]),
+            action(UploadProjectTaskFilesController::class, ['project' => $project->id ?? $task->project_id, 'task' => $task->id]),
             ['files' => [UploadedFile::fake()->create('notes.pdf', 10, 'application/pdf')]],
         );
     }

@@ -2,16 +2,15 @@
 
 namespace App\Containers\AppSection\Media\UI\WEB\Requests;
 
-use App\Containers\AppSection\Media\Models\Media;
 use App\Ship\Parents\Requests\Request as ParentRequest;
 
-final class DeleteMediaRequest extends ParentRequest
+final class DeleteProjectTaskMediaRequest extends ParentRequest
 {
     protected array $decode = [];
 
     public function authorize(): bool
     {
-        return $this->user()->can('delete', Media::query()->findOrFail((int) $this->route('id')));
+        return $this->user()->can('delete', $this->route('media'));
     }
 
     public function rules(): array

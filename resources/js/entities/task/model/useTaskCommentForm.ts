@@ -6,8 +6,8 @@ import { taskRoutes } from "../api/taskRoutes";
 export function useTaskCommentForm() {
     const form = useForm({ body: '' });
 
-    const submit = (id: TaskID, options?: Partial<VisitOptions>) => {
-        form.post(taskRoutes.createTaskComment(id), {
+    const submit = (projectId: number, id: TaskID, options?: Partial<VisitOptions>) => {
+        form.post(taskRoutes.createTaskComment(projectId, id), {
             preserveScroll: true,
             preserveState: true,
             ...options,

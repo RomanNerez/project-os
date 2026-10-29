@@ -4,6 +4,8 @@ import type { MediaID } from '@/entities/media/model/types';
 import { ConfirmModal } from '@/shared/ui';
 
 const props = defineProps<{
+    projectId: number;
+    taskId: number;
     mediaId: MediaID;
     fileName: string;
 }>();
@@ -14,7 +16,7 @@ const emit = defineEmits(['onDone', 'onCancel']);
 const { isDeleting, destroy } = useMediaDelete();
 
 function remove() {
-    destroy(props.mediaId, {
+    destroy(props.projectId, props.taskId, props.mediaId, {
         onSuccess: () => emit('onDone')
     });
 }

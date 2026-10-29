@@ -2,20 +2,21 @@
 
 namespace App\Containers\AppSection\Comment\UI\WEB\Requests;
 
-use App\Containers\AppSection\Comment\Models\Comment;
 use App\Ship\Parents\Requests\Request as ParentRequest;
 
-final class DeleteCommentRequest extends ParentRequest
+final class UpdateProjectTaskCommentRequest extends ParentRequest
 {
     protected array $decode = [];
 
     public function authorize(): bool
     {
-        return $this->user()->can('delete', Comment::query()->findOrFail((int) $this->route('id')));
+        return $this->user()->can('update', $this->route('comment'));
     }
 
     public function rules(): array
     {
-        return [];
+        return [
+            'body' => ['required', 'string']
+        ];
     }
 }

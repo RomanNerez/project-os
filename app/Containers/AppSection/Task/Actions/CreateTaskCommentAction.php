@@ -5,7 +5,6 @@ namespace App\Containers\AppSection\Task\Actions;
 use App\Containers\AppSection\Comment\Models\Comment;
 use App\Containers\AppSection\Comment\Tasks\CreateCommentTask;
 use App\Containers\AppSection\Task\Models\Task;
-use App\Containers\AppSection\Task\UI\WEB\Requests\CreateTaskCommentRequest;
 use App\Ship\Parents\Actions\Action as ParentAction;
 
 final class CreateTaskCommentAction extends ParentAction
@@ -15,16 +14,18 @@ final class CreateTaskCommentAction extends ParentAction
     ) {}
 
     /**
-     * @param CreateTaskCommentRequest $request
+     * @param Task $task
+     * @param int $userId
+     * @param string $body
      * @return Comment
      */
-    public function run(CreateTaskCommentRequest $request): Comment
+    public function run(Task $task, int $userId, string $body): Comment
     {
         return $this->createCommentTask->run([
-            'user_id' => $request->user()->id,
+            'user_id' => $userId,
             'model_type' => Task::class,
-            'model_id' => $request->taskId,
-            'body' => $request->body,
+            'model_id' => $task->id,
+            'body' => $body,
         ]);
     }
 }

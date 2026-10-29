@@ -3,6 +3,8 @@ import type { CommentID } from '@/entities/comment';
 import { useCommentUpdate } from '@/entities/comment/model/useCommentUpdate';
 
 interface Props {
+    projectId: number;
+    taskId: number;
     commentId: CommentID;
     body: string;
 }
@@ -13,7 +15,7 @@ const emit = defineEmits(['onDone', 'onCancel']);
 const {form, update} = useCommentUpdate(props.body);
 
 const updateComment = () => {
-    update(props.commentId, {
+    update(props.projectId, props.taskId, props.commentId, {
         onSuccess: () => {
             emit('onDone')
         }

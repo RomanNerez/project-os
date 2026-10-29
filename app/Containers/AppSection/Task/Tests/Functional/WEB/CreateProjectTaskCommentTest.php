@@ -8,14 +8,14 @@ use App\Containers\AppSection\Project\Models\Project;
 use App\Containers\AppSection\Task\Enums\TaskStatus;
 use App\Containers\AppSection\Task\Models\Task;
 use App\Containers\AppSection\Task\Tests\Functional\WebTestCase;
-use App\Containers\AppSection\Task\UI\WEB\Controllers\CreateTaskCommentController;
+use App\Containers\AppSection\Task\UI\WEB\Controllers\CreateProjectTaskCommentController;
 use App\Containers\AppSection\User\Models\User;
 use Illuminate\Testing\TestResponse;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 
-#[CoversClass(CreateTaskCommentController::class)]
-final class CreateTaskCommentTest extends WebTestCase
+#[CoversClass(CreateProjectTaskCommentController::class)]
+final class CreateProjectTaskCommentTest extends WebTestCase
 {
     private User $user;
 
@@ -78,10 +78,20 @@ final class CreateTaskCommentTest extends WebTestCase
         $this->assertDatabaseMissing('comments', ['model_id' => $task->id]);
     }
 
-    private function comment(Task $task): TestResponse
+    public function testTaskFromAnotherProjectIsNotFound(): void
+    {
+        $task = $this->createTask($this->createProject($this->user));
+        $otherProject = $this->createProject($this->user);
+
+        $this->comment($task, $otherProject)->assertNotFound();
+
+        $this->assertDatabaseMissing('comments', ['model_id' => $task->id]);
+    }
+
+    private function comment(Task $task, ?Project $project = null): TestResponse
     {
         return $this->post(
-            action(CreateTaskCommentController::class, ['taskId' => $task->id]),
+            action(CreateProjectTaskCommentController::class, ['project' => $project->id ?? $task->project_id, 'task' => $task->id]),
             ['body' => 'Коментар'],
         );
     }

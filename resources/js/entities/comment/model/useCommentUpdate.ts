@@ -6,8 +6,8 @@ import type { CommentID } from "./types";
 export function useCommentUpdate(body: string = '') {
     const form = useForm({ body });
 
-    const update = (id: CommentID, options?: UseFormSubmitOptions) => {
-        form.patch(commentRoutes.update(id), options);
+    const update = (projectId: number, taskId: number, id: CommentID, options?: UseFormSubmitOptions) => {
+        form.patch(commentRoutes.update(projectId, taskId, id), options);
     }
 
     return { form, update };

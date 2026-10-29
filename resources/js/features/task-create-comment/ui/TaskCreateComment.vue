@@ -5,6 +5,7 @@ import { AuthAvatar } from '@/shared/ui'
 import { useTaskCommentForm, type TaskID } from '@/entities/task';
 
 interface Props {
+  projectId: number;
   taskId: TaskID;
 }
 
@@ -13,7 +14,7 @@ const props = defineProps<Props>();
 const { form, submit } = useTaskCommentForm()
 
 const addComment = () => {
-  submit(props.taskId, {
+  submit(props.projectId, props.taskId, {
     onSuccess: () => form.reset()
   })
 }

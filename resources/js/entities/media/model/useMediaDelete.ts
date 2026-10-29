@@ -7,8 +7,8 @@ import { ref } from "vue";
 export function useMediaDelete() {
     const isDeleting = ref(false);
 
-    const destroy = (id: MediaID, options?: Partial<VisitOptions>) => {
-        router.delete(mediaRoutes.destroy(id), {
+    const destroy = (projectId: number, taskId: number, id: MediaID, options?: Partial<VisitOptions>) => {
+        router.delete(mediaRoutes.destroy(projectId, taskId, id), {
             preserveScroll: true,
             preserveState: true,
             ...options,

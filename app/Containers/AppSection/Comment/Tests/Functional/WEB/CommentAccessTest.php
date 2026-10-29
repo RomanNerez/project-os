@@ -4,8 +4,8 @@ namespace App\Containers\AppSection\Comment\Tests\Functional\WEB;
 
 use App\Containers\AppSection\Comment\Models\Comment;
 use App\Containers\AppSection\Comment\Tests\Functional\WebTestCase;
-use App\Containers\AppSection\Comment\UI\WEB\Controllers\DeleteCommentController;
-use App\Containers\AppSection\Comment\UI\WEB\Controllers\UpdateCommentController;
+use App\Containers\AppSection\Comment\UI\WEB\Controllers\DeleteProjectTaskCommentController;
+use App\Containers\AppSection\Comment\UI\WEB\Controllers\UpdateProjectTaskCommentController;
 use App\Containers\AppSection\Project\Enums\ProjectRole;
 use App\Containers\AppSection\Project\Enums\ProjectStatus;
 use App\Containers\AppSection\Project\Models\Project;
@@ -16,8 +16,8 @@ use Illuminate\Testing\TestResponse;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 
-#[CoversClass(UpdateCommentController::class)]
-#[CoversClass(DeleteCommentController::class)]
+#[CoversClass(UpdateProjectTaskCommentController::class)]
+#[CoversClass(DeleteProjectTaskCommentController::class)]
 final class CommentAccessTest extends WebTestCase
 {
     private User $user;
@@ -116,30 +116,57 @@ final class CommentAccessTest extends WebTestCase
         $this->assertModelExists($comment);
     }
 
-    private function updateComment(Comment $comment): TestResponse
+    public function testCommentFromAnotherTaskIsNotFound(): void
     {
-        return $this->patch(action(UpdateCommentController::class, ['id' => $comment->id]), ['body' => 'Змінено']);
+        $comment = $this->createComment($this->user);
+        $otherTask = $this->createTask();
+
+        $this->updateComment($comment, $otherTask)->assertNotFound();
+        $this->deleteComment($comment, $otherTask)->assertNotFound();
+
+        $this->assertModelExists($comment);
+        self::assertSame('Коментар', $comment->refresh()->body);
     }
 
-    private function deleteComment(Comment $comment): TestResponse
+    private function updateComment(Comment $comment, ?Task $task = null): TestResponse
     {
-        return $this->delete(action(DeleteCommentController::class, ['id' => $comment->id]));
+        return $this->patch(action(UpdateProjectTaskCommentController::class, $this->routeParams($comment, $task)), ['body' => 'Змінено']);
+    }
+
+    private function deleteComment(Comment $comment, ?Task $task = null): TestResponse
+    {
+        return $this->delete(action(DeleteProjectTaskCommentController::class, $this->routeParams($comment, $task)));
+    }
+
+    /**
+     * @return array<string, int>
+     */
+    private function routeParams(Comment $comment, ?Task $task): array
+    {
+        return [
+            'project' => $this->project->id,
+            'task' => $task->id ?? $comment->model_id,
+            'comment' => $comment->id,
+        ];
     }
 
     private function createComment(User $author): Comment
     {
-        $task = Task::create([
+        return Comment::create([
+            'user_id' => $author->id,
+            'model_type' => Task::class,
+            'model_id' => $this->createTask()->id,
+            'body' => 'Коментар',
+        ]);
+    }
+
+    private function createTask(): Task
+    {
+        return Task::create([
             'user_id' => $this->project->user_id,
             'project_id' => $this->project->id,
             'title' => 'Задача',
             'status' => TaskStatus::TODO->value,
-        ]);
-
-        return Comment::create([
-            'user_id' => $author->id,
-            'model_type' => Task::class,
-            'model_id' => $task->id,
-            'body' => 'Коментар',
         ]);
     }
 }

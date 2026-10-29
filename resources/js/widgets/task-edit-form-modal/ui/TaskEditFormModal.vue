@@ -66,7 +66,7 @@ defineEmits(['onClose']);
 
                 <TaskDescriptionField :task="task" :disabled="!canEdit" />
 
-                <TaskUploadFiles v-if="task.permissions.upload_files" :task-id="task.id" />
+                <TaskUploadFiles v-if="task.permissions.upload_files" :project-id="task.project_id" :task-id="task.id" />
 
                 <div v-if="media.length > 0" >
                     <div class="grid grid-flow-col auto-cols-[120px] gap-2 overflow-x-auto w-full">
@@ -84,6 +84,8 @@ defineEmits(['onClose']);
 
                 <MediaDeleteModal
                     v-model:visible="isMediaModalVisible"
+                    :project-id="task.project_id"
+                    :task-id="task.id"
                     :media-id="selectedMedia?.id ?? 0"
                     :file-name="selectedMedia?.file_name ?? ''"
                     @on-done="selectedMedia = null"
@@ -105,7 +107,7 @@ defineEmits(['onClose']);
                         :pt="{ root: { class: '!px-0' } }"
                     >
                         <TabPanel value="tab1" >
-                            <TaskCreateComment v-if="task.permissions.comment" :task-id="task.id" />
+                            <TaskCreateComment v-if="task.permissions.comment" :project-id="task.project_id" :task-id="task.id" />
                             <div class="space-y-4">
                                 <CommentCard
                                     v-for="comment in comments" 
@@ -121,6 +123,8 @@ defineEmits(['onClose']);
                                 >
                                     <template #edit-container>
                                         <CommentEditForm
+                                            :project-id="task.project_id"
+                                            :task-id="task.id"
                                             :comment-id="comment.id"
                                             :body="comment.body"
                                             @on-done="selectedEditCommentId = null"
@@ -131,6 +135,8 @@ defineEmits(['onClose']);
                             </div>
                             <CommentDeleteModal
                                 v-model:visible="isDeleteCommentModalVisible"
+                                :project-id="task.project_id"
+                                :task-id="task.id"
                                 :comment-id="selectedDeleteCommentId ?? 0"
                                 @on-done="selectedDeleteCommentId = null"
                                 @on-cancel="selectedDeleteCommentId = null"
