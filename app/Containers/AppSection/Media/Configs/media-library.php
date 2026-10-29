@@ -4,7 +4,9 @@ use App\Containers\AppSection\Finance\Models\Finance;
 use App\Containers\AppSection\Media\Models\Media;
 use App\Containers\AppSection\Media\Support\PathGenerators\FinanceMediaPathGenerator;
 use App\Containers\AppSection\Media\Support\PathGenerators\TaskMediaPathGenerator;
+use App\Containers\AppSection\Media\Support\PathGenerators\UserMediaPathGenerator;
 use App\Containers\AppSection\Task\Models\Task;
+use App\Containers\AppSection\User\Models\User;
 use Spatie\ImageOptimizer\Optimizers\Avifenc;
 use Spatie\ImageOptimizer\Optimizers\Cwebp;
 use Spatie\ImageOptimizer\Optimizers\Gifsicle;
@@ -158,6 +160,7 @@ return [
     'custom_path_generators' => [
         Task::class => TaskMediaPathGenerator::class,
         Finance::class => FinanceMediaPathGenerator::class,
+        User::class => UserMediaPathGenerator::class,
     ],
 
     /*

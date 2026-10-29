@@ -48,6 +48,21 @@ final class UpdateProfileTest extends WebTestCase
         self::assertNotNull($this->user->getAvatarUrl());
     }
 
+    public function testReplacesAvatarWithSameFileNameKeepingOneFile(): void
+    {
+        $this->update(['avatar' => UploadedFile::fake()->image('avatar.png')])->assertSessionHasNoErrors();
+        $this->update(['avatar' => UploadedFile::fake()->image('avatar.png')])->assertSessionHasNoErrors();
+
+        $media = $this->user->refresh()->getMedia(User::AVATAR_COLLECTION);
+        $directory = 'users/' . $this->user->id . '/avatar';
+
+        self::assertCount(1, $media);
+        self::assertEqualsCanonicalizing(
+            [$directory . '/avatar.png', $directory . '/conversions/avatar-thumb.jpg'],
+            Storage::disk('public')->allFiles($directory),
+        );
+    }
+
     public function testRemovesAvatar(): void
     {
         $this->update(['avatar' => UploadedFile::fake()->image('a.png')]);

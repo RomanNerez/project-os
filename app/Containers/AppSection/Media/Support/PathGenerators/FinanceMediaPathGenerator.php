@@ -3,9 +3,11 @@
 namespace App\Containers\AppSection\Media\Support\PathGenerators;
 
 use App\Containers\AppSection\Finance\Models\Finance;
+use App\Containers\AppSection\Media\Enums\MediaDirectory;
+use App\Ship\Parents\PathGenerators\MediaPathGenerator as ParentMediaPathGenerator;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-final class FinanceMediaPathGenerator extends ProjectMediaPathGenerator
+final class FinanceMediaPathGenerator extends ParentMediaPathGenerator
 {
     /**
      * @param Media $media
@@ -19,6 +21,6 @@ final class FinanceMediaPathGenerator extends ProjectMediaPathGenerator
             throw new \UnexpectedValueException('Media ' . $this->segment($media->getKey()) . ' does not belong to a finance record.');
         }
 
-        return 'projects/' . $this->segment($finance->getAttribute('project_id')) . '/finance/' . $this->segment($finance->getKey());
+        return $this->join(MediaDirectory::PROJECTS, $finance->getAttribute('project_id'), MediaDirectory::FINANCE, $finance->getKey());
     }
 }

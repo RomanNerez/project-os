@@ -2,10 +2,12 @@
 
 namespace App\Containers\AppSection\Media\Support\PathGenerators;
 
+use App\Containers\AppSection\Media\Enums\MediaDirectory;
 use App\Containers\AppSection\Task\Models\Task;
+use App\Ship\Parents\PathGenerators\MediaPathGenerator as ParentMediaPathGenerator;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-final class TaskMediaPathGenerator extends ProjectMediaPathGenerator
+final class TaskMediaPathGenerator extends ParentMediaPathGenerator
 {
     /**
      * @param Media $media
@@ -19,6 +21,6 @@ final class TaskMediaPathGenerator extends ProjectMediaPathGenerator
             throw new \UnexpectedValueException('Media ' . $this->segment($media->getKey()) . ' does not belong to a task.');
         }
 
-        return 'projects/' . $this->segment($task->getAttribute('project_id')) . '/tasks/' . $this->segment($task->getKey());
+        return $this->join(MediaDirectory::PROJECTS, $task->getAttribute('project_id'), MediaDirectory::TASKS, $task->getKey());
     }
 }

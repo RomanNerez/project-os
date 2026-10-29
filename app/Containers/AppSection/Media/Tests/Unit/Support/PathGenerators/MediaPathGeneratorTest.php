@@ -5,18 +5,20 @@ namespace App\Containers\AppSection\Media\Tests\Unit\Support\PathGenerators;
 use App\Containers\AppSection\Finance\Models\Finance;
 use App\Containers\AppSection\Media\Models\Media;
 use App\Containers\AppSection\Media\Support\PathGenerators\FinanceMediaPathGenerator;
-use App\Containers\AppSection\Media\Support\PathGenerators\ProjectMediaPathGenerator;
 use App\Containers\AppSection\Media\Support\PathGenerators\TaskMediaPathGenerator;
+use App\Containers\AppSection\Media\Support\PathGenerators\UserMediaPathGenerator;
 use App\Containers\AppSection\Media\Tests\UnitTestCase;
 use App\Containers\AppSection\Task\Models\Task;
 use App\Containers\AppSection\User\Models\User;
+use App\Ship\Parents\PathGenerators\MediaPathGenerator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use Spatie\MediaLibrary\Support\PathGenerator\PathGeneratorFactory;
 
-#[CoversClass(ProjectMediaPathGenerator::class)]
+#[CoversClass(MediaPathGenerator::class)]
 #[CoversClass(TaskMediaPathGenerator::class)]
 #[CoversClass(FinanceMediaPathGenerator::class)]
-final class ProjectMediaPathGeneratorTest extends UnitTestCase
+#[CoversClass(UserMediaPathGenerator::class)]
+final class MediaPathGeneratorTest extends UnitTestCase
 {
     public function testTaskMediaPaths(): void
     {
@@ -40,6 +42,17 @@ final class ProjectMediaPathGeneratorTest extends UnitTestCase
         self::assertSame('projects/12/finance/7/301/', $generator->getPath($media));
     }
 
+    public function testUserAvatarPaths(): void
+    {
+        $media = $this->makeMedia(new User(), modelId: 45, collectionName: User::AVATAR_COLLECTION);
+
+        $generator = PathGeneratorFactory::create($media);
+
+        self::assertInstanceOf(UserMediaPathGenerator::class, $generator);
+        self::assertSame('users/45/avatar/', $generator->getPath($media));
+        self::assertSame('users/45/avatar/conversions/', $generator->getPathForConversions($media));
+    }
+
     public function testPrependsConfiguredPrefix(): void
     {
         config(['media-library.prefix' => 'uploads']);
@@ -57,11 +70,11 @@ final class ProjectMediaPathGeneratorTest extends UnitTestCase
         (new TaskMediaPathGenerator())->getPath($media);
     }
 
-    private function makeMedia(Task|Finance|User $model, int $modelId): Media
+    private function makeMedia(Task|Finance|User $model, int $modelId, string $collectionName = 'default'): Media
     {
         $model->id = $modelId;
 
-        $media = new Media(['model_type' => $model->getMorphClass(), 'model_id' => $modelId]);
+        $media = new Media(['model_type' => $model->getMorphClass(), 'model_id' => $modelId, 'collection_name' => $collectionName]);
         $media->id = 301;
         $media->setRelation('model', $model);
 

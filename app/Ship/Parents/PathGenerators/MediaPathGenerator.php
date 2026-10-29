@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Containers\AppSection\Media\Support\PathGenerators;
+namespace App\Ship\Parents\PathGenerators;
 
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Spatie\MediaLibrary\Support\PathGenerator\PathGenerator;
 
 /**
- * Stores media under the owning project: {prefix}/projects/{project_id}/.../{media_id}/.
+ * Stores media under a directory derived from the owning model: {prefix}/{directory}/{media_id}/.
  * The media id segment keeps files with the same name (and their conversions) apart.
  */
-abstract class ProjectMediaPathGenerator implements PathGenerator
+abstract class MediaPathGenerator implements PathGenerator
 {
     /**
      * @param Media $media
@@ -73,14 +73,36 @@ abstract class ProjectMediaPathGenerator implements PathGenerator
     }
 
     /**
+     * Joins path segments with "/"; backed enums contribute their value, anything else must be an id.
+     *
+     * @param mixed ...$segments
+     * @return string
+     */
+    protected function join(mixed ...$segments): string
+    {
+        return implode('/', array_map(
+            fn (mixed $segment): string => $segment instanceof \BackedEnum ? (string) $segment->value : $this->segment($segment),
+            $segments,
+        ));
+    }
+
+    /**
      * @param Media $media
      * @return string
      */
-    private function getBasePath(Media $media): string
+    protected function getBasePath(Media $media): string
+    {
+        return $this->withPrefix($this->join($this->getDirectory($media), $media->getKey()));
+    }
+
+    /**
+     * @param string $path
+     * @return string
+     */
+    protected function withPrefix(string $path): string
     {
         $prefix = config('media-library.prefix', '');
-        $path = $this->getDirectory($media) . '/' . $this->segment($media->getKey());
 
-        return \is_string($prefix) && '' !== $prefix ? $prefix . '/' . $path : $path;
+        return \is_string($prefix) && '' !== $prefix ? $this->join($prefix, $path) : $path;
     }
 }

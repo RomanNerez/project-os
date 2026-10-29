@@ -16,7 +16,9 @@ final class UpdateProfileAction extends ParentAction
     }
 
     /**
-     * A new avatar replaces the old one (single-file collection); remove_avatar only applies without an upload.
+     * A new avatar replaces the old one; remove_avatar only applies without an upload.
+     * The old avatar is cleared before the upload: avatars share one directory and spatie removes
+     * files by name, so deleting the old media afterwards would also delete a new file with the same name.
      */
     public function run(UpdateProfileRequest $request, int $userId): User
     {
@@ -29,6 +31,7 @@ final class UpdateProfileAction extends ParentAction
             ]);
 
             if ($request->hasFile('avatar')) {
+                $user->clearMediaCollection(User::AVATAR_COLLECTION);
                 $user->addMediaFromRequest('avatar')->toMediaCollection(User::AVATAR_COLLECTION);
             } elseif ($request->boolean('remove_avatar')) {
                 $user->clearMediaCollection(User::AVATAR_COLLECTION);
