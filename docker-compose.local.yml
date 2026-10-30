@@ -1,13 +1,14 @@
 services:
-    mailhog:
-      restart: always
-      build: ./docker-compose/mailhog
-      ports:
-        - '1025:1025'
-        - '8025:8025'
-      networks:
-        - sas
+  mailhog:
+    restart: always
+    build: docker-compose/mailhog
+    image: project-os-mailhog
+    ports:
+      - '1025:1025'
+      - '8025:8025'
+    networks:
+      - project-os
 
 networks:
-    sas:
-        driver: bridge
+  project-os:
+    driver: bridge

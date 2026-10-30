@@ -85,17 +85,6 @@ services:
     networks:
       - project-os
 
-  mailhog:
-    restart: always
-    build: docker-compose/mailhog
-    image: project-os-mailhog
-    ports:
-      - '1025:1025'
-      - '8025:8025'
-    networks:
-      - project-os
-
-
 networks:
   project-os:
     driver: bridge
