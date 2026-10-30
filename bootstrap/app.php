@@ -26,6 +26,8 @@ return Application::configure(basePath: $basePath)
         then: static fn () => $apiato->registerApiRoutes(),
     )
     ->withMiddleware(function (Middleware $middleware) {
+        $middleware->trustProxies(at: '*');
+
         $middleware->use([
             ValidateAppId::class,
         ]);
