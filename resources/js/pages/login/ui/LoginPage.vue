@@ -25,7 +25,13 @@ const page = usePage();
                 <LogoutButton />
             </div>
 
-            <LoginForm v-else />
+            <template v-else>
+                <Message v-if="page.flash.status" severity="success" :closable="false" class="mb-6">
+                    {{ page.flash.status }}
+                </Message>
+
+                <LoginForm />
+            </template>
         </div>
     </div>
 </template>

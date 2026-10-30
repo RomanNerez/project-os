@@ -4,7 +4,6 @@ namespace App\Containers\AppSection\Authentication\Tests\Unit\Actions\PasswordRe
 
 use App\Containers\AppSection\Authentication\Actions\PasswordReset\ForgotPasswordAction;
 use App\Containers\AppSection\Authentication\Tests\UnitTestCase;
-use App\Containers\AppSection\Authentication\UI\API\Requests\PasswordReset\ForgotPasswordRequest;
 use App\Containers\AppSection\User\Models\User;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Validation\ValidationException;
@@ -16,12 +15,7 @@ final class ForgotPasswordActionTest extends UnitTestCase
     public function testCanSendResetLink(): void
     {
         $user = User::factory()->createOne();
-        $data = [
-            'email' => $user->email,
-        ];
-
-        $request = new ForgotPasswordRequest($data);
-        $result = app(ForgotPasswordAction::class)->run($request);
+        $result = app(ForgotPasswordAction::class)->run($user->email);
 
         $this->assertSame(__(Password::RESET_LINK_SENT), $result);
     }
@@ -33,12 +27,7 @@ final class ForgotPasswordActionTest extends UnitTestCase
                 'email' => __(Password::INVALID_USER)]),
         );
 
-        $data = [
-            'email' => 'non@existing.user',
-        ];
-        $request = new ForgotPasswordRequest($data);
-
-        app(ForgotPasswordAction::class)->run($request);
+        app(ForgotPasswordAction::class)->run('non@existing.user');
     }
 
     public function testItPreventsTooManyRequests(): void
@@ -48,13 +37,10 @@ final class ForgotPasswordActionTest extends UnitTestCase
                 'throttle' => __(Password::RESET_THROTTLED)]),
         );
 
-        $data = [
-            'email' => User::factory()->createOne()->email,
-        ];
-        $request = new ForgotPasswordRequest($data);
+        $email = User::factory()->createOne()->email;
         $action = app(ForgotPasswordAction::class);
 
-        $action->run($request);
-        $action->run($request);
+        $action->run($email);
+        $action->run($email);
     }
 }

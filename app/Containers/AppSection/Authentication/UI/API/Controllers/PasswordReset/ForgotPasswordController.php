@@ -12,7 +12,7 @@ final class ForgotPasswordController extends ApiController
 {
     public function __invoke(ForgotPasswordRequest $request, ForgotPasswordAction $action): JsonResponse
     {
-        $status = $action->run($request);
+        $status = $action->run($request->string('email')->toString());
 
         return Response::accepted($status);
     }

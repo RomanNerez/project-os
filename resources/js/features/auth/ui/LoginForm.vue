@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useForm } from '@inertiajs/vue3';
+import { Link, useForm } from '@inertiajs/vue3';
 
 const form = useForm({
     email: '',
@@ -64,6 +64,14 @@ function submit(): void {
             icon="pi pi-sign-in"
             :loading="form.processing"
             fluid
+        />
+
+        <Button
+            :as="Link"
+            variant="link"
+            fluid
+            href="/forgot-password"
+            label="Забули пароль?"
         />
     </form>
 </template>

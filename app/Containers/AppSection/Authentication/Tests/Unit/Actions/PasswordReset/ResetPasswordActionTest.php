@@ -4,7 +4,6 @@ namespace App\Containers\AppSection\Authentication\Tests\Unit\Actions\PasswordRe
 
 use App\Containers\AppSection\Authentication\Actions\PasswordReset\ResetPasswordAction;
 use App\Containers\AppSection\Authentication\Tests\UnitTestCase;
-use App\Containers\AppSection\Authentication\UI\API\Requests\PasswordReset\ResetPasswordRequest;
 use App\Containers\AppSection\User\Models\User;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Support\Facades\Event;
@@ -52,9 +51,7 @@ final class ResetPasswordActionTest extends UnitTestCase
             'password' => 'new pass',
             'password_confirmation' => 'new pass',
         ];
-        $request = new ResetPasswordRequest($data);
-
-        $result = app(ResetPasswordAction::class)->run($request);
+        $result = app(ResetPasswordAction::class)->run($data);
 
         $this->assertSame(__(Password::PASSWORD_RESET), $result);
         $this->assertTrue(Hash::check($data['password'], $user->fresh()->password));
@@ -74,8 +71,8 @@ final class ResetPasswordActionTest extends UnitTestCase
                 $key => __($message)]),
         );
 
-        $request = new ResetPasswordRequest($data);
+        $data = array_map(static fn (mixed $value): mixed => $value instanceof \Closure ? $value() : $value, $data);
 
-        app(ResetPasswordAction::class)->run($request);
+        app(ResetPasswordAction::class)->run($data);
     }
 }

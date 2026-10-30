@@ -2,20 +2,15 @@
 
 namespace App\Containers\AppSection\Authentication\Actions\PasswordReset;
 
-use App\Containers\AppSection\Authentication\UI\API\Requests\PasswordReset\ForgotPasswordRequest;
 use App\Ship\Parents\Actions\Action as ParentAction;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Validation\ValidationException;
 
 final class ForgotPasswordAction extends ParentAction
 {
-    public function run(ForgotPasswordRequest $request): string
+    public function run(string $email): string
     {
-        $sanitizedData = $request->sanitize([
-            'email',
-        ]);
-
-        $status = Password::sendResetLink($sanitizedData);
+        $status = Password::sendResetLink(['email' => $email]);
 
         return match ($status) {
             Password::RESET_LINK_SENT => __($status),

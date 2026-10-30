@@ -12,7 +12,12 @@ final class ResetPasswordController extends ApiController
 {
     public function __invoke(ResetPasswordRequest $request, ResetPasswordAction $action): JsonResponse
     {
-        $status = $action->run($request);
+        $status = $action->run($request->sanitize([
+            'token',
+            'email',
+            'password',
+            'password_confirmation',
+        ]));
 
         return Response::ok($status);
     }

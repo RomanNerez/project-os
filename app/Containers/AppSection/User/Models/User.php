@@ -2,6 +2,7 @@
 
 namespace App\Containers\AppSection\User\Models;
 
+use App\Containers\AppSection\Authentication\Notifications\ResetPassword;
 use App\Containers\AppSection\Authorization\Enums\Role as RoleEnum;
 use App\Containers\AppSection\User\Data\Collections\UserCollection;
 use App\Containers\AppSection\User\Enums\Gender;
@@ -50,6 +51,11 @@ final class User extends ParentUserModel implements HasMedia
     public function findForPassport(string $username): self|null
     {
         return self::orWhereRaw('lower(email) = lower(?)', [$username])->first();
+    }
+
+    public function sendPasswordResetNotification(#[\SensitiveParameter] $token): void
+    {
+        $this->notify(new ResetPassword($token));
     }
 
     public function isSuperAdmin(): bool

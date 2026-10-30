@@ -2,7 +2,6 @@
 
 namespace App\Containers\AppSection\Authentication\Actions\PasswordReset;
 
-use App\Containers\AppSection\Authentication\UI\API\Requests\PasswordReset\ResetPasswordRequest;
 use App\Containers\AppSection\User\Models\User;
 use App\Ship\Parents\Actions\Action as ParentAction;
 use Illuminate\Auth\Events\PasswordReset;
@@ -12,17 +11,13 @@ use Illuminate\Validation\ValidationException;
 
 final class ResetPasswordAction extends ParentAction
 {
-    public function run(ResetPasswordRequest $request): string
+    /**
+     * @param array<mixed> $data token, email, password, password_confirmation
+     */
+    public function run(array $data): string
     {
-        $sanitizedData = $request->sanitize([
-            'token',
-            'email',
-            'password',
-            'password_confirmation',
-        ]);
-
         $status = Password::reset(
-            $sanitizedData,
+            $data,
             static function (User $user, string $password) {
                 $user->forceFill([
                     'password' => $password,

@@ -56,6 +56,7 @@ restart-supervisor:
 deploy:
 	git pull
 	$(DOCKER_EXEC) composer install
+    $(DOCKER_EXEC) npm run build
 	$(MAKE) migrate
 	$(MAKE) optimize
 	$(MAKE) restart-supervisor
