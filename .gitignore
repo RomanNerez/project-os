@@ -3,6 +3,7 @@
 !.env.ci
 !.env.example
 !.env.testing.example
+!.env.db.example
 storage/logs/laravel.log
 /public/uploads/
 /laradock*/
