@@ -28,9 +28,8 @@ return Application::configure(basePath: $basePath)
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->trustProxies(at: '*');
 
-        $middleware->use([
-            ValidateAppId::class,
-        ]);
+        $middleware->append(ValidateAppId::class);
+
         $middleware->api(append: [
             ValidateJsonContent::class,
             ProcessETag::class,
