@@ -55,8 +55,9 @@ restart-supervisor:
 
 deploy:
 	git pull
-	$(DOCKER_EXEC) composer install
-    $(DOCKER_EXEC) npm run build
+	$(DOCKER_EXEC) composer install --no-dev --optimize-autoloader --no-interaction
+	$(DOCKER_EXEC) npm ci
+	$(DOCKER_EXEC) npm run build
 	$(MAKE) migrate
 	$(MAKE) optimize
 	$(MAKE) restart-supervisor
