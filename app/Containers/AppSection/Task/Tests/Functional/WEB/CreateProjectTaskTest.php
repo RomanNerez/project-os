@@ -73,7 +73,7 @@ final class CreateProjectTaskTest extends WebTestCase
     public function testMemberCreatesTaskInProject(): void
     {
         $project = $this->createProject(User::factory()->createOne());
-        $project->members()->attach($this->user->id, ['role' => ProjectRole::MEMBER->value]);
+        $project->members()->attach($this->user->id, ['role' => ProjectRole::EXECUTOR->value]);
 
         $this->post(action(CreateProjectTaskController::class, $project), [
             'title' => 'Задача учасника',
@@ -85,7 +85,7 @@ final class CreateProjectTaskTest extends WebTestCase
     public function testViewerCannotCreateTaskInProject(): void
     {
         $project = $this->createProject(User::factory()->createOne());
-        $project->members()->attach($this->user->id, ['role' => ProjectRole::VIEWER->value]);
+        $project->members()->attach($this->user->id, ['role' => ProjectRole::CLIENT->value]);
 
         $this->post(action(CreateProjectTaskController::class, $project), [
             'title' => 'Задача спостерігача',

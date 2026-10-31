@@ -113,7 +113,7 @@ final class UpdateProjectTaskTest extends WebTestCase
     {
         $project = $this->createProject($this->user);
         $member = User::factory()->createOne();
-        $project->members()->attach($member->id, ['role' => ProjectRole::VIEWER->value]);
+        $project->members()->attach($member->id, ['role' => ProjectRole::CLIENT->value]);
         $task = $this->createTask($project);
 
         $this->patchTask($project, $task, ['assignee_id' => $member->id])->assertRedirect();
@@ -156,7 +156,7 @@ final class UpdateProjectTaskTest extends WebTestCase
     {
         $project = $this->createProject($this->user);
         $member = User::factory()->createOne();
-        $project->members()->attach($member->id, ['role' => ProjectRole::VIEWER->value]);
+        $project->members()->attach($member->id, ['role' => ProjectRole::CLIENT->value]);
         $task = $this->createTask($project);
 
         $this->patchTask($project, $task, [
@@ -205,8 +205,8 @@ final class UpdateProjectTaskTest extends WebTestCase
     {
         return [
             'admin' => [ProjectRole::ADMIN, true],
-            'member' => [ProjectRole::MEMBER, true],
-            'viewer' => [ProjectRole::VIEWER, false],
+            'executor' => [ProjectRole::EXECUTOR, true],
+            'client' => [ProjectRole::CLIENT, false],
         ];
     }
 

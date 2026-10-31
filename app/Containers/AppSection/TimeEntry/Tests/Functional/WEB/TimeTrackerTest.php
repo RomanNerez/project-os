@@ -193,7 +193,7 @@ final class TimeTrackerTest extends WebTestCase
         $user = User::factory()->createOne();
         $this->actingAs($user, 'web');
         $project = $this->createProject(User::factory()->createOne());
-        $project->members()->attach($user->id, ['role' => ProjectRole::MEMBER->value]);
+        $project->members()->attach($user->id, ['role' => ProjectRole::EXECUTOR->value]);
 
         $this->post($this->startUrl($project), [
             'task_id' => $this->createTask($project, 'Спільна задача')->id,

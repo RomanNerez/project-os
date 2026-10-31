@@ -52,7 +52,7 @@ final class CreateFinanceTest extends WebTestCase
     public function testCreatesUsdRecordInSharedProject(): void
     {
         $project = $this->createProject(User::factory()->createOne());
-        $project->members()->attach($this->user->id, ['role' => ProjectRole::MEMBER->value]);
+        $project->members()->attach($this->user->id, ['role' => ProjectRole::EXECUTOR->value]);
         $tasks = [$this->createTask($project)->id, $this->createTask($project)->id];
 
         $this->store($project, [

@@ -53,8 +53,8 @@ final class ListProjectMembersTest extends WebTestCase
         $withAvatar = User::factory()->createOne();
         $withAvatar->addMedia(UploadedFile::fake()->image('avatar.png'))->toMediaCollection(User::AVATAR_COLLECTION);
         $withoutAvatar = User::factory()->createOne();
-        $project->members()->attach($withAvatar->id, ['role' => ProjectRole::MEMBER->value]);
-        $project->members()->attach($withoutAvatar->id, ['role' => ProjectRole::MEMBER->value]);
+        $project->members()->attach($withAvatar->id, ['role' => ProjectRole::EXECUTOR->value]);
+        $project->members()->attach($withoutAvatar->id, ['role' => ProjectRole::EXECUTOR->value]);
 
         $this->listMembers($project->id)
             ->assertOk()
@@ -74,8 +74,8 @@ final class ListProjectMembersTest extends WebTestCase
     {
         return [
             'admin' => [ProjectRole::ADMIN],
-            'member' => [ProjectRole::MEMBER],
-            'viewer' => [ProjectRole::VIEWER],
+            'executor' => [ProjectRole::EXECUTOR],
+            'client' => [ProjectRole::CLIENT],
         ];
     }
 

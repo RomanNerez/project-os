@@ -162,36 +162,36 @@ final class ListProjectsTest extends WebTestCase
     public function testExcludesProjectsWhereUserHasExcludedRole(): void
     {
         $this->createProject(['title' => 'Власний проєкт'], $this->user);
-        $this->createMemberProject(['title' => 'Учасник'], ProjectRole::MEMBER);
-        $this->createMemberProject(['title' => 'Адмін'], ProjectRole::ADMIN);
-        $this->createMemberProject(['title' => 'Спостерігач'], ProjectRole::VIEWER);
+        $this->createMemberProject(['title' => 'Виконавець'], ProjectRole::EXECUTOR);
+        $this->createMemberProject(['title' => 'Адміністратор'], ProjectRole::ADMIN);
+        $this->createMemberProject(['title' => 'Клієнт'], ProjectRole::CLIENT);
 
         self::assertSame(
-            ['Адмін', 'Власний проєкт', 'Учасник'],
-            $this->listedTitles(['exclude_roles' => [ProjectRole::VIEWER->value]]),
+            ['Адміністратор', 'Виконавець', 'Власний проєкт'],
+            $this->listedTitles(['exclude_roles' => [ProjectRole::CLIENT->value]]),
         );
     }
 
     public function testExcludedRoleDoesNotHideOwnProjectWithOtherViewers(): void
     {
         $project = $this->createProject(['title' => 'Власний проєкт'], $this->user);
-        $project->members()->attach(User::factory()->createOne()->id, ['role' => ProjectRole::VIEWER->value]);
+        $project->members()->attach(User::factory()->createOne()->id, ['role' => ProjectRole::CLIENT->value]);
 
         self::assertSame(
             ['Власний проєкт'],
-            $this->listedTitles(['exclude_roles' => [ProjectRole::VIEWER->value]]),
+            $this->listedTitles(['exclude_roles' => [ProjectRole::CLIENT->value]]),
         );
     }
 
     public function testExcludedRoleCombinesWithTitleFilter(): void
     {
-        $this->createMemberProject(['title' => 'Сайт клініки'], ProjectRole::MEMBER);
-        $this->createMemberProject(['title' => 'Сайт школи'], ProjectRole::VIEWER);
-        $this->createMemberProject(['title' => 'Застосунок'], ProjectRole::MEMBER);
+        $this->createMemberProject(['title' => 'Сайт клініки'], ProjectRole::EXECUTOR);
+        $this->createMemberProject(['title' => 'Сайт школи'], ProjectRole::CLIENT);
+        $this->createMemberProject(['title' => 'Застосунок'], ProjectRole::EXECUTOR);
 
         self::assertSame(
             ['Сайт клініки'],
-            $this->listedTitles([...$this->filters('сайт'), 'exclude_roles' => [ProjectRole::VIEWER->value]]),
+            $this->listedTitles([...$this->filters('сайт'), 'exclude_roles' => [ProjectRole::CLIENT->value]]),
         );
     }
 
@@ -204,9 +204,9 @@ final class ListProjectsTest extends WebTestCase
     public function testJsonRequestReturnsPlainProjectList(): void
     {
         $this->createProject(['title' => 'Власний проєкт'], $this->user);
-        $this->createMemberProject(['title' => 'Спостерігач'], ProjectRole::VIEWER);
+        $this->createMemberProject(['title' => 'Клієнт'], ProjectRole::CLIENT);
 
-        $this->getJson(action(ListProjectsController::class, ['exclude_roles' => [ProjectRole::VIEWER->value]]))
+        $this->getJson(action(ListProjectsController::class, ['exclude_roles' => [ProjectRole::CLIENT->value]]))
             ->assertOk()
             ->assertHeaderMissing('X-Inertia')
             ->assertJsonCount(1, 'data')
@@ -269,7 +269,7 @@ final class ListProjectsTest extends WebTestCase
     /**
      * @param array<string, mixed> $attributes
      */
-    private function createMemberProject(array $attributes, ProjectRole $role = ProjectRole::MEMBER): Project
+    private function createMemberProject(array $attributes, ProjectRole $role = ProjectRole::EXECUTOR): Project
     {
         $project = $this->createProject($attributes, User::factory()->createOne());
         $project->members()->attach($this->user->id, ['role' => $role->value]);

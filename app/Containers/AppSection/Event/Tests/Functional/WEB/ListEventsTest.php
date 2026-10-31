@@ -26,7 +26,7 @@ final class ListEventsTest extends WebTestCase
     {
         $stranger = User::factory()->createOne();
         $project = $this->createProject($stranger);
-        $project->members()->attach($this->user->id, ['role' => ProjectRole::VIEWER->value]);
+        $project->members()->attach($this->user->id, ['role' => ProjectRole::CLIENT->value]);
 
         $this->createEvent($this->user, ['title' => 'Своя']);
         $this->createEvent($stranger, ['title' => 'Запрошення'])->participants()->attach($this->user->id);

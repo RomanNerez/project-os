@@ -37,7 +37,7 @@ final class ManageEventTest extends WebTestCase
     {
         $project = $this->createProject($this->user);
         [$old, $new] = [User::factory()->createOne(), User::factory()->createOne()];
-        $project->members()->attach([$old->id, $new->id], ['role' => ProjectRole::MEMBER->value]);
+        $project->members()->attach([$old->id, $new->id], ['role' => ProjectRole::EXECUTOR->value]);
         $event = $this->createEvent($this->user, ['project_id' => $project->id]);
         $event->participants()->attach($old->id, ['status' => 'accepted']);
 
@@ -92,7 +92,7 @@ final class ManageEventTest extends WebTestCase
     {
         $project = $this->createProject($this->user);
         $member = User::factory()->createOne();
-        $project->members()->attach($member->id, ['role' => ProjectRole::MEMBER->value]);
+        $project->members()->attach($member->id, ['role' => ProjectRole::EXECUTOR->value]);
         $event = $this->createEvent($member, ['project_id' => $project->id]);
 
         $this->delete(action(DeleteEventController::class, ['event' => $event->id]))->assertRedirect();
@@ -124,7 +124,7 @@ final class ManageEventTest extends WebTestCase
     {
         $owner = User::factory()->createOne(['first_name' => 'Олена']);
         $project = $this->createProject($owner);
-        $project->members()->attach($this->user->id, ['role' => ProjectRole::MEMBER->value]);
+        $project->members()->attach($this->user->id, ['role' => ProjectRole::EXECUTOR->value]);
 
         $ids = array_column(
             $this->getJson(action(ListEventParticipantCandidatesController::class, ['project_id' => $project->id]))->assertOk()->json('data'),

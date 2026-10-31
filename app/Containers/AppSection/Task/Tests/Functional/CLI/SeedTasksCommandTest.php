@@ -16,7 +16,7 @@ final class SeedTasksCommandTest extends FunctionalTestCase
     public function testCreatesTasksOnlyInGivenProject(): void
     {
         $project = Project::factory()->createOne();
-        $project->members()->attach(User::factory()->createOne()->id, ['role' => ProjectRole::MEMBER->value]);
+        $project->members()->attach(User::factory()->createOne()->id, ['role' => ProjectRole::EXECUTOR->value]);
         $otherProject = Project::factory()->createOne();
 
         $this->artisan('seed:tasks', ['project' => $project->id, '--count' => 30])->assertSuccessful();

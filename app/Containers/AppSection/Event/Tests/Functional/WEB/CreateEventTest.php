@@ -56,7 +56,7 @@ final class CreateEventTest extends WebTestCase
     {
         $project = $this->createProject($this->user);
         $member = User::factory()->createOne();
-        $project->members()->attach($member->id, ['role' => ProjectRole::MEMBER->value]);
+        $project->members()->attach($member->id, ['role' => ProjectRole::EXECUTOR->value]);
 
         $this->store(['project_id' => $project->id, 'participant_ids' => [$member->id, $this->user->id]])
             ->assertSessionHasNoErrors();
@@ -73,7 +73,7 @@ final class CreateEventTest extends WebTestCase
     public function testInvitesColleaguesToPersonalEvent(): void
     {
         $colleague = User::factory()->createOne();
-        $this->createProject($colleague)->members()->attach($this->user->id, ['role' => ProjectRole::VIEWER->value]);
+        $this->createProject($colleague)->members()->attach($this->user->id, ['role' => ProjectRole::CLIENT->value]);
 
         $this->store(['participant_ids' => [$colleague->id]])->assertSessionHasNoErrors();
 

@@ -58,8 +58,8 @@ final class DeleteProjectTaskMediaTest extends WebTestCase
     {
         return [
             'admin' => [ProjectRole::ADMIN, true],
-            'member' => [ProjectRole::MEMBER, true],
-            'viewer' => [ProjectRole::VIEWER, false],
+            'executor' => [ProjectRole::EXECUTOR, true],
+            'client' => [ProjectRole::CLIENT, false],
         ];
     }
 

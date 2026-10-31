@@ -44,8 +44,8 @@ final class DeleteProjectTaskTest extends WebTestCase
     {
         return [
             'admin' => [ProjectRole::ADMIN, true],
-            'member' => [ProjectRole::MEMBER, false],
-            'viewer' => [ProjectRole::VIEWER, false],
+            'executor' => [ProjectRole::EXECUTOR, false],
+            'client' => [ProjectRole::CLIENT, false],
         ];
     }
 

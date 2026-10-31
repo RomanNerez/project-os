@@ -29,6 +29,6 @@ abstract class BasePolicy extends ParentPolicy
     protected function canManageTasks(User $user, Project $project): bool
     {
         return $project->isOwnedBy($user)
-            || \in_array($project->memberRole($user), [ProjectRole::ADMIN, ProjectRole::MEMBER], true);
+            || \in_array($project->memberRole($user), [ProjectRole::ADMIN, ProjectRole::EXECUTOR], true);
     }
 }

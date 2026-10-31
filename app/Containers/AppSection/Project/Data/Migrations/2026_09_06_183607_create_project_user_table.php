@@ -18,7 +18,7 @@ return new class() extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table
                 ->enum('role', array_values(ProjectRole::cases()))
-                ->default(ProjectRole::MEMBER->value);
+                ->default(ProjectRole::EXECUTOR->value);
             $table->timestamps();
 
             $table->unique(['project_id', 'user_id']);

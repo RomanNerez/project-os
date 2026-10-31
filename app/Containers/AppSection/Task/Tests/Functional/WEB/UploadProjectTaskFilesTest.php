@@ -60,8 +60,8 @@ final class UploadProjectTaskFilesTest extends WebTestCase
     {
         return [
             'admin' => [ProjectRole::ADMIN],
-            'member' => [ProjectRole::MEMBER],
-            'viewer' => [ProjectRole::VIEWER],
+            'executor' => [ProjectRole::EXECUTOR],
+            'client' => [ProjectRole::CLIENT],
         ];
     }
 

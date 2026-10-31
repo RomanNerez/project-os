@@ -13,7 +13,7 @@ const visible = defineModel<boolean>('visible', { required: true });
 const roleOptions = Object.values(MEMEBER_ROLE)
     .map((role) => ({ label: getRoleLabel(role), value: role }));
 
-const form = useForm({ email: '', role: MEMEBER_ROLE.MEMBER });
+const form = useForm({ email: '', role: MEMEBER_ROLE.EXECUTOR });
 
 const submit = () => {
     form.post(route('projects.memeber', { id: props.projectId }), {

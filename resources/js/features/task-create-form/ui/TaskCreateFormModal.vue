@@ -62,7 +62,7 @@ function cancel() {
             v-model="form.project_id"
             class="mt-3"
             label="Проєкт"
-            :exclude-roles="[MEMEBER_ROLE.VIEWER]"
+            :exclude-roles="[MEMEBER_ROLE.CLIENT]"
             :message="form.errors.project_id"
         />
         <template #footer>

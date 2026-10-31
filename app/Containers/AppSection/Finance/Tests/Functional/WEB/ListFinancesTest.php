@@ -22,14 +22,14 @@ final class ListFinancesTest extends WebTestCase
         $this->actingAs($user, 'web');
 
         $sharedProject = $this->createProject($stranger, 'Спільний');
-        $sharedProject->members()->attach($user->id, ['role' => ProjectRole::VIEWER->value]);
+        $sharedProject->members()->attach($user->id, ['role' => ProjectRole::CLIENT->value]);
 
         $this->createFinance($stranger, $sharedProject, 'Видимий', [
             $this->createTask($sharedProject)->id,
             $this->createTask($sharedProject)->id,
         ]);
         $otherProject = $this->createProject($stranger, 'Інший');
-        $otherProject->members()->attach($user->id, ['role' => ProjectRole::VIEWER->value]);
+        $otherProject->members()->attach($user->id, ['role' => ProjectRole::CLIENT->value]);
         $this->createFinance($stranger, $otherProject, 'Іншого проєкту');
 
         $this->get(action(ListFinancesController::class, ['id' => $sharedProject->id]))

@@ -92,8 +92,8 @@ final class ListProjectTasksTest extends WebTestCase
 
     public function testViewerCannotCreateTasks(): void
     {
-        $project = $this->createProject('Спостерігач', User::factory()->createOne());
-        $project->members()->attach($this->user->id, ['role' => ProjectRole::VIEWER->value]);
+        $project = $this->createProject('Клієнт', User::factory()->createOne());
+        $project->members()->attach($this->user->id, ['role' => ProjectRole::CLIENT->value]);
 
         $this->get(action(ListProjectTasksController::class, ['id' => $project->id]))
             ->assertOk()

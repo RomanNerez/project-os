@@ -52,7 +52,7 @@ final class ProjectRepository extends ParentRepository
                 ->where('user_id', $userId)
                 ->orWhereHas('members', fn($query) => $query
                     ->where('users.id', $userId)
-                    ->whereIn('project_user.role', [ProjectRole::ADMIN->value, ProjectRole::MEMBER->value]))
+                    ->whereIn('project_user.role', [ProjectRole::ADMIN->value, ProjectRole::EXECUTOR->value]))
         ));
 
         return $this;

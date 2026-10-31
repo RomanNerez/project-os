@@ -102,16 +102,17 @@ export const PROJECT_OWNER_ROLE = 'owner';
 
 export const MEMEBER_ROLE = {
     ADMIN: 'admin',
-    MEMBER: 'member',
-    VIEWER: 'viewer',
+    EXECUTOR: 'executor',
+    CLIENT: 'client',
 } as const;
 
 export type MemberRole = typeof MEMEBER_ROLE[keyof typeof MEMEBER_ROLE];
 
 export const getRoleLabel = (role?: string) => {
     switch (role) {
-        case MEMEBER_ROLE.ADMIN: return 'Адмін';
-        case MEMEBER_ROLE.VIEWER: return 'Спостерігач';
+        case MEMEBER_ROLE.ADMIN: return 'Адміністратор';
+        case MEMEBER_ROLE.EXECUTOR: return 'Виконавець';
+        case MEMEBER_ROLE.CLIENT: return 'Клієнт';
         case PROJECT_OWNER_ROLE: return 'Власник';
         default: return 'Учасник';
     }
@@ -120,7 +121,7 @@ export const getRoleLabel = (role?: string) => {
 export const getRoleSeverity = (role?: string) => {
     switch (role) {
       case MEMEBER_ROLE.ADMIN: return 'warn';
-      case MEMEBER_ROLE.VIEWER: return 'info';
+      case MEMEBER_ROLE.CLIENT: return 'info';
       case PROJECT_OWNER_ROLE: return 'contrast';
       default: return 'secondary';
     }
