@@ -2,6 +2,7 @@
 
 namespace App\Containers\AppSection\User\Tests\Unit\Policies;
 
+use App\Containers\AppSection\Authorization\Enums\Permission;
 use App\Containers\AppSection\User\Models\User;
 use App\Containers\AppSection\User\Policies\UserPolicy;
 use App\Containers\AppSection\User\Tests\UnitTestCase;
@@ -25,11 +26,13 @@ final class UserPolicyTest extends UnitTestCase
         $this->assertTrue($policy->show($user, $user->id));
     }
 
-    public function testCanIndexUsersOnlyIfAdmin(): void
+    public function testCanIndexUsersOnlyWithViewTeamPermission(): void
     {
         $policy = app(UserPolicy::class);
 
-        $this->assertFalse($policy->index());
+        $this->assertFalse($policy->index(User::factory()->createOne()));
+        $this->assertFalse($policy->index(User::factory()->withWorkspacePermissions(Permission::PROJECTS_CREATE)->createOne()));
+        $this->assertTrue($policy->index(User::factory()->withWorkspacePermissions(Permission::TEAM_VIEW)->createOne()));
     }
 
     public function testCanUpdateUserAsOwner(): void

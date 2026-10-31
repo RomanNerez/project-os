@@ -41,6 +41,7 @@ final class WhereGuardCriteriaTest extends UnitTestCase
     #[DataProvider('authGuardDataProvider')]
     public function testWorksWithPermissionModel(string $guard): void
     {
+        $seededCount = Permission::where('guard_name', $guard)->count();
         Permission::factory()->withGuard($guard)->count(2)->create();
         Permission::factory()->withGuard(fake()->word())->createOne();
         $repository = app(PermissionRepository::class);
@@ -49,7 +50,7 @@ final class WhereGuardCriteriaTest extends UnitTestCase
 
         $result = $repository->all();
 
-        $this->assertCount(2, $result);
+        $this->assertCount($seededCount + 2, $result);
         $this->assertEquals($guard, $result->first()->guard_name);
         $this->assertEquals($guard, $result->last()->guard_name);
     }

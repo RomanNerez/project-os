@@ -2,6 +2,7 @@
 
 namespace App\Containers\AppSection\User\Policies;
 
+use App\Containers\AppSection\Authorization\Enums\Permission;
 use App\Containers\AppSection\User\Data\Repositories\UserRepository;
 use App\Containers\AppSection\User\Models\User;
 use App\Ship\Parents\Policies\Policy as ParentPolicy;
@@ -34,9 +35,9 @@ final class UserPolicy extends ParentPolicy
         return $user->is($entity);
     }
 
-    public function index(): bool
+    public function index(User $user): bool
     {
-        return false;
+        return $user->checkPermissionTo(Permission::TEAM_VIEW->value, Permission::GUARD);
     }
 
     public function create(): bool

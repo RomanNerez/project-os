@@ -1,7 +1,17 @@
 <script setup lang="ts">
-import { watch } from 'vue';
+import { computed, watch } from 'vue';
+import { roleLabel, type WorkspaceRole } from '@/entities/role';
 import { useCreateUserForm } from '@/entities/user';
-import { FormPassword, FormText } from '@/shared/ui';
+import { FormPassword, FormSelect, FormText } from '@/shared/ui';
+
+const props = withDefaults(defineProps<{
+    /** Workspace roles to pick from; the field is hidden when empty. */
+    roles?: WorkspaceRole[];
+}>(), {
+    roles: () => [],
+});
+
+const roleOptions = computed(() => props.roles.map((role) => ({ label: roleLabel(role), value: role.id })));
 
 const emit = defineEmits(['onDone', 'onCancel']);
 
@@ -70,6 +80,19 @@ function cancel(): void {
                 name="password_confirmation"
                 label="Підтвердження пароля"
                 :message="form.errors.password_confirmation"
+            />
+
+            <FormSelect
+                v-if="roleOptions.length"
+                v-model="form.role_id"
+                name="role_id"
+                label="Роль"
+                placeholder="Без ролі"
+                :options="roleOptions"
+                option-label="label"
+                option-value="value"
+                show-clear
+                :message="form.errors.role_id"
             />
 
             <button type="submit" class="hidden" />

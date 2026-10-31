@@ -1,5 +1,6 @@
 import { eventRoutes } from '@/entities/event';
 import { projectRoutes } from '@/entities/project';
+import { roleRoutes } from '@/entities/role';
 import { userRoutes, type User } from '@/entities/user';
 
 export type WorkspaceTabKey = 'overview' | 'projects' | 'calendar' | 'team' | 'analytics' | 'settings';
@@ -21,5 +22,5 @@ export const WORKSPACE_TABS: WorkspaceTab[] = [
     { key: 'calendar', label: 'Календар', icon: 'pi pi-calendar', href: eventRoutes.index() },
     { key: 'team', label: 'Команда', icon: 'pi pi-users', href: userRoutes.index(), permission: 'manage_users' },
     // { key: 'analytics', label: 'Аналітика', icon: 'pi pi-chart-bar' },
-    // { key: 'settings', label: 'Налаштування', icon: 'pi pi-cog' },
+    { key: 'settings', label: 'Налаштування', icon: 'pi pi-cog', href: roleRoutes.index(), permission: 'manage_roles' },
 ];

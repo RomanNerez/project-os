@@ -9,7 +9,14 @@ export interface User {
     avatar_url: string | null;
     /** Only on the shared `auth.user` (HandleInertiaRequests). */
     permissions?: {
+        /** Sees the team section (super admin or the `team.view` permission). */
         manage_users: boolean;
+        /** Creates and invites users. */
+        create_users: boolean;
+        /** Super admin or the `projects.create` permission. */
+        create_projects: boolean;
+        /** Manages workspace roles in the settings section. */
+        manage_roles: boolean;
     };
     /** Only on the shared `auth.user` (HandleInertiaRequests). */
     unread_notifications_count?: number;
@@ -52,6 +59,8 @@ export interface UserDraft {
     email: string;
     password: string;
     password_confirmation: string;
+    /** Workspace role (hashed id). */
+    role_id: string | null;
 }
 
 export function emptyUserDraft(): UserDraft {
@@ -61,5 +70,6 @@ export function emptyUserDraft(): UserDraft {
         email: '',
         password: '',
         password_confirmation: '',
+        role_id: null,
     };
 }

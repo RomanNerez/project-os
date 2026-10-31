@@ -2,6 +2,7 @@
 
 namespace App\Containers\AppSection\User\Tests\Functional\WEB;
 
+use App\Containers\AppSection\Authorization\Tasks\SaveWorkspaceRoleTask;
 use App\Containers\AppSection\User\Models\User;
 use App\Containers\AppSection\User\Tests\Functional\WebTestCase;
 use App\Containers\AppSection\User\UI\WEB\Controllers\CreateUserController;
@@ -22,6 +23,16 @@ final class CreateUserTest extends WebTestCase
         self::assertSame('Taras Shevchenko', $user->name);
         self::assertNotNull($user->email_verified_at);
         self::assertCount(0, $user->roles);
+    }
+
+    public function testAdminCreatesUserWithWorkspaceRole(): void
+    {
+        $role = app(SaveWorkspaceRoleTask::class)->run(['display_name' => 'Менеджер', 'permissions' => []]);
+        $this->actingAs(User::factory()->superAdmin()->createOne(), 'web');
+
+        $this->store(['role_id' => $role->getHashedKey()])->assertRedirect()->assertSessionHasNoErrors();
+
+        self::assertSame([$role->id], User::where('email', 'taras@example.com')->sole()->roles->pluck('id')->all());
     }
 
     public function testRejectsDuplicateEmail(): void

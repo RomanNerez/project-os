@@ -2,66 +2,46 @@
 
 namespace App\Containers\AppSection\Project\Policies;
 
+use App\Containers\AppSection\Authorization\Enums\Permission;
 use App\Containers\AppSection\Project\Models\Project;
 use App\Containers\AppSection\User\Models\User;
 
 final class ProjectPolicy extends BasePolicy
 {
     /**
-     * @param User $user
-     * @param Project $project
-     * @return bool
+     * Workspace-level: granted by a workspace role with the "projects.create" permission.
      */
+    public function create(User $user): bool
+    {
+        return $user->isSuperAdmin()
+            || $user->checkPermissionTo(Permission::PROJECTS_CREATE->value, Permission::GUARD);
+    }
+
     public function view(User $user, Project $project): bool
     {
         return $project->hasParticipant($user);
     }
 
-    /**
-     * @param User $user
-     * @param Project $project
-     * @return bool
-     */
     public function update(User $user, Project $project): bool
     {
         return $this->isOwnerOrAdmin($user, $project);
     }
 
-    /**
-     * @param User $user
-     * @param Project $project
-     * @return bool
-     */
     public function delete(User $user, Project $project): bool
     {
         return $project->isOwnedBy($user);
     }
 
-    /**
-     * @param User $user
-     * @param Project $project
-     * @return bool
-     */
     public function createTask(User $user, Project $project): bool
     {
         return $this->canManageTasks($user, $project);
     }
 
-    /**
-     * @param User $user
-     * @param Project $project
-     * @return bool
-     */
     public function updateTask(User $user, Project $project): bool
     {
         return $this->canManageTasks($user, $project);
     }
 
-    /**
-     * @param User $user
-     * @param Project $project
-     * @return bool
-     */
     public function deleteTask(User $user, Project $project): bool
     {
         return $this->isOwnerOrAdmin($user, $project);

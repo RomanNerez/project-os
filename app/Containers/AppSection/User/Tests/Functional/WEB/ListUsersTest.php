@@ -2,6 +2,7 @@
 
 namespace App\Containers\AppSection\User\Tests\Functional\WEB;
 
+use App\Containers\AppSection\Authorization\Enums\Permission;
 use App\Containers\AppSection\Invitation\Tasks\CreateInvitationTask;
 use App\Containers\AppSection\User\Models\User;
 use App\Containers\AppSection\User\Tests\Functional\WebTestCase;
@@ -24,6 +25,26 @@ final class ListUsersTest extends WebTestCase
             ->assertForbidden();
     }
 
+    public function testUserWithViewTeamPermissionSeesUsersButCannotManageThem(): void
+    {
+        $this->actingAs(User::factory()->withWorkspacePermissions(Permission::TEAM_VIEW)->createOne(), 'web')
+            ->get('/users')
+            ->assertOk()
+            ->assertInertia(static fn (AssertableInertia $page) => $page
+                ->component('users')
+                ->where('roles', null)
+                ->where('auth.user.permissions.manage_users', true)
+                ->where('auth.user.permissions.create_users', false)
+                ->where('auth.user.permissions.manage_roles', false));
+    }
+
+    public function testUserWithOtherPermissionsIsForbidden(): void
+    {
+        $this->actingAs(User::factory()->withWorkspacePermissions(Permission::PROJECTS_CREATE)->createOne(), 'web')
+            ->get('/users')
+            ->assertForbidden();
+    }
+
     public function testAdminSeesUsersWithRolesSortedByName(): void
     {
         // The seeded "Super Admin" sorts after both users below.
@@ -41,6 +62,7 @@ final class ListUsersTest extends WebTestCase
                 ->where('users.data.0.roles.data.0.name', 'admin')
                 ->where('users.data.1.name', 'Bohdan User')
                 ->has('users.data.1.roles.data', 0)
+                ->has('roles.data', 0)
                 ->where('auth.user.permissions.manage_users', true));
     }
 

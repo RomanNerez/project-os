@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { Head, router } from '@inertiajs/vue3';
+import { Head, router, usePage } from '@inertiajs/vue3';
 import type { DataTablePageEvent } from 'primevue/datatable';
 import { WorkspaceLayout } from '@/widgets/workspace-layout';
+import { roleLabel, useAssignUserRole, type RoleID, type WorkspaceRole } from '@/entities/role';
 import { userRoutes, useResendInvitation, type UserInvitation, type UserListItem } from '@/entities/user';
 import { UserCreateFormModal } from '@/features/user-create-form';
 import { UserInviteFormModal } from '@/features/user-invite-form';
@@ -13,7 +14,20 @@ import { UserAvatar } from '@/shared/ui';
 const props = defineProps<{
     users: PaginatedServerData<UserListItem[]>;
     invitations: ServerData<UserInvitation[]>;
+    /** Workspace roles; only for users who can assign them. */
+    roles: ServerData<WorkspaceRole[]> | null;
 }>();
+
+const page = usePage();
+const canCreateUsers = computed(() => !!page.props.auth.user?.permissions?.create_users);
+
+const workspaceRoles = computed(() => props.roles?.data ?? []);
+const roleOptions = computed(() => workspaceRoles.value.map((role) => ({ label: roleLabel(role), value: role.id })));
+const { assign, assigningUserId } = useAssignUserRole();
+
+function changeRole(userId: number, roleId: RoleID | null): void {
+    assign(userId, roleId);
+}
 
 const isFormOpen = ref(false);
 const isInviteOpen = ref(false);
@@ -25,8 +39,12 @@ const rows = computed(() => props.users.data.map((user) => {
     // spatie keeps a copy of each role per guard (web, api), so the same role arrives twice.
     const roles = [...new Map(user.roles.data.map((role) => [role.name, role.display_name ?? role.name])).values()];
 
+    const roleNames = user.roles.data.map((role) => role.name);
+
     return {
         id: user.id,
+        isAdmin: roleNames.includes('admin'),
+        workspaceRoleId: workspaceRoles.value.find((role) => roleNames.includes(role.name))?.id ?? null,
         name: user.name,
         email: user.email,
         avatarUrl: user.avatar_url,
@@ -83,7 +101,7 @@ function closeInvite(): void {
         active="team"
         description="Користувачі робочого простору та їхні ролі"
     >
-        <template #actions>
+        <template v-if="canCreateUsers" #actions>
             <Button label="Запросити" icon="pi pi-envelope" outlined @click="isInviteOpen = true" />
             <Button label="Новий користувач" icon="pi pi-plus" @click="isFormOpen = true" />
         </template>
@@ -171,7 +189,21 @@ function closeInvite(): void {
                 <Column field="email" header="Email" />
                 <Column header="Роль">
                     <template #body="{ data }">
-                        <div class="flex flex-wrap gap-1">
+                        <Select
+                            v-if="roles && !data.isAdmin"
+                            :model-value="data.workspaceRoleId"
+                            :options="roleOptions"
+                            option-label="label"
+                            option-value="value"
+                            placeholder="Без ролі"
+                            show-clear
+                            size="small"
+                            class="w-48"
+                            :loading="assigningUserId === data.id"
+                            :disabled="assigningUserId !== null"
+                            @update:model-value="changeRole(data.id, $event ?? null)"
+                        />
+                        <div v-else class="flex flex-wrap gap-1">
                             <Tag v-for="role in data.roles" :key="role" :value="role" severity="secondary" />
                         </div>
                     </template>
@@ -182,6 +214,7 @@ function closeInvite(): void {
 
         <UserCreateFormModal
             v-model:visible="isFormOpen"
+            :roles="workspaceRoles"
             @on-done="closeForm"
             @on-cancel="closeForm"
         />

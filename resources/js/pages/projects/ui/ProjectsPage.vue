@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { Head, InfiniteScroll } from '@inertiajs/vue3';
+import { Head, InfiniteScroll, usePage } from '@inertiajs/vue3';
 import { ProjectCard, type ProjectID, type ProjectIncludes, type ProjectMember, type TaskStatusCounts } from '@/entities/project';
 import { ProjectFormModal } from '@/features/project-form';
 import { ProjectDeleteModal } from '@/features/project-delete';
@@ -17,6 +17,9 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+
+const page = usePage();
+const canCreate = computed(() => !!page.props.auth.user?.permissions?.create_projects);
 
 const hasActiveFilters = useActiveProjectFilters();
 const isEditModalOpen = ref(false);
@@ -56,7 +59,7 @@ function openDelete(projectId: ProjectID): void {
         active="projects"
         description="Керуйте проєктами робочого простору"
     >
-        <template #actions>
+        <template v-if="canCreate" #actions>
             <Button label="Новий проєкт" icon="pi pi-plus" @click="openCreate" />
         </template>
 
@@ -100,6 +103,7 @@ function openDelete(projectId: ProjectID): void {
                 v-else-if="!projects.data.length"
                 icon-class="pi-folder-open"
                 decription="Проєктів поки немає"
+                :show-action="canCreate"
                 button-label="Створити перший проєкт"
                 @on-handler="openCreate"
             />
