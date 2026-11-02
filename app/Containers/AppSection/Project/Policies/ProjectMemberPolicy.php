@@ -23,6 +23,21 @@ final class ProjectMemberPolicy extends BasePolicy
      * @param User $member
      * @return bool
      */
+    public function updateMember(User $user, Project $project, User $member): bool
+    {
+        if ($project->isOwnedBy($member)) {
+            return false;
+        }
+
+        return $this->isOwnerOrAdmin($user, $project);
+    }
+
+    /**
+     * @param User $user
+     * @param Project $project
+     * @param User $member
+     * @return bool
+     */
     public function deleteMember(User $user, Project $project, User $member): bool
     {
         if ($project->isOwnedBy($member)) {

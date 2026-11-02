@@ -24,7 +24,10 @@ final class AddProjectMemberAction extends ParentAction
         if (empty($user)) return;
 
         $project->members()->syncWithoutDetaching([
-            $user->id => ['role' => $request->role]
+            $user->id => [
+                'role' => $request->role,
+                'hourly_rate' => $request->hourly_rate,
+            ]
         ]);
     }
 }

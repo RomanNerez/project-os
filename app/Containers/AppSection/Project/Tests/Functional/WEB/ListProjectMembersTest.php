@@ -67,6 +67,50 @@ final class ListProjectMembersTest extends WebTestCase
             });
     }
 
+    public function testOwnerSeesMemberHourlyRate(): void
+    {
+        $project = $this->createProject($this->user);
+        $withRate = User::factory()->createOne();
+        $withoutRate = User::factory()->createOne();
+        $project->members()->attach($withRate->id, ['role' => ProjectRole::EXECUTOR->value, 'hourly_rate' => 25.5]);
+        $project->members()->attach($withoutRate->id, ['role' => ProjectRole::CLIENT->value]);
+
+        $this->listMembers($project->id)
+            ->assertOk()
+            ->assertInertia(function ($page) use ($withRate, $withoutRate): void {
+                $members = collect($page->toArray()['props']['project']['data']['members']['data'])->keyBy('id');
+
+                self::assertSame(25.5, $members[$withRate->id]['hourly_rate']);
+                self::assertArrayHasKey('hourly_rate', $members[$withoutRate->id]);
+                self::assertNull($members[$withoutRate->id]['hourly_rate']);
+            });
+    }
+
+    /**
+     * @return array<string, array{ProjectRole}>
+     */
+    public static function nonManagingRoles(): array
+    {
+        return [
+            'executor' => [ProjectRole::EXECUTOR],
+            'client' => [ProjectRole::CLIENT],
+        ];
+    }
+
+    #[DataProvider('nonManagingRoles')]
+    public function testNonManagingMemberDoesNotSeeHourlyRate(ProjectRole $role): void
+    {
+        $project = $this->createProject(User::factory()->createOne());
+        $project->members()->attach($this->user->id, ['role' => $role->value, 'hourly_rate' => 40]);
+
+        $this->listMembers($project->id)
+            ->assertOk()
+            ->assertInertia(
+                fn ($page) => $page->has('project.data.members.data', 1)
+                    ->missing('project.data.members.data.0.hourly_rate'),
+            );
+    }
+
     /**
      * @return array<string, array{ProjectRole}>
      */

@@ -24,6 +24,7 @@ class AddProjectMemberRequest extends ParentRequest
         return [
             'email' => ['required', 'email'],
             'role' => ['required', new Enum(ProjectRole::class)],
+            'hourly_rate' => ['nullable', 'numeric', 'min:0', 'max:99999999.99'],
         ];
     }
 }

@@ -66,7 +66,7 @@ final class Project extends ParentModel
         return $this
             ->belongsToMany(User::class)
             ->using(ProjectUser::class)
-            ->withPivot(['role'])
+            ->withPivot(['role', 'hourly_rate'])
             ->withTimestamps();
     }
 

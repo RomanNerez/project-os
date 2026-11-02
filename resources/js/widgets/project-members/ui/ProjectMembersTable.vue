@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { ProjectDeleteMemberModal } from '@/features/project-delete-member';
+import { ProjectEditMemberModal } from '@/features/project-edit-member';
 import { getRoleLabel, getRoleSeverity } from '@/entities/project';
 import type { ProjectID, ProjectMember } from '@/entities/project';
 import { UserAvatar } from '@/shared/ui';
@@ -15,6 +16,18 @@ const props = withDefaults(defineProps<Props>(), { canManage: false });
 
 const selectedMember = ref<ProjectMember | null>(null);
 const isOpenDeleteMemberModal = computed(() => !!selectedMember.value);
+
+const editingMember = ref<ProjectMember | null>(null);
+const isOpenEditMemberModal = computed({
+    get: () => !!editingMember.value,
+    set: (open) => {
+        if (!open) editingMember.value = null;
+    },
+});
+
+const rateFormatter = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+const formatHourlyRate = (rate?: number | null) =>
+    rate === null || rate === undefined ? '—' : `${rateFormatter.format(rate)}/год`;
 </script>
 
 <template>
@@ -36,8 +49,22 @@ const isOpenDeleteMemberModal = computed(() => !!selectedMember.value);
                     <Tag :value="getRoleLabel(data.role)" :severity="getRoleSeverity(data.role)" />
                 </template>
             </Column>
-            <Column v-if="props.canManage" header="Дії" class="w-px text-right">
+            <Column v-if="props.canManage" header="Ставка">
                 <template #body="{ data }">
+                    {{ formatHourlyRate(data.hourly_rate) }}
+                </template>
+            </Column>
+            <Column v-if="props.canManage" header="Дії" class="w-px whitespace-nowrap text-right">
+                <template #body="{ data }">
+                    <Button
+                        icon="pi pi-pencil"
+                        severity="secondary"
+                        text
+                        rounded
+                        size="small"
+                        aria-label="Редагувати"
+                        @click="editingMember = data"
+                    />
                     <Button
                         icon="pi pi-trash"
                         severity="danger"
@@ -50,6 +77,14 @@ const isOpenDeleteMemberModal = computed(() => !!selectedMember.value);
                 </template>
             </Column>
         </DataTable>
+
+        <ProjectEditMemberModal
+            v-model:visible="isOpenEditMemberModal"
+            :project-id="projectId"
+            :member="editingMember"
+            @on-cancel="editingMember = null"
+            @on-done="editingMember = null"
+        />
 
         <ProjectDeleteMemberModal
             v-model:visible="isOpenDeleteMemberModal"

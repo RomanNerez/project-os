@@ -3,6 +3,7 @@ export { default as ProjectSelect } from './ui/ProjectSelect.vue';
 export { projectRoutes } from './api/projectRoutes';
 export { useProjectForm } from './model/useProjectForm';
 export { useProjectMemberDelete } from './model/useProjectMemberDelete';
+export { useProjectMemberUpdate } from './model/useProjectMemberUpdate';
 export { useProjectOptions } from './model/useProjectOptions';
 export {
     PROJECT_STATUS,

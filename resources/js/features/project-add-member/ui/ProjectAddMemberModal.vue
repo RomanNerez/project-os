@@ -2,7 +2,7 @@
 import { useForm } from '@inertiajs/vue3';
 import { getRoleLabel, MEMEBER_ROLE } from '@/entities/project';
 import type { ProjectID } from '@/entities/project';
-import { FormSelect, FormText } from '@/shared/ui';
+import { FormNumber, FormSelect, FormText } from '@/shared/ui';
 
 const props = defineProps<{
     projectId: ProjectID;
@@ -13,7 +13,11 @@ const visible = defineModel<boolean>('visible', { required: true });
 const roleOptions = Object.values(MEMEBER_ROLE)
     .map((role) => ({ label: getRoleLabel(role), value: role }));
 
-const form = useForm({ email: '', role: MEMEBER_ROLE.EXECUTOR });
+const form = useForm({
+    email: '',
+    role: MEMEBER_ROLE.EXECUTOR,
+    hourly_rate: null as number | null,
+});
 
 const submit = () => {
     form.post(route('projects.memeber', { id: props.projectId }), {
@@ -59,6 +63,18 @@ const close = () => {
                     class="w-full"
                 />
             </div>
+
+            <FormNumber
+                v-model="form.hourly_rate"
+                label="Ставка за годину"
+                label-for="member-hourly-rate"
+                placeholder="Не вказано"
+                :min="0"
+                mode="currency"
+                currency="USD"
+                locale="en-US"
+                :message="form.errors.hourly_rate"
+            />
 
             <div class="flex justify-end gap-2">
                 <Button label="Скасувати" severity="secondary" text @click="visible = false" />

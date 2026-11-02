@@ -62,7 +62,9 @@ final class ProjectTransformer extends ParentTransformer
      */
     public function includeMembers(Project $item)
     {
-        return $this->collection($item->members, new ProjectMemberTransformer());
+        $canManageMembers = auth()->user()?->can('addMember', [ProjectUser::class, $item]) ?? false;
+
+        return $this->collection($item->members, new ProjectMemberTransformer($canManageMembers));
     }
 
     /**

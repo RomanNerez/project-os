@@ -38,6 +38,8 @@ export interface ProjectMember {
     email: string;
     avatar_url: string | null;
     role: MemberRole;
+    /** Present only for users who can manage members. */
+    hourly_rate?: number | null;
 }
 
 export interface TaskStatusCounts {
