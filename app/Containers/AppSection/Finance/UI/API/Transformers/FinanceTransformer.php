@@ -2,10 +2,13 @@
 
 namespace App\Containers\AppSection\Finance\UI\API\Transformers;
 
+use Apiato\Http\Resources\Item;
 use App\Containers\AppSection\Finance\Models\Finance;
 use App\Containers\AppSection\Media\UI\API\Transformers\MediaTransformer;
-use App\Containers\AppSection\Task\Models\Task;
+use App\Containers\AppSection\Project\UI\API\Transformers\ProjectTransformer;
+use App\Containers\AppSection\Task\UI\API\Transformers\TaskTransformer;
 use App\Ship\Parents\Transformers\Transformer as ParentTransformer;
+use League\Fractal\Resource\Collection;
 
 final class FinanceTransformer extends ParentTransformer
 {
@@ -18,6 +21,7 @@ final class FinanceTransformer extends ParentTransformer
      * @var array<int, string>
      */
     protected array $availableIncludes = [
+        'project',
         'tasks',
         'media',
     ];
@@ -35,7 +39,6 @@ final class FinanceTransformer extends ParentTransformer
         return [
             'id' => $item->id,
             'project_id' => $item->project_id,
-            'project' => ['id' => $item->project->id, 'title' => $item->project->title],
             'title' => $item->title,
             'description' => $item->description,
             'type' => $item->type,
@@ -55,23 +58,28 @@ final class FinanceTransformer extends ParentTransformer
 
     /**
      * @param Finance $finance
-     * @return array
+     * @return Collection
      */
-    public function includeTasks(Finance $finance)
+    public function includeTasks(Finance $finance): Collection
     {
-        return $this->collection($finance->tasks, static fn (Task $task) => [
-            'id' => $task->id,
-            'title' => $task->title,
-            'project_id' => $task->project_id,
-        ]);
+        return $this->collection($finance->tasks, new TaskTransformer());
     }
 
     /**
      * @param Finance $finance
-     * @return array
+     * @return Collection
      */
-    public function includeMedia(Finance $finance)
+    public function includeMedia(Finance $finance): Collection
     {
         return $this->collection($finance->getMedia(Finance::RECEIPTS_COLLECTION), new MediaTransformer());
+    }
+
+    /**
+     * @param Finance $finance
+     * @return Item
+     */
+    public function includeProject(Finance $finance): Item
+    {
+        return $this->item($finance->project, new ProjectTransformer());
     }
 }
