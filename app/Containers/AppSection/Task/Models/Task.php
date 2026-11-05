@@ -97,7 +97,8 @@ final class Task extends ParentModel implements HasMedia
      */
     public function finances(): BelongsToMany
     {
-        return $this->belongsToMany(Finance::class, 'finance_task');
+        return $this->belongsToMany(Finance::class, 'finance_task')
+            ->withPivot(['user_id', 'seconds', 'hourly_rate']);
     }
 
     /**

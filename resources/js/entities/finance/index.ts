@@ -1,13 +1,15 @@
 export { default as FinanceCard } from './ui/FinanceCard.vue';
 export { default as FinanceTaskHoursCard } from './ui/FinanceTaskHoursCard.vue';
 export { default as FinanceUserHoursItem } from './ui/FinanceUserHoursItem.vue';
+export { default as FinanceTaskMultiSelect } from './ui/FinanceTaskMultiSelect.vue';
 export { useFinanceForm } from './model/useFinanceForm';
+export { useFinanceTaskOptions } from './model/useFinanceTaskOptions';
 export { calcAmountUah, formatMoney } from './lib/money';
 export {
     calcMinAmount,
     calcPaymentsUsd,
     paymentsOfTask,
-    trackedHoursByUser,
+    toHoursUsers,
     unpaidSeconds,
     withTaskPayments,
     PAYMENT_STEP_SECONDS,
@@ -42,6 +44,7 @@ export type {
     FinanceTaskUserPayment,
     FinanceTaskUser,
     FinanceTaskUserHours,
+    FinanceTaskHours,
     FinanceTaskHoursUser,
     FinanceTaskHoursChange,
     FinanceCardFile,

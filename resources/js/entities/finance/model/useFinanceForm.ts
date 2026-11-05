@@ -1,37 +1,45 @@
-import { watch, type Ref } from 'vue';
 import { useForm } from '@inertiajs/vue3';
-import { emptyFinanceDraft, FINANCE_CURRENCY, financeToDraft, type FinanceDraft, type FinanceWithTasks } from './types';
+import { emptyFinanceDraft, financeToDraft, type FinanceDraft, type FinanceWithTasks } from './types';
 import { financeRoutes } from '../api/financeRoutes';
 
-/** Creates a record in `projectId` when `finance` is null, otherwise edits it. */
-export function useFinanceForm(finance: Ref<FinanceWithTasks | null>, projectId: number, onDone: () => void) {
+/** Only payments with time for a selected task are sent. */
+function toPayload(data: FinanceDraft): FinanceDraft {
+    return {
+        ...data,
+        task_payments: data.task_payments
+            .filter((payment) => payment.seconds > 0 && data.task_ids.includes(payment.task_id)),
+    };
+}
+
+export function useFinanceForm() {
     const form = useForm<FinanceDraft>(emptyFinanceDraft());
 
-    function reset(): void {
-        form.defaults(finance.value ? financeToDraft(finance.value) : emptyFinanceDraft());
+    function reset(finance: FinanceWithTasks | null): void {
+        form.defaults(finance ? financeToDraft(finance) : emptyFinanceDraft());
         form.reset();
         form.clearErrors();
     }
 
-    watch(finance, reset, { immediate: true });
-
-    function submit(): void {
-        const current = finance.value;
-
-        // Inertia sends the payload as FormData when `receipts` holds files, and PHP only
-        // parses multipart bodies of POST requests, so an update is a POST spoofing PUT.
+    function create(projectId: number, onDone: () => void): void {
         form
-            .transform((data) => ({
-                ...data,
-                exchange_rate: data.currency === FINANCE_CURRENCY.USD ? data.exchange_rate : null,
-                ...(current ? { _method: 'put' } : {}),
-            }))
-            .post(current ? financeRoutes.update(projectId, current.id) : financeRoutes.store(projectId), {
+            .transform(toPayload)
+            .post(financeRoutes.store(projectId), {
                 onSuccess: onDone,
                 preserveScroll: true,
                 reset: ['finances'],
             });
     }
 
-    return { form, submit, reset };
+    // Sent as a spoofed PUT: receipts make it multipart.
+    function update(projectId: number, financeId: number, onDone: () => void): void {
+        form
+            .transform((data) => ({ ...toPayload(data), _method: 'put' }))
+            .post(financeRoutes.update(projectId, financeId), {
+                onSuccess: onDone,
+                preserveScroll: true,
+                reset: ['finances'],
+            });
+    }
+
+    return { form, reset, create, update };
 }

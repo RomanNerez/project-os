@@ -8,6 +8,7 @@ interface TaskOptionsQuery {
     search: string;
     searchJoin: typeof SEARCH_JOIN.AND;
     limit: number;
+    include: string[];
 }
 
 interface TaskOptionsParams {
@@ -17,7 +18,7 @@ interface TaskOptionsParams {
 interface UseTaskOptions {
     tasks: Ref<TaskOption[]>;
     loading: ComputedRef<boolean>;
-    loadByProject: (projectId: number, title?: string) => Promise<void>;
+    loadByProject: (projectId: number, title?: string, includes?: string[],) => Promise<void>;
     search: (projectId: number, title: string) => void;
 }
 
@@ -28,11 +29,12 @@ export function useTaskOptions({ limit = 20 }: TaskOptionsParams = {}): UseTaskO
         search: '',
         searchJoin: SEARCH_JOIN.AND,
         limit,
+        include: []
     });
 
     const loading = computed(() => http.processing);
 
-    async function loadByProject(projectId: number, title: string = ''): Promise<void> {
+    async function loadByProject(projectId: number, title: string = '', includes: string[] = []): Promise<void> {
         const value = sanitizeSearchText(title);
 
         http.cancel();
@@ -42,6 +44,7 @@ export function useTaskOptions({ limit = 20 }: TaskOptionsParams = {}): UseTaskO
         if (value) filters.title = value;
 
         http.search = buildSearchParam(filters);
+        http.include = includes;
 
         try {
             const response = await http.get(taskRoutes.options(projectId));
@@ -52,7 +55,8 @@ export function useTaskOptions({ limit = 20 }: TaskOptionsParams = {}): UseTaskO
     }
 
     const search = debounce(
-        (projectId: number, title: string) => void loadByProject(projectId, title),
+        (projectId: number, title: string, includes: string[] = []) => void
+            loadByProject(projectId, title, includes),
         300
     );
 

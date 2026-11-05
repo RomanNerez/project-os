@@ -2,7 +2,6 @@ import type { IncludedData } from "@/shared/types";
 
 export type TimeEntryID = number;
 
-/** What a new timer is tracked against: one of the user's tasks or a free-form description. */
 export const TIME_TRACKER_MODE = {
     TASK: 'task',
     FREE: 'free',
@@ -27,19 +26,16 @@ export interface TimeEntryTask {
 
 export interface TimeEntry {
     id: TimeEntryID;
+    user_id: number;
     description: string;
     started_at: string;
-    /** `null` while the timer is still running. */
     stopped_at: string | null;
-    /** Whole seconds between start and stop, `null` while running. */
     duration: number | null;
     project: TimeEntryProject | null;
-    /** The task being tracked, `null` for a free-form description. */
     task: TimeEntryTask | null;
 }
 
 export interface TimeEntryIncludes<TUser> extends TimeEntry {
-    /** Who tracked the time. */
     user: IncludedData<TUser>;
 }
 

@@ -6,6 +6,7 @@ use Apiato\Http\Resources\Item;
 use App\Containers\AppSection\Finance\Models\Finance;
 use App\Containers\AppSection\Media\UI\API\Transformers\MediaTransformer;
 use App\Containers\AppSection\Project\UI\API\Transformers\ProjectTransformer;
+use App\Containers\AppSection\Task\Models\Task;
 use App\Containers\AppSection\Task\UI\API\Transformers\TaskTransformer;
 use App\Ship\Parents\Transformers\Transformer as ParentTransformer;
 use League\Fractal\Resource\Collection;
@@ -57,12 +58,30 @@ final class FinanceTransformer extends ParentTransformer
     }
 
     /**
+     * Every paid task once, with what this record pays for it per user.
+     *
      * @param Finance $finance
      * @return Collection
      */
     public function includeTasks(Finance $finance): Collection
     {
-        return $this->collection($finance->tasks, new TaskTransformer());
+        $paymentsByTask = $finance->taskPayments->groupBy('id');
+        $taskTransformer = new TaskTransformer();
+
+        return $this->collection(
+            $finance->taskPayments->unique('id')->values(),
+            static fn (Task $task): array => [
+                ...$taskTransformer->transform($task),
+                'payments' => $paymentsByTask->get($task->id, collect())
+                    ->map(static fn (Task $row): array => [
+                        'user_id' => (int) $row->pivot->user_id,
+                        'seconds' => (int) $row->pivot->seconds,
+                        'hourly_rate' => $row->pivot->hourly_rate,
+                    ])
+                    ->values()
+                    ->all(),
+            ],
+        );
     }
 
     /**

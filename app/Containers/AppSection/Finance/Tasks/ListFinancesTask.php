@@ -25,7 +25,7 @@ final class ListFinancesTask extends ParentTask
         return $this->repository
             ->pushCriteria(new ThisEqualThatCriteria('project_id', (string) $projectId))
             ->addRequestCriteria()
-            ->with(['project', 'tasks', 'media'])
+            ->with(['project', 'taskPayments.project', 'media'])
             ->scopeVisibleForUser($userId)
             ->orderBy('created_at', 'desc')
             ->paginate();

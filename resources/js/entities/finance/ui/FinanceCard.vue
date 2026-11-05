@@ -5,9 +5,7 @@ import type { FinanceCardFile } from '../model/types';
 
 const props = withDefaults(defineProps<{
     title: string;
-    /** Already formatted, e.g. "+41 500,00 ₴". */
     amount: string;
-    /** The original-currency amount for non-UAH records, e.g. "1 000,00 $ × 41.5". */
     originalAmount?: string;
     isIncome?: boolean;
     typeLabel?: string;
@@ -15,7 +13,6 @@ const props = withDefaults(defineProps<{
     statusLabel?: string;
     statusColor?: string;
     description?: string | null;
-    projects?: string[];
     tasks?: string[];
     dueDate?: string | null;
     paidAt?: string | null;
@@ -24,7 +21,6 @@ const props = withDefaults(defineProps<{
     isIncome: false,
     typeColor: 'secondary',
     statusColor: 'secondary',
-    projects: () => [],
     tasks: () => [],
     files: () => [],
 });
@@ -39,23 +35,6 @@ const props = withDefaults(defineProps<{
                 <h3 class="truncate font-semibold">{{ props.title }}</h3>
                 <Tag v-if="props.typeLabel" :value="props.typeLabel" :severity="props.typeColor" />
                 <Tag v-if="props.statusLabel" :value="props.statusLabel" :severity="props.statusColor" />
-            </div>
-
-            <div v-if="props.projects.length || props.tasks.length" class="flex flex-wrap gap-1 text-sm">
-                <Tag
-                    v-for="(project, index) in props.projects"
-                    :key="`p-${index}`"
-                    :value="project"
-                    severity="secondary"
-                    icon="pi pi-folder"
-                />
-                <Tag
-                    v-for="(task, index) in props.tasks"
-                    :key="`t-${index}`"
-                    :value="task"
-                    severity="contrast"
-                    icon="pi pi-check-square"
-                />
             </div>
 
             <p v-if="props.description" class="line-clamp-2 text-sm text-muted-color">

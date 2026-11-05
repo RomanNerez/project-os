@@ -61,7 +61,69 @@ final class UpdateFinanceTest extends WebTestCase
         $finance = $this->createFinance($this->user, $this->project);
         $foreignTask = $this->createTask($this->createProject($this->user));
 
-        $this->update($finance, ['task_ids' => [$foreignTask->id]])->assertSessionHasErrors('task_ids');
+        $this->update($finance, [
+            'task_ids' => [$foreignTask->id],
+            'task_payments' => [['task_id' => $foreignTask->id, 'user_id' => $this->user->id]],
+        ])->assertSessionHasErrors('task_ids');
+
+        self::assertSame(0, $finance->tasks()->count());
+    }
+
+    public function testKeepsSavedRateForAlreadyPaidUsersAndTakesCurrentRateForNewOnes(): void
+    {
+        $old = User::factory()->createOne();
+        $new = User::factory()->createOne();
+        $this->project->members()->attach($old->id, ['role' => ProjectRole::EXECUTOR->value, 'hourly_rate' => 35]);
+        $this->project->members()->attach($new->id, ['role' => ProjectRole::EXECUTOR->value, 'hourly_rate' => 15]);
+        $task = $this->createTask($this->project);
+
+        $finance = $this->createFinance($this->user, $this->project);
+        $finance->tasks()->attach($task->id, ['user_id' => $old->id, 'seconds' => 60, 'hourly_rate' => 20]);
+
+        $this->update($finance, [
+            'task_ids' => [$task->id],
+            'task_payments' => [
+                ['task_id' => $task->id, 'user_id' => $old->id, 'seconds' => 120],
+                ['task_id' => $task->id, 'user_id' => $new->id, 'seconds' => 30],
+            ],
+        ])->assertRedirect()->assertSessionHasNoErrors();
+
+        $rows = $finance->refresh()->taskPayments->keyBy('pivot.user_id');
+
+        self::assertCount(2, $rows);
+        self::assertSame(120, (int) $rows[$old->id]->pivot->seconds);
+        self::assertSame('20.00', $rows[$old->id]->pivot->hourly_rate);
+        self::assertSame('15.00', $rows[$new->id]->pivot->hourly_rate);
+    }
+
+    public function testMinimumUsesSavedRateOfAlreadyPaidUsers(): void
+    {
+        $member = User::factory()->createOne();
+        $this->project->members()->attach($member->id, ['role' => ProjectRole::EXECUTOR->value, 'hourly_rate' => 50]);
+        $task = $this->createTask($this->project);
+
+        $finance = $this->createFinance($this->user, $this->project);
+        $finance->tasks()->attach($task->id, ['user_id' => $member->id, 'seconds' => 3600, 'hourly_rate' => 20]);
+
+        $payload = [
+            'task_ids' => [$task->id],
+            'task_payments' => [['task_id' => $task->id, 'user_id' => $member->id, 'seconds' => 7200]],
+        ];
+
+        // 2 h × saved $20 = $40; the current $50 rate would demand $100.
+        $this->update($finance, [...$payload, 'amount' => '39.99'])->assertSessionHasErrors('amount');
+        $this->update($finance, [...$payload, 'amount' => '40'])->assertRedirect()->assertSessionHasNoErrors();
+
+        self::assertSame('40.00', $finance->refresh()->amount);
+    }
+
+    public function testRemovesPaymentsThatAreNoLongerSent(): void
+    {
+        $task = $this->createTask($this->project);
+        $finance = $this->createFinance($this->user, $this->project);
+        $finance->tasks()->attach($task->id, ['user_id' => $this->user->id, 'seconds' => 60]);
+
+        $this->update($finance, [])->assertRedirect()->assertSessionHasNoErrors();
 
         self::assertSame(0, $finance->tasks()->count());
     }
@@ -129,9 +191,8 @@ final class UpdateFinanceTest extends WebTestCase
     }
 
     /**
-     * @param array<int, int> $taskIds
      */
-    private function createFinance(User $author, Project $project, array $taskIds = []): Finance
+    private function createFinance(User $author, Project $project): Finance
     {
         $finance = Finance::create([
             'user_id' => $author->id,
@@ -144,7 +205,6 @@ final class UpdateFinanceTest extends WebTestCase
             'amount_uah' => 4150,
             'status' => 'planned',
         ]);
-        $finance->tasks()->sync($taskIds);
 
         return $finance;
     }

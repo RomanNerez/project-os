@@ -25,10 +25,10 @@ final class CreateFinanceAction extends ParentAction
      */
     public function run(CreateFinanceRequest $request, int $projectId, int $userId): Finance
     {
-        [$attributes, $taskIds] = $this->prepareFinanceDataTask->run($request->validated(), $projectId);
+        [$attributes, $taskRows] = $this->prepareFinanceDataTask->run($request->validated(), $projectId);
 
-        return DB::transaction(function () use ($request, $attributes, $userId, $taskIds): Finance {
-            $finance = $this->createFinanceTask->run(['user_id' => $userId, ...$attributes], $taskIds);
+        return DB::transaction(function () use ($request, $attributes, $userId, $taskRows): Finance {
+            $finance = $this->createFinanceTask->run(['user_id' => $userId, ...$attributes], $taskRows);
 
             $this->addFinanceReceiptsTask->run($finance, $request);
 

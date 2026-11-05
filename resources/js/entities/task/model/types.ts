@@ -137,12 +137,10 @@ export const emptyTaskCreateDraft = (): TaskCreateDraft => ({
     status: TASK_STATUS.TODO,
 });
 
-/** A task as offered by `TaskSelect`: listed from `projects.tasks.options` as JSON, with its project. */
 export type TaskOption = Task & {
     project: IncludedData<TaskProject> | null;
 };
 
-/** What `TaskMultiSelect` needs of a selected task, so callers can pre-select tasks they only know by id and title. */
 export type TaskSelectOption = Pick<Task, 'id' | 'title'> & {
     project: IncludedData<TaskProject> | null;
 };

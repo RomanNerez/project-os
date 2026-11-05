@@ -34,6 +34,10 @@ class CreateFinanceRequest extends ParentRequest
             'paid_at' => ['nullable', 'date'],
             'task_ids' => ['nullable', 'array'],
             'task_ids.*' => ['integer', 'distinct', 'exists:tasks,id'],
+            'task_payments' => ['nullable', 'array'],
+            'task_payments.*.task_id' => ['required', 'integer', Rule::in((array) $this->input('task_ids', []))],
+            'task_payments.*.user_id' => ['required', 'integer', 'exists:users,id'],
+            'task_payments.*.seconds' => ['nullable', 'integer', 'min:0', 'max:4294967295'],
             'receipts' => ['nullable', 'array', 'max:10'],
             'receipts.*' => ['file', 'mimes:pdf,jpg,jpeg,png,webp', 'max:10240'],
         ];
@@ -46,6 +50,9 @@ class CreateFinanceRequest extends ParentRequest
             'amount' => 'сума',
             'exchange_rate' => 'курс',
             'task_ids' => 'задачі',
+            'task_payments.*.task_id' => 'задача',
+            'task_payments.*.user_id' => 'користувач',
+            'task_payments.*.seconds' => 'секунди',
             'receipts.*' => 'квитанція',
         ];
     }
