@@ -1,14 +1,9 @@
 import { FINANCE_CURRENCY, CURRENCY_META, type FinanceCurrency } from '../model/types';
 
-/** Rounds to kopiykas; `toPrecision` drops float noise so x.xx5 rounds up like PHP's `round()`. */
-function roundMoney(value: number): number {
+export function roundMoney(value: number): number {
     return Math.round(Number((value * 100).toPrecision(15))) / 100;
 }
 
-/**
- * Same formula as the server (CreateFinanceAction): UAH as is, USD × rate.
- * `null` while the amount (or the USD rate) is not entered yet.
- */
 export function calcAmountUah(
     amount: number | null,
     currency: FinanceCurrency,

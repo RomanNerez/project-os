@@ -2,11 +2,12 @@
 
 namespace App\Containers\AppSection\Task\UI\WEB\Controllers;
 
+use Apiato\Http\Response;
+use App\Containers\AppSection\Project\Models\Project;
 use App\Containers\AppSection\Task\Actions\ListTasksAction;
 use App\Containers\AppSection\Task\UI\API\Transformers\TaskTransformer;
 use App\Containers\AppSection\Task\UI\WEB\Requests\ListTasksRequest;
 use App\Ship\Parents\Controllers\WebController;
-use Illuminate\Http\JsonResponse;
 
 final class ListProjectTaskOptionsController extends WebController
 {
@@ -15,19 +16,14 @@ final class ListProjectTaskOptionsController extends WebController
     ) {}
 
     /**
-     * Tasks of one project with their project as plain JSON for Inertia `useHttp` (e.g. TaskSelect).
-     * The project tasks page itself is ListProjectTasksController.
-     *
      * @param ListTasksRequest $request
-     * @param int $id
-     * @return JsonResponse
+     * @param Project $project
+     * @return Response
      */
-    public function __invoke(ListTasksRequest $request, int $id): JsonResponse
+    public function __invoke(ListTasksRequest $request, Project $project): Response
     {
-        $paginator = $this->action->run($request, $id);
+        $tasks = $this->action->run($request, $project->id);
 
-        return response()->json(
-            fractal($paginator->getCollection(), new TaskTransformer())->parseIncludes(['project'])->toArray()
-        );
+        return Response::create($tasks, TaskTransformer::class);
     }
 }

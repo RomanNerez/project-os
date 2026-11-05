@@ -35,7 +35,11 @@ final class CreateFinanceTest extends WebTestCase
         $project = $this->createProject($this->user);
         $task = $this->createTask($project);
 
-        $this->store($project, ['task_ids' => [$task->id], 'exchange_rate' => 41.5])
+        $this->store($project, [
+            'task_ids' => [$task->id],
+            'task_payments' => [['task_id' => $task->id, 'user_id' => $this->user->id, 'seconds' => 3600]],
+            'exchange_rate' => 41.5,
+        ])
             ->assertRedirect()
             ->assertSessionHasNoErrors();
 
@@ -60,6 +64,7 @@ final class CreateFinanceTest extends WebTestCase
             'amount' => '100.50',
             'exchange_rate' => '41.2345',
             'task_ids' => $tasks,
+            'task_payments' => array_map(fn (int $id): array => ['task_id' => $id, 'user_id' => $this->user->id], $tasks),
         ])->assertRedirect()->assertSessionHasNoErrors();
 
         $finance = Finance::sole();
@@ -101,7 +106,165 @@ final class CreateFinanceTest extends WebTestCase
         $project = $this->createProject($this->user);
         $other = $this->createTask($this->createProject($this->user));
 
-        $this->store($project, ['task_ids' => [$other->id]])->assertSessionHasErrors('task_ids');
+        $this->store($project, [
+            'task_ids' => [$other->id],
+            'task_payments' => [['task_id' => $other->id, 'user_id' => $this->user->id]],
+        ])->assertSessionHasErrors('task_ids');
+
+        self::assertSame(0, Finance::count());
+    }
+
+    public function testStoresPaymentsWithRateCopiedFromProjectMember(): void
+    {
+        $project = $this->createProject($this->user);
+        $member = User::factory()->createOne();
+        $project->members()->attach($member->id, ['role' => ProjectRole::EXECUTOR->value, 'hourly_rate' => 20]);
+        $task = $this->createTask($project);
+
+        $this->store($project, [
+            'task_ids' => [$task->id],
+            'task_payments' => [
+                ['task_id' => $task->id, 'user_id' => $member->id, 'seconds' => 7200],
+                ['task_id' => $task->id, 'user_id' => $this->user->id],
+            ],
+            'amount' => '1660',
+            'exchange_rate' => 41.5,
+        ])->assertRedirect()->assertSessionHasNoErrors();
+
+        $rows = Finance::sole()->taskPayments->keyBy('pivot.user_id');
+
+        self::assertSame(7200, (int) $rows[$member->id]->pivot->seconds);
+        self::assertSame('20.00', $rows[$member->id]->pivot->hourly_rate);
+        // The owner has no project_user row, so no rate; seconds default to 0.
+        self::assertSame(0, (int) $rows[$this->user->id]->pivot->seconds);
+        self::assertNull($rows[$this->user->id]->pivot->hourly_rate);
+    }
+
+    public function testSavedRateDoesNotFollowLaterRateChanges(): void
+    {
+        $project = $this->createProject($this->user);
+        $member = User::factory()->createOne();
+        $project->members()->attach($member->id, ['role' => ProjectRole::EXECUTOR->value, 'hourly_rate' => 20]);
+        $task = $this->createTask($project);
+
+        $this->store($project, [
+            'task_ids' => [$task->id],
+            'task_payments' => [['task_id' => $task->id, 'user_id' => $member->id, 'seconds' => 60]],
+            'exchange_rate' => 41.5,
+        ])->assertSessionHasNoErrors();
+
+        $project->members()->updateExistingPivot($member->id, ['hourly_rate' => 35]);
+
+        self::assertSame('20.00', Finance::sole()->taskPayments->sole()->pivot->hourly_rate);
+    }
+
+    public function testRejectsTaskWithoutPayments(): void
+    {
+        $project = $this->createProject($this->user);
+        $task = $this->createTask($project);
+
+        $this->store($project, ['task_ids' => [$task->id]])->assertSessionHasErrors('task_payments');
+
+        self::assertSame(0, Finance::count());
+    }
+
+    public function testRejectsPaymentForUnselectedTask(): void
+    {
+        $project = $this->createProject($this->user);
+        $selected = $this->createTask($project);
+        $unselected = $this->createTask($project);
+
+        $this->store($project, [
+            'task_ids' => [$selected->id],
+            'task_payments' => [
+                ['task_id' => $selected->id, 'user_id' => $this->user->id],
+                ['task_id' => $unselected->id, 'user_id' => $this->user->id],
+            ],
+        ])->assertSessionHasErrors('task_payments.1.task_id');
+
+        self::assertSame(0, Finance::count());
+    }
+
+    public function testRejectsPaymentToUserOutsideProject(): void
+    {
+        $project = $this->createProject($this->user);
+        $task = $this->createTask($project);
+
+        $this->store($project, [
+            'task_ids' => [$task->id],
+            'task_payments' => [['task_id' => $task->id, 'user_id' => User::factory()->createOne()->id]],
+        ])->assertSessionHasErrors('task_payments');
+
+        self::assertSame(0, Finance::count());
+    }
+
+    public function testRejectsNegativeSeconds(): void
+    {
+        $project = $this->createProject($this->user);
+        $task = $this->createTask($project);
+
+        $this->store($project, [
+            'task_ids' => [$task->id],
+            'task_payments' => [['task_id' => $task->id, 'user_id' => $this->user->id, 'seconds' => -1]],
+        ])->assertSessionHasErrors('task_payments.0.seconds');
+
+        self::assertSame(0, Finance::count());
+    }
+
+    public function testRejectsAmountBelowPaidHoursInUsd(): void
+    {
+        [$project, $task, $member] = $this->projectWithRatedMember(20);
+
+        $this->store($project, [
+            'currency' => 'usd',
+            'amount' => '29.99',
+            'exchange_rate' => 41.5,
+            'task_ids' => [$task->id],
+            'task_payments' => [['task_id' => $task->id, 'user_id' => $member->id, 'seconds' => 5400]],
+        ])->assertSessionHasErrors('amount');
+
+        self::assertSame(0, Finance::count());
+    }
+
+    public function testAcceptsAmountEqualToPaidHoursInUsd(): void
+    {
+        [$project, $task, $member] = $this->projectWithRatedMember(20);
+
+        $this->store($project, [
+            'currency' => 'usd',
+            'amount' => '30',
+            'exchange_rate' => 41.5,
+            'task_ids' => [$task->id],
+            'task_payments' => [['task_id' => $task->id, 'user_id' => $member->id, 'seconds' => 5400]],
+        ])->assertRedirect()->assertSessionHasNoErrors();
+
+        self::assertSame(1, Finance::count());
+    }
+
+    public function testUahMinimumUsesExchangeRate(): void
+    {
+        [$project, $task, $member] = $this->projectWithRatedMember(20);
+        $payload = [
+            'currency' => 'uah',
+            'exchange_rate' => 40,
+            'task_ids' => [$task->id],
+            'task_payments' => [['task_id' => $task->id, 'user_id' => $member->id, 'seconds' => 3600]],
+        ];
+
+        $this->store($project, [...$payload, 'amount' => '799.99'])->assertSessionHasErrors('amount');
+        $this->store($project, [...$payload, 'amount' => '800'])->assertSessionHasNoErrors();
+
+        self::assertSame(1, Finance::count());
+    }
+
+    public function testUahWithPaidHoursRequiresExchangeRate(): void
+    {
+        [$project, $task, $member] = $this->projectWithRatedMember(20);
+
+        $this->store($project, [
+            'task_ids' => [$task->id],
+            'task_payments' => [['task_id' => $task->id, 'user_id' => $member->id, 'seconds' => 3600]],
+        ])->assertSessionHasErrors('exchange_rate');
 
         self::assertSame(0, Finance::count());
     }
@@ -141,6 +304,18 @@ final class CreateFinanceTest extends WebTestCase
             'due_date' => '2026-10-31',
             ...$overrides,
         ]);
+    }
+
+    /**
+     * @return array{0: Project, 1: Task, 2: User}
+     */
+    private function projectWithRatedMember(float $rate): array
+    {
+        $project = $this->createProject($this->user);
+        $member = User::factory()->createOne();
+        $project->members()->attach($member->id, ['role' => ProjectRole::EXECUTOR->value, 'hourly_rate' => $rate]);
+
+        return [$project, $this->createTask($project), $member];
     }
 
     private function createProject(User $owner): Project

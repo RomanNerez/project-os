@@ -3,6 +3,7 @@
 namespace App\Containers\AppSection\Task\UI\API\Transformers;
 
 use App\Containers\AppSection\Comment\UI\API\Transformers\CommentTransformer;
+use App\Containers\AppSection\Finance\UI\API\Transformers\FinanceTaskTransformer;
 use App\Containers\AppSection\Media\UI\API\Transformers\MediaTransformer;
 use App\Containers\AppSection\Project\UI\API\Transformers\ProjectTransformer;
 use App\Containers\AppSection\Task\Models\Task;
@@ -26,6 +27,7 @@ final class TaskTransformer extends ParentTransformer
         'comments',
         'media',
         'time_entries',
+        'finances',
         'activities',
     ];
 
@@ -115,5 +117,14 @@ final class TaskTransformer extends ParentTransformer
     public function includeActivities(Task $task)
     {
         return $this->collection($task->activitiesAsSubject, new TaskActivityTransformer());
+    }
+
+    /**
+     * @param Task $task
+     * @return array
+     */
+    public function includeFinances(Task $task)
+    {
+        return $this->collection($task->finances, new FinanceTaskTransformer());
     }
 }

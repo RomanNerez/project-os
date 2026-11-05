@@ -10,19 +10,20 @@ final class UpdateFinanceTask extends ParentTask
 {
     public function __construct(
         private readonly FinanceRepository $repository,
+        private readonly SyncFinanceTaskPaymentsTask $syncFinanceTaskPaymentsTask,
     ) {
     }
 
     /**
      * @param int $id
      * @param array<string, mixed> $data
-     * @param array<int, int> $taskIds
+     * @param list<array{task_id: int, user_id: int, seconds: int, hourly_rate: string|null}> $taskRows
      * @return Finance
      */
-    public function run(int $id, array $data, array $taskIds): Finance
+    public function run(int $id, array $data, array $taskRows): Finance
     {
         $finance = $this->repository->update($data, $id);
-        $finance->tasks()->sync($taskIds);
+        $this->syncFinanceTaskPaymentsTask->run($finance, $taskRows);
 
         return $finance;
     }

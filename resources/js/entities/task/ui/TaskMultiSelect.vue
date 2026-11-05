@@ -7,20 +7,19 @@ const props = withDefaults(defineProps<{
     label?: string;
     message?: string;
     placeholder?: string;
-    /** Only tasks of this project are offered; nothing is loaded without it. */
     projectId?: number | null;
     disabled?: boolean;
+    include?: string[];
 }>(), {
     placeholder: 'Оберіть задачі',
     projectId: null,
+    include: () => ['project']
 });
 
-/** Whole options, so callers also get each task's project without a second lookup. */
 const model = defineModel<TaskSelectOption[]>({ default: () => [] });
 
 const { tasks, loading, loadByProject, search } = useTaskOptions({ limit: 50 });
 
-// Selected tasks stay listed (and keep their labels) even when a new search no longer returns them.
 const groups = computed(() => {
     const byProject = new Map<string, TaskSelectOption[]>();
     const options = [...model.value, ...tasks.value.filter((t) => !model.value.some((s) => s.id === t.id))];
@@ -35,7 +34,7 @@ const groups = computed(() => {
 
 function load(): void {
     if (props.projectId) {
-        loadByProject(props.projectId);
+        loadByProject(props.projectId, '', props.include);
     } else {
         tasks.value = [];
     }

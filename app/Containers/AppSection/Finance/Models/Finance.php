@@ -64,13 +64,22 @@ final class Finance extends ParentModel implements HasMedia
     }
 
     /**
-     * Optional tasks of the payment's project that it is for.
-     *
      * @return BelongsToMany<Task, $this>
      */
     public function tasks(): BelongsToMany
     {
         return $this->belongsToMany(Task::class, 'finance_task');
+    }
+
+    /**
+     * @return BelongsToMany<Task, $this>
+     */
+    public function taskPayments(): BelongsToMany
+    {
+        return $this->belongsToMany(Task::class, 'finance_task')
+            ->withPivot(['user_id', 'seconds', 'hourly_rate'])
+            ->orderByPivot('task_id')
+            ->orderByPivot('user_id');
     }
 
     /**

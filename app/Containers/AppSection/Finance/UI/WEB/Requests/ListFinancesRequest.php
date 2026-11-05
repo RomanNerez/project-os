@@ -2,18 +2,23 @@
 
 namespace App\Containers\AppSection\Finance\UI\WEB\Requests;
 
-use App\Containers\AppSection\Project\Models\Project;
 use App\Ship\Parents\Requests\Request as ParentRequest;
 
 final class ListFinancesRequest extends ParentRequest
 {
     protected array $decode = [];
 
+    /**
+     * @return bool
+     */
     public function authorize(): bool
     {
-        return $this->user()->can('view', Project::query()->findOrFail((int) $this->route('id')));
+        return $this->user()->can('view', $this->route('project'));
     }
 
+    /**
+     * @return array<string, array<int, string>>
+     */
     public function rules(): array
     {
         return [

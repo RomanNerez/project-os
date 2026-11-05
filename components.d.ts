@@ -61,6 +61,7 @@ declare module 'vue' {
     SidebarSpacer: typeof import('primevue/sidebarspacer')['default']
     SidebarTrigger: typeof import('primevue/sidebartrigger')['default']
     Skeleton: typeof import('primevue/skeleton')['default']
+    Slider: typeof import('primevue/slider')['default']
     Tab: typeof import('primevue/tab')['default']
     TabList: typeof import('primevue/tablist')['default']
     TabPanel: typeof import('primevue/tabpanel')['default']

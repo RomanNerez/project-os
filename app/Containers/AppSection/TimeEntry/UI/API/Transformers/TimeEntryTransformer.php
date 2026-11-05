@@ -23,14 +23,17 @@ final class TimeEntryTransformer extends ParentTransformer
     {
         return [
             'id' => $timeEntry->id,
+            'user_id' => $timeEntry->user_id,
             'description' => $timeEntry->description,
             'started_at' => $timeEntry->started_at->toIso8601String(),
             'stopped_at' => $timeEntry->stopped_at?->toIso8601String(),
             'duration' => $timeEntry->durationInSeconds(),
+            // NEED TO FIX
             'project' => $timeEntry->project ? [
                 'id' => $timeEntry->project->id,
                 'title' => $timeEntry->project->title,
             ] : null,
+            // NEED TO FIX
             'task' => $timeEntry->task ? [
                 'id' => $timeEntry->task->id,
                 'title' => $timeEntry->task->title,

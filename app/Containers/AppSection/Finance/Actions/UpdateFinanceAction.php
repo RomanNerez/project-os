@@ -28,15 +28,15 @@ final class UpdateFinanceAction extends ParentAction
     public function run(UpdateFinanceRequest $request, Finance $finance): Finance
     {
         $data = $request->validated();
-        [$attributes, $taskIds] = $this->prepareFinanceDataTask->run($data, $finance->project_id);
+        [$attributes, $taskRows] = $this->prepareFinanceDataTask->run($data, $finance->project_id, $finance);
         $removedIds = array_map('intval', $data['removed_receipt_ids'] ?? []);
 
-        return DB::transaction(function () use ($request, $finance, $attributes, $taskIds, $removedIds): Finance {
+        return DB::transaction(function () use ($request, $finance, $attributes, $taskRows, $removedIds): Finance {
             $finance->getMedia(Finance::RECEIPTS_COLLECTION)
                 ->whereIn('id', $removedIds)
                 ->each->delete();
 
-            $finance = $this->updateFinanceTask->run($finance->id, $attributes, $taskIds);
+            $finance = $this->updateFinanceTask->run($finance->id, $attributes, $taskRows);
 
             $this->addFinanceReceiptsTask->run($finance, $request);
 

@@ -13,14 +13,12 @@ import {
 } from '@/entities/finance';
 import { FinanceFormModal } from '@/features/finance-form';
 import { formatDateLong } from '@/shared/lib';
-import type { PaginatedServerData } from '@/shared/types';
+import type { PaginatedServerData, ServerData } from '@/shared/types';
 import { EmptyList } from '@/shared/ui';
 import type { FinanceProp } from '../model/types';
 
 const props = defineProps<{
-    project: {
-        data: Project;
-    };
+    project: ServerData<Project>;
     finances: PaginatedServerData<FinanceProp[]>;
 }>();
 
@@ -37,6 +35,12 @@ const editingFinance = ref<FinanceProp | null>(null);
 
 const cards = computed(() => props.finances.data.map((finance) => {
     const isIncome = finance.type === FINANCE_TYPE.INCOME;
+    const files = finance.media.data.map((file) => ({
+        id: file.id,
+        name: file.file_name,
+        url: file.origin_url,
+        isPdf: file.mime_type === 'application/pdf',
+    }));
 
     return {
         id: finance.id,
@@ -53,16 +57,11 @@ const cards = computed(() => props.finances.data.map((finance) => {
         statusLabel: STATUS_META[finance.status].label,
         statusColor: STATUS_META[finance.status].severity,
         description: finance.description,
-        projects: [finance.project.title],
+        projects: [finance.project.data],
         tasks: finance.tasks.data.map((task) => task.title),
         dueDate: formatDateLong(finance.due_date),
         paidAt: formatDateLong(finance.paid_at),
-        files: finance.media.data.map((file) => ({
-            id: file.id,
-            name: file.file_name,
-            url: file.origin_url,
-            isPdf: file.mime_type === 'application/pdf',
-        })),
+        files
     };
 }));
 
@@ -108,7 +107,6 @@ function closeForm(): void {
                         :status-label="card.statusLabel"
                         :status-color="card.statusColor"
                         :description="card.description"
-                        :projects="card.projects"
                         :tasks="card.tasks"
                         :due-date="card.dueDate"
                         :paid-at="card.paidAt"

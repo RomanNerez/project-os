@@ -3,6 +3,7 @@
 namespace App\Containers\AppSection\Task\UI\WEB\Controllers;
 
 use App\Containers\AppSection\Project\Actions\FindProjectByIdAction;
+use App\Containers\AppSection\Project\Models\Project;
 use App\Containers\AppSection\Project\UI\API\Transformers\ProjectTransformer;
 use App\Containers\AppSection\Task\Actions\ListTasksAction;
 use App\Containers\AppSection\Task\UI\API\Transformers\TaskTransformer;
@@ -15,7 +16,6 @@ final class ListProjectTasksController extends WebController
 {
     public function __construct(
         private readonly ListTasksAction $action,
-        private readonly FindProjectByIdAction $findProjectByIdAction,
     ) {}
 
     /**
@@ -23,9 +23,8 @@ final class ListProjectTasksController extends WebController
      * @param int $id
      * @return Response
      */
-    public function __invoke(ListTasksRequest $request, int $id): Response
+    public function __invoke(ListTasksRequest $request, Project $project): Response
     {
-        $project = $this->findProjectByIdAction->run($id);
         $paginator = $this->action->run($request, $project->id);
 
         $tasks = fractal($paginator, new TaskTransformer())

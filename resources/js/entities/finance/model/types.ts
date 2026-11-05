@@ -61,9 +61,47 @@ export interface FinanceTask {
     id: number;
     title: string;
     project_id: number;
+    payments?: Omit<FinanceTaskUserPayment, 'task_id'>[];
 }
 
-/** Money comes as decimal strings so no precision is lost. */
+/** One row of `task_payments` sent with the form: how many seconds of the user's time on the task are paid. */
+export interface FinanceTaskPayment {
+    task_id: number;
+    user_id: number;
+    seconds: number;
+}
+
+export interface FinanceTaskUserPayment {
+    task_id: number;
+    user_id: number;
+    seconds: number;
+    hourly_rate?: string | null;
+}
+
+export interface FinanceTaskUser {
+    id: number;
+    name: string;
+    avatar_url: string | null;
+}
+export interface FinanceTaskHoursUser extends FinanceTaskUser {
+    seconds: number;
+}
+export interface FinanceTaskHoursChange {
+    user_id: number;
+    seconds: number;
+}
+
+export interface FinanceTaskUserHours {
+    user: FinanceTaskUser;
+    tracked_seconds: number;
+    paid_seconds: number;
+    hourly_rate: number | null;
+}
+
+export interface FinanceTaskHours {
+    task: FinanceTask;
+    users: FinanceTaskUserHours[];
+}
 export interface Finance {
     id: FinanceID;
     title: string;
@@ -78,7 +116,6 @@ export interface Finance {
     paid_at: string | null;
     created_at: string | null;
     project_id: number;
-    project: FinanceProject;
     permissions: FinancePermissions;
 }
 
@@ -86,12 +123,11 @@ export interface FinancePermissions {
     update: boolean;
 }
 
-export interface FinanceIncludes<TTasks = null, TMedia = null> extends Finance {
+export interface FinanceIncludes<TProject = null, TTasks = null, TMedia = null> extends Finance {
+    project: IncludedData<TProject>;
     tasks: IncludedData<TTasks>;
     media: IncludedData<TMedia>;
 }
-
-/** A receipt as FinanceCard shows it. */
 export interface FinanceCardFile {
     id: number;
     name: string;
@@ -99,10 +135,7 @@ export interface FinanceCardFile {
     isPdf: boolean;
 }
 
-/** A record with its tasks included, as the edit form needs it. */
 export type FinanceWithTasks = Finance & { tasks: IncludedData<FinanceTask[]> };
-
-/** Dates are `YYYY-MM-DD` strings, the format the server sends and expects. */
 export interface FinanceDraft {
     title: string;
     type: FinanceType;
@@ -114,9 +147,8 @@ export interface FinanceDraft {
     paid_at: string | null;
     description: string;
     task_ids: number[];
-    /** New files to upload. */
+    task_payments: FinanceTaskPayment[];
     receipts: File[];
-    /** Ids of already stored receipts to delete on save. */
     removed_receipt_ids: number[];
 }
 
@@ -131,6 +163,7 @@ export const emptyFinanceDraft = (): FinanceDraft => ({
     paid_at: null,
     description: '',
     task_ids: [],
+    task_payments: [],
     receipts: [],
     removed_receipt_ids: [],
 });
@@ -146,6 +179,8 @@ export const financeToDraft = (finance: FinanceWithTasks): FinanceDraft => ({
     paid_at: finance.paid_at,
     description: finance.description ?? '',
     task_ids: finance.tasks.data.map((task) => task.id),
+    task_payments: finance.tasks.data.flatMap((task) => (task.payments ?? [])
+        .map((payment) => ({ task_id: task.id, ...payment }))),
     receipts: [],
     removed_receipt_ids: [],
 });
