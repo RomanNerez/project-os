@@ -30,10 +30,11 @@ final class CreateProjectTaskTest extends WebTestCase
     {
         $project = $this->createProject($this->user);
 
-        $this->post(action(CreateProjectTaskController::class, $project), ['title' => 'Задача проєкту'])
+        $response = $this->post(action(CreateProjectTaskController::class, $project), ['title' => 'Задача проєкту'])
             ->assertRedirect();
 
         $task = Task::query()->where('title', 'Задача проєкту')->firstOrFail();
+        $response->assertInertiaFlash('created_task_id', $task->id);
         self::assertSame($project->id, $task->project_id);
         self::assertSame($this->user->id, $task->user_id);
         self::assertSame(TaskStatus::TODO->value, $task->status);

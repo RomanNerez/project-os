@@ -8,6 +8,7 @@ use App\Containers\AppSection\Task\UI\WEB\Requests\CreateProjectTaskRequest;
 use App\Ship\Parents\Controllers\WebController;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Redirector;
+use Inertia\Inertia;
 
 final class CreateProjectTaskController extends WebController
 {
@@ -22,7 +23,9 @@ final class CreateProjectTaskController extends WebController
      */
     public function __invoke(CreateProjectTaskRequest $request, Project $project): Redirector|RedirectResponse
     {
-        $this->action->run($project->id, $request->user()->id, $request->validated());
+        $task = $this->action->run($project->id, $request->user()->id, $request->validated());
+
+        Inertia::flash('created_task_id', $task->id);
 
         return back();
     }

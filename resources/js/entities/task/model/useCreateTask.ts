@@ -3,7 +3,7 @@ import { emptyTaskCreateDraft, type TaskCreateDraft } from "./types";
 import { taskRoutes } from "../api/taskRoutes";
 
 export function useCreateTask(
-    onDone: () => void,
+    onDone: (taskId: number | null) => void,
     defaults: () => Partial<TaskCreateDraft> = () => ({}),
 ) {
     const form = useForm<TaskCreateDraft>(emptyTaskCreateDraft());
@@ -25,7 +25,7 @@ export function useCreateTask(
         form
             .transform(({ title, status }) => ({ title, status }))
             .post(taskRoutes.store(form.project_id), {
-                onSuccess: onDone,
+                onSuccess: (page) => onDone(page.flash.created_task_id ?? null),
                 preserveScroll: true,
                 reset: ['tasks'],
             });

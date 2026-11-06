@@ -71,6 +71,14 @@ function openCreate(status: TaskStatus): void {
     createStatus.value = status;
     isCreateOpen.value = true;
 }
+
+function onCreated(taskId: number | null): void {
+    isCreateOpen.value = false;
+
+    const task = props.tasks.find((t) => t.id === taskId);
+
+    if (task) onEdit(task);
+}
 </script>
 
 <template>
@@ -137,7 +145,7 @@ function openCreate(status: TaskStatus): void {
             v-model:visible="isCreateOpen"
             :project-id="projectId"
             :status="createStatus"
-            @on-done="isCreateOpen = false"
+            @on-done="onCreated"
             @on-cancel="isCreateOpen = false"
         />
     </div>

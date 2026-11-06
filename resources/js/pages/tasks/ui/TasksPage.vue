@@ -77,6 +77,15 @@ function openCreate(): void {
     isCreateModalOpen.value = true;
 }
 
+// Open the freshly created task right away; it may be absent if the active filters exclude it.
+function onCreated(taskId: number | null): void {
+    isCreateModalOpen.value = false;
+
+    const task = props.tasks.data.find((t) => t.id === taskId);
+
+    if (task) openEdit(task);
+}
+
 function openEdit(task: TaskProp): void {
     selectedTaskId.value = task.id;
     isEditModalOpen.value = true;
@@ -155,10 +164,7 @@ function openDelete(task: TaskProp): void {
             <TaskCreateFormModal
                 v-model:visible="isCreateModalOpen"
                 :project-id="project.id"
-                @on-done="() => {
-                    selectedTaskId = null;
-                    isCreateModalOpen = false;
-                }"
+                @on-done="onCreated"
                 @on-cancel="() => {
                     selectedTaskId = null;
                     isCreateModalOpen = false;

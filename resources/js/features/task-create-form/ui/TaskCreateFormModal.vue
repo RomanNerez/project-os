@@ -15,14 +15,17 @@ const props = defineProps<{
     status?: TaskStatus | null;
 }>();
 
-const emit = defineEmits(['onDone', 'onCancel']);
+const emit = defineEmits<{
+    onDone: [taskId: number | null];
+    onCancel: [];
+}>();
 
 const visible = defineModel<boolean>('visible', { required: true });
 
 const { form, submit, reset } = useCreateTask(
-    () => {
-        emit('onDone');
-        reset()
+    (taskId) => {
+        emit('onDone', taskId);
+        reset();
     },
     () => ({
         ...(props.projectId ? { project_id: props.projectId } : {}),
